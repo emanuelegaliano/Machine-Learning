@@ -1,71 +1,70 @@
-\chapter{Capitolo 1}
+\chapter{Introduzione al Machine Learning}
 
 \section{Definizione di Machine Learning (Arthur Samuel - 1959)}
 
-Il machine learning è un campo di studi che permette ai computer di imparare senza essere esplicitamente programmati.
 
-A differenza degli algoritmi creati finora, un algoritmo di machine learning può imparare come risolvere uno specifico problema di un set di dati. Questo permette di spostare il nostro focus non più a sviluppare tutti gli step necessari affinchè un algoritmo risolvi il problema, ma creare un algoritmo che riesca ad imparare come risolverlo.
+Nel 1959, Arthur Samuel fornisce una \textbf{definizione di machine learning}: il machine learning è il campo di studi che abilita i computer ad \textbf{imparare}, \textbf{senza essere esplicitamente programmati}.
+
+Il paradigma alla base è fortemente diverso da quello tipico: se un algoritmo classico è \textbf{programmato ad hoc }per risolvere un task, e si comporta in maniera prettamente \textbf{deterministica}, un algoritmo di machine learning può \textbf{imparare a risolvere problemi} associati a vasti set di dati (classificare elementi, riconoscerli, trovare correlazioni). Questo permette di spostare il nostro focus non più sullo sviluppo di tutti gli step necessari affinchè un algoritmo risolvi \textbf{un problema specifico}, ma sulla creazione di un modello che riesca ad apprendere come risolvere \textbf{un insieme di problemi simili}.
 
 \section{Perchè abbiamo bisogno del Machine Learning}
 
 L'approccio utilizzato finora per risolvere i problemi è quello di:
 
 \begin{itemize}
-\item Trovare una logica per risolvere il problema
-\item Scrivere un programma
-\item Suddividerlo in pezzi più piccoli (funzioni)
-\item Automatizzare l'approccio
+\item Trovare una logica per risolvere il problema.
+\item Scrivere un programma.
+\item Suddividerlo in pezzi più piccoli (funzioni).
+\item Automatizzare l'approccio.
 \end{itemize}
 
-Questo funziona per problemi che sappiamo come risolvere ad esempio:
+Questo funziona per problemi di natura fortemente univoca, che sappiamo come risolvere, ad esempio:
 
 \begin{itemize}
-    \item Computare l'area di un poligono
-    \item Risolvere equazioni differenziali
+    \item Computare l'area di un poligono.
+    \item Risolvere equazioni differenziali.
 \end{itemize}
 
-\noindent
-Nel caso del poligono, supponendo di voler calcolare l'area di un rombo i dati presi in input sono dati dalla coppia $(x_1,x_2)$ che rappresentano rispettivamente la diagonale principale e secondaria.
-Questi dati verranno passati ad un algoritmo che si occuperà di calcolarne l'area $\frac{x1*x2}{2}$ e generarne un output
+Nel caso del poligono, supponendo di voler calcolare l'area di un rombo i dati presi in input sarebbero dati dalla coppia $(x_1,x_2)$, contenente le lunghezze della diagonale principale e secondaria.
+Questi dati,passati ad un algoritmo, permettono di calcolarne l'area $\frac{x1*x2}{2}$ e generarne un output
 
-\[
-\text{input} -> \text{algoritmo} -> \text{output}
-\]
+$$
+\text{Dati} \to \text{Programma che risolve un task} \to \text{Output}
+$$
 
-Alcuni problemi tuttavia hanno un alto grado di \textbf{incertezza} che rende il problema più difficile da affrontare dovuto al fatto che non siamo in grado di fare assunzioni sui dati che vorremmo vedere e non sempre sappiamo come risolvere determinati task. Come per esempio:
+Alcuni problemi tuttavia presentano un alto grado di \textbf{incertezza}, che li rende più difficili da affrontare. Non poter fare assunzioni sui dati in input, e non conoscere tutti i possibili task, rende impossibile l'utilizzo di algoritmi standard per compiti del tipo:
 
 \begin{itemize}
-\item Distinguere email spam e non spam
-\item Classificare un'immagine per determinare quale oggetto rappresenta
+\item Classificazione di email spam e non spam
+\item Object detection
 \end{itemize}
+
+Il machine learning rappresenta la soluzione ideale a problemi di questo tipo, proponendo una nuova pipeline:
+
+$$
+\text{Dati + Output Atteso} \to \text{Machine Learning} \to \text{Soluzioni su nuovi dati}
+$$
 
 \section{Esempio delle email spam e non-spam}
 
-Vogliamo creare un algoritmo di machine learning in grado di determinare se una mail data è spam o meno, la classificheremo quindi come \textbf{spam} altrimenti come \textbf{ham}.
-
-\begin{description}
-    \item[Spam:] Email non desiderata, spesso di natura pubblicitaria, inviata in massa a più destinatari.
-    \item[Ham:] Email legittima, non spam.
-\end{description}
-
-\paragraph{Esempi:}
+Vogliamo creare un algoritmo di machine learning in grado di determinare se una mail è spam o meno. Il nostro obiettivo è quindi classificare ciascuna di queste come \textbf{spam}, o \textbf{ham}\footnote{Email legittima, non spam.}.
 
 \begin{itemize}
-    \item Compra prodotto a 10\$! Oferta imperdibile! $\rightarrow$ Spam
-    \item Ciao Giovanni, come stai? $\rightarrow$ Ham
+    \item \verb|Compra prodotto a 10$! Oferta imperdibile! |$\rightarrow$ Spam
+    \item \verb|Ciao Giovanni, come stai?| $\rightarrow$ Ham
 \end{itemize}
 
 \section{Machine Learning Algorithm (Tom Mitchel - 1998)}
 
-Un algoritmo si dice che apprende dall'\textbf{esperienza E} rispetto a una certa classe di \textbf{Task T} e a una misura di \textbf{performance P}, se la sua \textbf{performance} nel compito \textbf{T}, misurata tramite \textbf{P}, migliora con l’\textbf{esperienza E}.
+Un algoritmo \textbf{apprende dall'esperienza} $E$ rispetto a una certa classe di \textbf{Task} $T$ e a una misura di \textbf{performance} $P$. Se la sua \textbf{performance} nel compito $T$, misurata tramite $P$, migliora con l’\textbf{esperienza }$E$, allora quel modello ha appreso con successo.
 
 \section{Definizione di Task}
 
-Rappresenta il problema che deve essere risolto. nell'esempio di determinare se una mail è spam o meno è quello di \textbf{predire} l'etichetta (Y="spam" oppure Y="ham") ed è strettamente legata al modello, funzione parametrizzata, che indichiamo con \textbf{h}.
+Rappresenta il problema che deve essere risolto. Nell'esempio di determinare se una mail è spam o meno, il task è quello di \textbf{predire} l'etichetta ($Y=$"spam" oppure $Y=$"ham"), ed è strettamente legata al modello, che rappresentiamo come funzione parametrizzata, indicata con $h_\theta$.
 
 \section{Definizione di Esperienza}
 
-Rappresentano i dati, ovvero i valori assunti dalle \textbf{random variables}, nell'esempio X è il contenuto della mail ed Y l'etichetta. La coppia di valori:
+Rappresentano i dati, ovvero i valori assunti dalle \textbf{random variables}, nell'esempio $X$ è il contenuto della mail ed $Y$ l'etichetta. La coppia di valori:
 
 $$
   {\{(X=x_i, Y=y_i)\}}_{i=1}^N
@@ -76,17 +75,17 @@ Rappresenta l'esperienza. Generalmente vista come una collezione di elementi chi
 
 \section{Definizione di Performance}
 
-Funzione che valuta quanto bene il computer è in grado di risolvere un certo task T.
+Funzione $P$ che \textbf{valuta quanto bene } il modello è in grado di \textbf{risolvere un certo task} $T$.
 Supponiamo che il nostro algoritmo abbia previsto un insieme di etichette per un dato numero di email che indichiamo con:
 
 $$ \{\hat{y_i}\} $$
 
-\noindent
+
 Dove il simbolo 'hat' indica che il dato non è stato osservato ma \textbf{previsto}. L'insieme delle etichette corrette è invece dato da
 
 $$ \{{y_i}\} $$
 
-\noindent
+
 Per valutare la qualità del nostro metodo, dovremmo confrontare i due insiemi di previsioni utilizzando una \textbf{misura di performance:}
 
 $$ P(\{{y_i}\},\{\hat{y_i}\} ) $$
@@ -129,26 +128,28 @@ $$ h(x^{(2)}) = \hat{y}^{(2)} $$
 
 Un esempio è generalmente espresso come una raccolta di valori che sono stati misurati quantitativamente da un evento osservato. Un esempio è generato da un vettore:
 
-$$ x \in \mathbb{R}^{N} $$
+$$ x \in \mathbb{R}^{d} $$
 
 \noindent
 Scritto anche come:
 
-$$ x = (x_1, x_2, ..., x_n)$$
+$$ x = (x_1, x_2, ..., x_d)$$
 
-I valori del vettore x sono detti \textbf{features} in quanto rappresentano le proprietà specifiche degli esempi in input. Se la dimensionalità di x è 10, diremo che ha 10 features Nella maggior parte dei casi, ogni esempio x è anche abbinato a un output desiderato y. Tali output desiderati sono anche chiamati etichette. Un'attività può quindi essere definita come un certo modo di elaborare un esempio di input per ottenere un output.
+I valori del vettore $x$ sono detti \textbf{features}, in quanto rappresentano \textbf{proprietà specifiche} degli esempi in input. Se la dimensionalità di $x$ è 10, diremo che ha 10 features Nella maggior parte dei casi, ogni esempio $x$ è anche abbinato a un output desiderato $y$. Tali output desiderati, sono anche chiamati \textbf{etichette}. Un'attività può quindi essere definita come un certo modo di elaborare un esempio di input per ottenere un output.
 
-Nell'esempio: Determinare se un'e-mail è spam o ham. In questo caso, l'input è l'email, le features possono essere caratteristiche dell'email come il numero di errori ortografici o la presenza di alcune parole chiave, mentre l'output atteso è l'etichetta (spam o ham).
+Torniamo al nostro esempio: determinare se un'e-mail è spam o ham. In questo caso, l'input è l'email, le features possono essere caratteristiche dell'email, come il numero di errori ortografici o la presenza di alcune parole chiave, mentre l'output atteso è l'etichetta (spam o ham).
 
 \section{Estrazione delle features}
 
-Per gestire le email, dobbiamo prima trasformarle in un'entità quantificabile. Questo di solito viene fatto identificando alcune caratteristiche dei dati che sono importanti per il compito dato (numero di errori ortografici o la presenza di alcune parole chiave). In pratica, stiamo cercando una funzione f che trasformi l'"entità" dalla sua forma originale a una forma di destinazione, che è buona per risolvere un compito specifico:
+Per gestire le email, dobbiamo prima trasformarle in un'\textbf{entità quantificabile}. Questo di solito viene fatto \textbf{identificando alcune caratteristiche} dei dati che sono \textbf{rilevanti per il compito dato} (numero di errori ortografici o la presenza di alcune parole chiave). In pratica, stiamo cercando una funzione $f$ che trasformi l'entità dalla sua forma originale a una forma di destinazione, che è buona per risolvere un compito specifico:
 
-$$f(d) = x$$
+$$
+x \rightsquigarrow f(x) \rightsquigarrow \overline{x}
+$$
 
-Dove d è il dato grezzo di input (ad esempio, il messaggio di posta elettronica completo), f è la funzione di trasformazione e x è l'output della trasformazione, che sarà l'input dell'algoritmo di apprendimento automatico.
+Dove $x$ è il dato grezzo di input (ad esempio, il messaggio di posta elettronica completo), $f$ è la funzione di trasformazione e $\overline{x}$\footnote{Su questa notazione: da ora in poi, quando ci riferiremo all'output della trasformazione, non useremo più $\overline{x}$, ma direttamente $x$, dando per scontato il passaggio di rappresentazione $f(x)$.} è l'output della trasformazione, che sarà l'input dell'algoritmo di apprendimento automatico.
 
-La funzione f è chiamata \emph{rappresentazione}. L'output della trasformazione x è anche chiamato rappresentazione.
+La funzione $f$ è chiamata \emph{rappresentazione}. L'output della trasformazione $x$ è anche chiamato rappresentazione.
 Poiché rappresentando i dati otteniamo un vettore di funzionalità, il processo di rappresentazione dei dati è talvolta chiamato \textbf{features extraction}. Non ci sono «rappresentazioni universali», ma solo rappresentazioni che servono a qualche compito.
 
 \noindent
@@ -160,17 +161,19 @@ Le rappresentazioni sono di 2 tipi:
 \end{itemize}
 
 \noindent
-L'estrazione delle features mette in luce caratteristiche salienti trascurandone altre.
+L'estrazione delle features \textbf{mette in luce caratteristiche salienti} trascurandone altre.
 
 \section{Features}
 
-L'output di una funzione di rappresentazione è quindi in generale un esempio
+Generalmente, l'output di una funzione di rappresentazione è nella forma:
 
-$$ x = (x_1, x_2, ..., x_n)$$
+$$
+x = (x_1, x_2, \dots, x_d), \quad x \in \mathbb{R}^d
+$$
 
 \noindent
-composto da un insieme di features . \textbf{Una feature è la specifica di un attributo.}
-Si tratta di una misura che rappresenta aspetti dei dati che è utile evidenziare per risolvere il problema considerato. Ad esempio, il colore può essere un attributo. "Il colore è blu" è una funzionalità estratta da un esempio.
+Questo, è composto da un insieme di features . \textbf{Una feature è la specifica di un attributo}.
+Si tratta di una misura che rappresenta \textbf{aspetti dei dati }che è utile \textbf{evidenziare per risolvere il problema considerato}. Ad esempio, il colore può essere un attributo. "Il colore è blu" è una funzionalità estratta da un esempio.
 
 \noindent
 Le caratteristiche possono essere di due tipi principali:
@@ -178,10 +181,10 @@ Le caratteristiche possono essere di due tipi principali:
 \begin{description}
     \item[Categoriche:] un numero finito di valori discreti. Questi possono essere:
     \begin{itemize}
-        \item \textbf{Nominali:} a indicare che non esiste alcun ordinamento tra i valori, ad esempio cognomi e colori.
-        \item \textbf{Ordinali:} a indicare che esiste un ordinamento, ad esempio in un attributo che assume i valori basso, medio o alto.
+        \item \textbf{Nominali:} a indicare che non esiste \textbf{alcun ordinamento} tra i valori, ad esempio cognomi e colori.
+        \item \textbf{Ordinali:} a indicare che esiste un \textbf{ordinamento rilevante}, ad esempio in un attributo che assume i valori basso, medio o alto.
     \end{itemize}
-    \item[Continue:] comunemente, sottoinsieme di numeri reali, dove c'è una differenza misurabile tra i valori possibili. I numeri interi sono solitamente trattati come continui nei problemi pratici.
+    \item[Continue:] comunemente, \textbf{sottoinsieme di numeri reali}, dove c'è una differenza misurabile tra i valori possibili. I numeri interi sono solitamente trattati come continui nei problemi pratici.
 \end{description}
 
 \section{Esempio delle Email Spam e Non Spam}
