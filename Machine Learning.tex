@@ -1,0 +1,83 @@
+\documentclass[a4paper,11pt]{book}
+
+% ===== Pacchetti essenziali =====
+\usepackage[utf8]{inputenc}     % codifica sorgente (se usi pdfLaTeX)
+\usepackage[T1]{fontenc}        % output font con accenti corretti
+\usepackage[italian]{babel}     % sillabazione e testi automatici in italiano
+\usepackage{lmodern}            % font Latin Modern
+\usepackage{microtype}          % migliore giustificazione del testo
+
+% ===== Matematica =====
+\usepackage{amsmath,amssymb,amsthm}
+\numberwithin{equation}{chapter}
+
+% ===== Impaginazione =====
+\usepackage{geometry}
+% Margini comodi per tablet/stampa: non stretti, ma senza sprecare spazio
+\geometry{a4paper, top=30mm, bottom=32mm, left=30mm, right=30mm}                                        
+
+\usepackage{setspace}
+% Interlinea: ben leggibile ma con buona densità di contenuto
+\setstretch{1.15}
+
+% Evita vedove/orfani (migliora la lettura su pagina singola)
+\clubpenalty=10000
+\widowpenalty=10000
+
+% Profondità di numerazione / indice (come nello screenshot: 1.1.1)
+\setcounter{secnumdepth}{3} % numerazione fino a \subsubsection
+\setcounter{tocdepth}{2}    % TOC fino a \subsection (metti 3 se vuoi anche le subsubsection)
+
+% ===== Intestazioni e piè di pagina =====
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % pulisci
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[LO]{\nouppercase{\rightmark}}
+\fancyhead[RE]{\nouppercase{\leftmark}}
+\setlength{\headheight}{15pt}
+\addtolength{\topmargin}{-2pt}
+
+% ===== Tabelle, grafica,    link =====
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+
+% ===== Liste: leggibili, non compattate eccessivamente =====
+\usepackage{enumitem}
+% itemize / enumerate: spazi moderati per mantenere i dettagli visivi
+\setlist[itemize]{topsep=4pt, partopsep=0pt, itemsep=3pt, parsep=2pt}
+\setlist[enumerate]{topsep=4pt, partopsep=0pt, itemsep=3pt, parsep=2pt}
+% description: rientro e allineamento gradevole; etichetta in grassetto
+\setlist[description]{font=\normalfont\bfseries, labelsep=0.6em, leftmargin=2em}
+
+% (Facoltativo) Se vuoi che gli elenchi siano più “a colonna” in certi punti:
+% \begin{description}[widest=Etichetta-più-lunga,leftmargin=!,labelsep=0.6em]
+%   \item[Etichetta] Testo...
+% \end{description}
+
+% ===== Metadati =====
+\title{\Huge \bfseries Machine Learning}
+\author{\Large Emanuele Galiano \\
+\Large Damiano Trovato}
+\date{Anno Accademico 2025/2026}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+\include{capitolo1}
+
+\backmatter
+% (eventuali appendici)
+% \appendix
+% \include{appendici}
+
+% (eventuale bibliografia)
+% \bibliographystyle{plain}
+% \bibliography{bibliografia}
+
+\end{document}
