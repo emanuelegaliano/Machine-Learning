@@ -7,6 +7,22 @@
 \usepackage{lmodern}            % font Latin Modern
 \usepackage{microtype}          % migliore giustificazione del testo
 
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.9]{beramono} % facoltativo: font monospace più leggibile
+\lstdefinestyle{py}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  numbers=left,
+  numbersep=8pt,
+  frame=single,
+  framerule=0.4pt,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false,
+  captionpos=b
+}
+
 % ===== Matematica =====
 \usepackage{amsmath,amssymb,amsthm}
 \numberwithin{equation}{chapter}

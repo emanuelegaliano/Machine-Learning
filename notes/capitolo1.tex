@@ -379,6 +379,7 @@ Esistono due principali tipi di algoritmi di Machine Learning:
 \item Unsupervised approaches (quando non abbiamo paired labels, come nel \textbf{clustering}).
 \end{itemize}
 
+\noindent
 L'\textbf{experience} assume forme diverse a seconda del tipo di approccio di Machine Learning utilizzato.
 
 \section{Dataset (D)}
@@ -394,10 +395,10 @@ Le performance measures vengono generalmente calcolate rispetto a un insieme di 
 
 Un modo comune per rappresentare un dataset è utilizzare una design matrix. Poiché ogni esempio è una collezione di \textbf{n} features, un dataset di \textbf{m} elementi può essere rappresentato tramite una matrice
 
-$$ \mathbf{X} \in \mathbb{R}^{m \times n} $$
+$$ \mathbf{X} \in \mathbb{R}^{m \times n}, \ m, n \in \mathbb{N}$$
 
 \noindent
-con dimensione m x n.
+di dimensione $m \times n$.
 
 \begin{itemize}
     \item Ogni riga della design matrix rappresenta un esempio.
@@ -407,7 +408,7 @@ con dimensione m x n.
 \noindent
 Nel caso del supervised learning, si considera spesso anche un'altra matrice
 
-$$ \mathbf{Y} \in \mathbb{A}^{m \times k} $$
+$$ \mathbf{Y} \in \mathbb{A}^{m \times k}, k \in \mathbb{N}$$
 
 \noindent
 dove \( k \) è la dimensionalità degli output desiderati.
@@ -445,11 +446,7 @@ $$ \mathbf{X} \in \mathbb{R}^{1000 \times 2} $$
 Le labels sono contenute in un vettore
 
 $$ \mathbf{Y} \in \{0,1\}^{1000} $$
-dove:
-
-\begin{itemize}
-\item $ Y_i $ rappresenta la label associata all’\textbf{i-esimo esempio} (ad esempio, 0 = not spam, \textbf{1 = spam}).
-\end{itemize}
+dove $ Y_i $ rappresenta la label associata all’\textbf{i-esimo esempio} (ad esempio, 0 = not spam, \textbf{1 = spam}).
 
 \section{Learning}
 
@@ -470,13 +467,14 @@ Consideriamo un semplice spam detector che classifica le email come spam o non-s
 \noindent
 L'algoritmo può essere scritto come segue:
 
-\begin{verbatim}
+\newpage
+\begin{lstlisting}[style=py,caption={Soglia sul numero di errori ortografici},label={lst:spam-threshold}]
 def classify(x):
     if x > A:
         return 1  # Spam
     else:
         return 0  # Non-spam
-\end{verbatim}
+\end{lstlisting}
 
 \noindent
 L'algoritmo dipende da un singolo parametro A. La domanda è: quale valore dovremmo assegnare a A? La \emph{training procedure} permette di trovare un valore adatto per A.
