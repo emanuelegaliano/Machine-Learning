@@ -45,7 +45,7 @@ $$
 \text{Dati + Output Atteso} \to \text{Machine Learning} \to \text{Soluzioni su nuovi dati}
 $$
 
-\section{Esempio delle email spam e non-spam}
+\subsection{Esempio delle email spam e non-spam}
 
 Vogliamo creare un algoritmo di machine learning in grado di determinare se una mail è spam o meno. Il nostro obiettivo è quindi classificare ciascuna di queste come \textbf{spam}, o \textbf{ham}\footnote{Email legittima, non spam.}.
 
@@ -111,18 +111,18 @@ Siano:
 
 \item $y^{(1)}$: L'etichetta \textbf{spam}
 \item $y^{(2)}$: L'etichetta \textbf{ham}
-\item h: Il modello
+\item $h_\theta$: Il modello
 \end{itemize}
 
 \noindent
 Allora
 
-$$ h(x^{(1)}) = \hat{y}^{(1)} $$
+$$ h_\theta(x^{(1)}) = \hat{y}^{(1)} $$
 
 \noindent
 e
 
-$$ h(x^{(2)}) = \hat{y}^{(2)} $$
+$$ h_\theta(x^{(2)}) = \hat{y}^{(2)} $$
 
 \section{Task, Esempi ed Etichette}
 
@@ -197,14 +197,14 @@ $$ x = (x_1, x_2, ..., x_n)$$
 \noindent
 con un processo di \emph{features extraction}.
 
-Naturalmente, ci aspettiamo che le funzionalità estratte siano utili per risolvere il nostro compito di determinare se un'e-mail è spam o ham. Possiamo notare che le e-mail di spam spesso includono errori ortografici e parole come "Acquista", "occasione" e "10\$". Quindi, potremmo decidere di rappresentare ogni messaggio di posta elettronica con due numeri:
+Naturalmente, ci aspettiamo che le funzionalità estratte siano\textbf{ utili per risolvere il nostro compito} di determinare se un'e-mail è spam o ham. Possiamo notare che le e-mail di spam spesso includono errori ortografici e parole come "Acquista", "occasione" e "10\$". Quindi, potremmo decidere di rappresentare ogni messaggio di posta elettronica con due numeri:
 
 \begin{itemize}
     \item Il conteggio degli errori ortografici.
     \item Il numero di volte in cui alcune parole o pattern specifici appaiono nel testo.
 \end{itemize}
 
-Una volta che i messaggi di input sono stati convertiti in vettori di funzionalità, possono essere visti come vettori nello spazio 2D.
+Una volta che i messaggi di input sono stati convertiti in \textbf{vettori di funzionalità}, possono essere visti come \textbf{vettori nello spazio} $\mathbb{R}^2$.
 
 \begin{figure}[htbp]
     \centering
@@ -218,15 +218,15 @@ Una volta che i messaggi di input sono stati convertiti in vettori di funzionali
 Le attività possono essere di diversi tipi. Di seguito, discuteremo due compiti principali:
 
 \begin{itemize}
-\item Classificazione
-\item Regressione
+\item \textbf{Classificazione}
+\item \textbf{Regressione}
 \end{itemize}
 
 Assumeremo che ogni algoritmo di apprendimento automatico prenda come input esempi che sono già stati rappresentati con una funzione di rappresentazione adeguata.
 
-\section{Classificazione}
+\subsection{Classificazione}
 
-In questo tipo di attività, alla macchina viene chiesto di specificare a quale di un insieme predefinito di categorie K appartiene l'input.
+In questo tipo di attività, alla macchina viene chiesto di specificare a quale di un insieme predefinito di categorie $K$ appartiene l'input.
 
 \noindent
 Esempi di questo compito sono:
@@ -254,12 +254,12 @@ Ad esempio, se $y^{(j)} = 3$, allora $x^{(j)} $ appartiene alla classe "3".
 
 Nel caso della classificazione binaria (ad esempio, spam vs non spam), $y^{(j)} \in \{0,1\} $. Per risolvere questo compito, l'algoritmo di apprendimento automatico assume la forma di una funzione:
 
-$$ h: \mathbb{R}^{N} \rightarrow \{1, ... ,K\} $$
+$$ h_\theta: \mathbb{R}^{N} \rightarrow \{1, ... ,K\} $$
 
 \noindent
 tale che:
 
-$$y^{(j)} = h(x^{(j)})$$
+$$y^{(j)} = h_\theta(x^{(j)})$$
 
 \noindent
 Esempio:
@@ -270,9 +270,11 @@ Esempio:
     \item \textbf{Output:} etichette $y \in \{0,1\}$ che indicano se l'e-mail è legittima o spam.
 \end{itemize}
 
-\section{Regressione}
+Alcuni algoritmi di classificazione \textbf{non prevedono un output discreto}, ma un vettore di \textbf{probabilità}, contenente la probabilità relativa a ciascuna delle etichette possibili. In questo caso, puntiamo ad avere la probabilità massima nello slot del vettore relativo all'etichetta vera. 
 
-In questo tipo di compito, al programma del computer viene chiesto di prevedere un valore numerico dato un input, tipo:
+\subsection{Regressione}
+
+In questo tipo di compito, al programma del computer viene chiesto di \textbf{prevedere un valore numerico dato un input}, tipo:
 \begin{itemize}
     \item Prevedere il prezzo delle case date alcune caratteristiche come la città, l'età, la zona, ecc.
     \item Prevedere il valore futuro delle azioni di una società dai valori di altre società o da altre statistiche sul mercato (previsione del mercato azionario).
@@ -280,47 +282,55 @@ In questo tipo di compito, al programma del computer viene chiesto di prevedere 
 \end{itemize}
 
 \noindent
-Analogamente alla classificazione, l'algoritmo viene fornito con esempi di training $x \in \mathbb{R}^{N}$ e con gli output desiderati $y \in \mathbb{R}$. L'algoritmo di apprendimento automatico assume la forma di una funzione $ h: \mathbb{R}^{N} \rightarrow \mathbb{R}$ tale che $y^{(j)} = h(x^{(j)})$.
+Analogamente alla classificazione, l'algoritmo viene fornito con esempi di training $x \in \mathbb{R}^{N}$ e con gli output desiderati $y \in \mathbb{R}$. L'algoritmo di apprendimento automatico assume la forma di una funzione $ h_\theta: \mathbb{R}^{N} \rightarrow \mathbb{R}$ tale che $y^{(j)} = h_\theta(x^{(j)})$.
 
 \noindent
 Esempio:
 
 \begin{itemize}
     \item \textbf{Regression task:} Predire il prezzo di una casa in base ai suoi metri quadrati.
-    \item \textbf{Input:} Dimensione della casa x (valore scalare)
-    \item \textbf{Output:} Prezzo y.
+    \item \textbf{Input:} Dimensione della casa $x$ (valore scalare)
+    \item \textbf{Output:} Prezzo $y$.
 \end{itemize}
 
-\begin{figure}
+\noindent
+Sono algoritmi ottimi per trovare relazioni tra i dati ed effettuare predizioni.
+
+\begin{figure}[htp]
     \centering
     \includegraphics[width=\textwidth]{images/regression.png}
     \caption{Relazione tra dimensione dell’immobile $(x_11^{(i)}$, in mq) e prezzo $(y^{(i)}$, in migliaia di \$): i punti rossi sono i dati osservati, la linea blu rappresenta un modello di regressione lineare che non approssima bene l’andamento non lineare.}
     \label{fig:regressione}
 \end{figure}
 
+\newpage
 \section{Supervised Learning e Unsupervised Learning}
 
-Gli approcci di Machine Learning possono essere approssimativamente divisi in supervised e unsupervised learning.
+Gli approcci di Machine Learning possono essere approssimativamente divisi in \textbf{supervised} e \textbf{unsupervised learning}.
 
-\paragraph{Supervised Learning:} L'algoritmo viene addestrato su un insieme di esempi di input e output desiderati. L'obiettivo è imparare una funzione che mappi gli input agli output corretti.
+\paragraph{Supervised Learning:} L'algoritmo viene addestrato su un insieme di esempi di input e \textbf{output desiderati}. L'obiettivo è allenare un modello a mappare gli input agli output corretti. Il punto chiave qui è il conoscere gli output desiderati: i dati del nostro dataset dovranno quindi essere preventivamente \textbf{etichettati}.
 
-\paragraph{Unsupervised Learning:} L'algoritmo viene addestrato solo su esempi di input, senza output desiderati. L'obiettivo è scoprire la struttura o i pattern nei dati.
+\paragraph{Unsupervised Learning:} L'algoritmo viene addestrato solo su esempi di input, senza output desiderati. L'obiettivo è trovate struttura, pattern e associazioni nei dati, spesso molto eterogenei.
 
-$$ \{x^{(1)}, x^{(2)}, ..., x^{(n)}\} \text{ dove: } x^{(j)} \in \mathbb{R}^{N} \forall j$$
+$$ 
+\{x^{(1)}, x^{(2)}, ..., x^{(n)}\} \qquad \text{ dove: } x^{(j)} \in \mathbb{R}^{N} \forall j
+$$
 
-Questi tipi di compiti mirano generalmente a modellare la struttura dei dati. Un esempio di unsupervised learning è il clustering, in cui non viene fornita alcuna informazione aggiuntiva oltre agli esempi.
+Questi tipi di compiti mirano generalmente a \textbf{modellare la struttura dei dati}. Un esempio di unsupervised learning è il \textbf{clustering}, in cui non viene fornita alcuna informazione aggiuntiva oltre agli esempi.
 
-Gli approcci supervised sono generalmente più facili da gestire, ma richiedono la presenza di labels. Ottenere labels è spesso un problema costoso in termini di tempo, poiché richiede che le persone annotino manualmente i dati. Ad esempio, se dobbiamo costruire un spam-detector utilizzando un approccio supervised, è necessario che qualcuno etichetti manualmente diverse email come ‘spam’ o ‘non-spam’.
+Gli approcci supervised sono generalmente più facili da gestire, ma richiedono la presenza di \textbf{labels}. Ottenere labels è spesso un problema costoso in termini di tempo, poiché richiede che le persone annotino manualmente i dati. Ad esempio, se dobbiamo costruire un spam-detector utilizzando un approccio supervised, è necessario che qualcuno etichetti manualmente diverse email come ‘spam’ o ‘non-spam’.
+
+\newpage
 
 \section{Reinforcement Learning}
 
-Alcuni autori fanno riferimento anche a una terza classe di algoritmi di Machine Learning: il Reinforcement Learning.
+Alcuni autori fanno riferimento anche a una terza classe di algoritmi di Machine Learning: il \textbf{Reinforcement Learning}.
 
-Il Reinforcement Learning mira a scoprire la soluzione a un problema attraverso il metodo trial and error, piuttosto che tramite istruzioni esplicite su come risolvere il compito. Questo avviene permettendo all'algoritmo di interagire con un environment e ricevere positive rewards quando compie azioni che portano a un buon risultato (rispetto al problema da risolvere) e negative rewards quando compie azioni che portano a un risultato negativo.
+Il Reinforcement Learning mira a \textbf{scoprire la soluzione a un problema} attraverso il metodo \emph{trial and error}, piuttosto che tramite istruzioni esplicite su come risolvere il compito. Questo avviene permettendo all'algoritmo di \textbf{interagire con un environment} e ricevere \textbf{positive rewards} quando compie azioni che portano a un buon risultato (rispetto al problema da risolvere) e \textbf{negative rewards} quando compie azioni che portano a un risultato negativo.
 
-L'obiettivo degli algoritmi di Reinforcement Learning è apprendere una policy $\pi$, che possa essere utilizzata per determinare quale azione a intraprendere quando si acquisisce un'osservazione del mondo o. Questo processo ricorda il modo naturale in cui gli animali imparano a risolvere problemi. Ad esempio, si può pensare a un topo che deve trovare l'uscita da un labirinto (immagine \ref{fig:reinforcementLearning}).
+L'obiettivo degli algoritmi di Reinforcement Learning è apprendere una policy $\pi$, che possa essere utilizzata per \textbf{determinare quale azione a intraprendere} quando si acquisisce un'\textbf{osservazione} del mondo $o$. Questo processo \textbf{ricorda il modo naturale in cui gli animali imparano a risolvere problemi}. Ad esempio, si può pensare a un topo che deve trovare l'uscita da un labirinto (immagine \ref{fig:reinforcementLearning}).
 
-\begin{figure}
+\begin{figure}[htp]
     \centering
     \includegraphics[width=\textwidth]{images/reinforcementLearning.png}
     \caption{Reinforcement Learning nel labirinto: l’agente sceglie tra azioni U/D/L/R e apprende una policy \(\pi(o)=a\) che massimizza la ricompensa, raggiungendo il formaggio (positiva) ed evitando il gatto (negativa).}
@@ -329,7 +339,7 @@ L'obiettivo degli algoritmi di Reinforcement Learning è apprendere una policy $
 
 \section{Misura di Performance (P)}
 
-Per valutare le capacità di un algoritmo di Machine Learning nel risolvere un determinato compito, è necessaria una misura quantitativa delle sue prestazioni. Solitamente, questa performance measure \( P \) è specifica per il task \( T \) che il sistema sta eseguendo.
+Per valutare le capacità di un algoritmo di Machine Learning nel risolvere un determinato compito, è necessaria una misura quantitativa delle sue prestazioni. Solitamente, questa \textbf{performance measure} \( P \) è \textbf{specifica per il task} \( T \) che il sistema sta eseguendo.
 
 Per compiti come la classification, spesso si misura la performance utilizzando l'\textbf{accuracy}, ovvero la percentuale di esempi classificati correttamente dal modello. Nel caso della regression, invece, si possono usare altre metriche come il mean squared error.
 
@@ -360,7 +370,7 @@ Un algoritmo di Machine Learning apprende dall'\textbf{experience} per migliorar
 L'\textbf{experience} è costituita da una raccolta di esempi
 
 \[
- \mathbf{x}^{(i)}
+ x^{(i)}
 \]
 
 \noindent
@@ -393,9 +403,11 @@ Le performance measures vengono generalmente calcolate rispetto a un insieme di 
 
 \section{Design Matrix}
 
-Un modo comune per rappresentare un dataset è utilizzare una design matrix. Poiché ogni esempio è una collezione di \textbf{n} features, un dataset di \textbf{m} elementi può essere rappresentato tramite una matrice
+Un modo comune per rappresentare un dataset è utilizzare una design matrix. Poiché ogni esempio è una collezione di $n$ features, un dataset di $m$ elementi può essere rappresentato tramite una matrice
 
-$$ \mathbf{X} \in \mathbb{R}^{m \times n}, \ m, n \in \mathbb{N}$$
+$$
+X \in \mathbb{R}^{m \times n}, \ m, n \in \mathbb{N}
+$$
 
 \noindent
 di dimensione $m \times n$.
@@ -408,7 +420,7 @@ di dimensione $m \times n$.
 \noindent
 Nel caso del supervised learning, si considera spesso anche un'altra matrice
 
-$$ \mathbf{Y} \in \mathbb{A}^{m \times k}, k \in \mathbb{N}$$
+$$ Y \in \mathbb{A}^{m \times k}, k \in \mathbb{N}$$
 
 \noindent
 dove \( k \) è la dimensionalità degli output desiderati.
@@ -435,22 +447,22 @@ Supponiamo di avere un dataset composto da 1000 email, alcune classificate come 
 \noindent
 La design matrix che rappresenta il dataset è una matrice
 
-$$ \mathbf{X} \in \mathbb{R}^{1000 \times 2} $$
+$$ X \in \mathbb{R}^{1000 \times 2} $$
 
 \begin{itemize}
 \item Ogni elemento della matrice rappresenta una delle features di un esempio nel dataset.
-\item Ad esempio, $ {X}_{i,1} $ indica il numero di errori ortografici nell’\textbf{i-esima email}, mentre $ {X}_{j,2} $ rappresenta il numero di occorrenze di parole chiave nell’\textbf{j-esima email}, e così via.
+\item Ad esempio, $ {X}_{i,1} $ indica il numero di \textbf{errori} ortografici nell’$i$-\textbf{esima email}, mentre $ {X}_{j,2} $ rappresenta il numero di \textbf{occorrenze} di parole chiave nell’$j$-\textbf{esima email}, e così via.
 \end{itemize}
 
 \noindent
 Le labels sono contenute in un vettore
 
 $$ \mathbf{Y} \in \{0,1\}^{1000} $$
-dove $ Y_i $ rappresenta la label associata all’\textbf{i-esimo esempio} (ad esempio, 0 = not spam, \textbf{1 = spam}).
+dove $ Y_i $ rappresenta la label associata all’$i$-\textbf{esimo esempio} (ad esempio, 0 = not spam, \textbf{1 = spam}).
 
 \section{Learning}
 
-Un algoritmo di Machine Learning utilizza un dataset di esempi per migliorare la sua performance in un determinato task. Il processo di miglioramento della performance dell'algoritmo è chiamato learning o training.
+Un algoritmo di Machine Learning \textbf{utilizza un dataset di esempi} per \textbf{migliorare la sua performance} in un determinato \textbf{task}. Il processo di miglioramento della performance dell'algoritmo è chiamato \textbf{learning} o \textbf{training}.
 
 \subsection{In cosa consiste il training?}
 
@@ -467,16 +479,16 @@ Consideriamo un semplice spam detector che classifica le email come spam o non-s
 \noindent
 L'algoritmo può essere scritto come segue:
 
-\newpage
-\begin{lstlisting}[style=py,caption={Soglia sul numero di errori ortografici},label={lst:spam-threshold}]
+
+\begin{lstlisting}[style=py,caption={Soglia sul numero di errori ortografici, chiaramente un approccio naive},label={lst:spam-threshold}]
 def classify(x):
-    if x > A:
+    if x > a:
         return 1  # Spam
     else:
         return 0  # Non-spam
 \end{lstlisting}
 
 \noindent
-L'algoritmo dipende da un singolo parametro A. La domanda è: quale valore dovremmo assegnare a A? La \emph{training procedure} permette di trovare un valore adatto per A.
+L'algoritmo dipende da un singolo parametro $a$. La domanda è: quale valore dovremmo assegnare ad $a$? La \emph{training procedure} permette di trovare un valore ottimo presumibilmente adatto per $a$.
 \noindent
-Una semplice training procedure consisterebbe nel provare diversi valori per A e registrare le performance dell'algoritmo per ciascun valore di A. Alla fine, possiamo scegliere il valore di A che massimizza la performance measure P.
+Una semplice training procedure consisterebbe nel provare diversi valori per $a$ e registrare le performance dell'algoritmo per ciascun valore di $a$. Alla fine, possiamo scegliere il valore di $a$ che massimizza la performance measure P.
