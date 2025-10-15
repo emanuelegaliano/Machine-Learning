@@ -1,4 +1,6 @@
 out/
+!out/ 
+!out/*.pdf    
 *.aux
 *.log
 *.out
