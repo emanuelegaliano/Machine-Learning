@@ -492,3 +492,104 @@ def classify(x):
 L'algoritmo dipende da un singolo parametro $a$. La domanda è: quale valore dovremmo assegnare ad $a$? La \emph{training procedure} permette di trovare un valore ottimo presumibilmente adatto per $a$.
 \noindent
 Una semplice training procedure consisterebbe nel provare diversi valori per $a$ e registrare le performance dell'algoritmo per ciascun valore di $a$. Alla fine, possiamo scegliere il valore di $a$ che massimizza la performance measure P.
+
+\section{Il paradigma Training/Testing}
+	Ciascun algoritmo di Machine Learning presenta al suo interno dei parametri. Una scelta opportuna dei parametri, dovrebbe garantire il funzionamento del modello. La procedura generale, per la scelta e la verifica dei parametri dell'algoritmo, è suddivisa in due parti:
+
+\begin{enumerate}
+	\item \textbf{Training dell'algoritmo}.\\
+	Effettuato usando i dati dell'omonimo \textbf{training set}, consiste nella scelta dei parametri del modello, vedendo ogni volta i valori della \textit{loss function}, o funzione di costo, che offre un'indice dell'errore da parte del modello, permettendo di capire se i parametri vanno modificati, e di quanto.
+	\item \textbf{Testing dell'algoritmo - Inferenza.}\\
+	Passiamo ora ai dati di testing, usati per verificare se i parametri scelti sul dataset di training, sono opportuni su dati mai visti prima. Andremo a valutare quindi il nostro modello, secondo quelle che chiamiamo \textbf{misure di valutazione}.
+\end{enumerate}
+
+\newpage
+
+\section{Sui dati}
+
+\subsection{Testing - Training}
+Come accennato in precedenza, distinguiamo due insiemi di dati: i \textbf{dati di training} e i \textbf{dati di testing}. È importante che i dati usati in fase di training, e i dati usati in fase di inferenza, siano \textbf{totalmente disgiunti}. 
+$$
+\text{Training }\cap \text{Testing} = \varnothing
+$$
+
+Tuttavia, entrambi i set di dati appartengono in origine all'insieme $X$. La suddivisione dei dati in training e testing sarà effettuata randomicamente, in modo da evitare bias di qualsiasi tipo. Dobbiamo inoltre assicurarci che il numero di dati, per ogni etichetta, sia uguale. Prendere l'80\% di un dataset in fase di testing, con due classi (Cane, non-cane), significa prendere l'80\% di ciascuna delle due classi. L'obiettivo è \textbf{evitare favoritismi} durante la classificazione. Parleremo più avanti di tecniche che stabiliscono come effettuare la suddivisione tra training e testing, sfruttando al meglio i propri dati, come la $k$-fold cross-validation.
+
+
+\subsection{Normalizzazione}
+I nostri dati $x \in \mathbb{R}^d$ possono avere valori appartenenti a range molto ampi, con range diversi per ciascuna di queste features. Per creare spazi in cui le features hanno più o meno la stessa dimensione, si usano delle strategie di normalizzazione, come: 
+
+\begin{itemize}
+	\item Normalizzazione in $[0,1]$:\\
+	Per ogni $j$-esima feature, dobbiamo andare a stabilire il minimo e il massimo del dataset. Dato un dataset di dimensione $m$:
+	
+	$$
+	x_j^{\min } = \min\{x_j^{(i)} | i = 1, 2, \dots, m\}, \qquad 
+	x_j^{\max} = \max\{x_j^{(i)} | i = 1, 2, \dots, m\}
+	$$
+	
+	Possiamo quindi normalizzare secondo la seguente formula:
+	$$
+	\hat{x}_j = \frac{x_j - x_j^{\min}}{x_j^{\max} - x_j^{\min}}
+	$$
+	
+	Ogni dato sarà $\hat{x}_j \in [0,1]$.
+	
+	\item Normalizzazione in $[-1,1]$:\\
+	$$
+	\frac{x_j - \mu_j}{\sigma_j}
+	$$
+	
+	con $\sigma_j$ varianza. Il risultato è un centramento a $(0,0)$ dei nostri dati. L'origine coinciderà con la nostra media. Ogni dato sarà $\hat{x}_j \in [-1,1]$.
+	
+\end{itemize}
+
+Bisognerà conservare rispettivamente $x_j^{\min }, x_j^{\max }$ o $\mu_j, \sigma_j$, per permettere la normalizzazione del testing set, in quanto la normalizzazione è fatta in fase di training.
+
+\section{Iperparametri}
+Sono dei parametri che stabiliscono aspetti del nostro modello, e che non sono calcolati in fase di training.
+In fase di training, questi vengono fissati, e \textbf{non influiscono sul training}. Nonostante ciò, gli iperparametri avranno un effetto sulla nostra loss-function. Bisognerà variare gli iperparametri usando un \textbf{validation set}, un terzo set di dati sempre ottenuto dal dataset $X$.
+
+\subsection{k-fold Cross Validation}
+È una strategia che permette di ottenere ottimi risultati anche con dataset più piccoli.
+
+Dividiamo in due parti il nostro dataset $X$, ottenendo l'insieme di training e l'insieme di testing. Dividiamo nuovamente l'insieme di \textbf{training }in $k$ parti. Supporremo $k=3$. Utilizzeremo un $\frac{1}{k}$ per la validazione e le $\frac{k-1}{k}$ rimanenti come training. In questo caso, $1/3$ e $2/3$. Effettueremo tre volte training e validazione, variando ogni volta il subset usato per la validazione e quelli usati per il testing. Da ciascuno dei processi di training, emergerà un valore della loss function: sceglierò gli iperparametri associati a valori della loss function più bassi.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/cross_validation.png}
+	\caption{Procedura di cross-validation con $k=5$.}
+	\label{fig:featureExtraction}
+\end{figure}
+
+\newpage
+
+\section{Overfitting e underfitting}
+Sono tra i problemi più grandi che possono emergere con i propri algoritmi di machine learning, e riguardano spesso la \textbf{scelta del modello}. 
+
+\begin{itemize}
+	\item \textbf{Overfitting}.\\
+	Generalmente si parla di overfitting, quando il modello è così complesso da offrire performance ottime in fase di training (impara facilmente e bene), ma fortemente \textbf{peggiori in fase di testing}: il modello è così complesso da imparare troppo bene i dati su cui ha appreso, ma da pessime performance sui dati inediti. 
+	\item \textbf{Underfitting.}\\
+	Caratterizzato da \textbf{pessime performance in fase di training}, troppe poche variabili, modello troppo semplice. L'apprendimento non è tale da permettere al modello di conoscere il proprio dataset. Il modello non impara!
+\end{itemize}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/underoverfitting}
+	\caption{In blu i dati di training, in rosso quelli di testing. Nel caso dell'underfitting, vediamo una funzione troppo semplice (una funzione lineare) per approssimare una funzione più complessa. Nel caso dell'overfitting, il modello da output assurdi.}
+	\label{fig:underoverfitting}
+\end{figure}
+
+Bisogna quindi trovare lo \textit{sweetspot}, il compromesso, tra i modelli più complessi, e quelli più semplici. Il numero di parametri è un fattore da tenere sempre in considerazione. 
+
+\subsection{Bias e Variance}
+
+Osservando i risultati dei nostri modelli, sarà possibile individuare facilmente due tipologie di errori:
+\begin{itemize}
+	\item \textbf{Bias error}.\\
+	Modelli troppo semplici non si avvicinano abbastanza ai risultati attesi. Usare modelli con alto bias causa underfitting.
+	\item \textbf{Variance error}.\\
+	Modelli troppo complessi e ad alta varianza nei risultati, presentano overfitting. L'alta varianza ci fa intuire che il rumore nei nostri dati, influenza esageratamente i risultati.
+\end{itemize}
+
