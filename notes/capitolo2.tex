@@ -1,0 +1,132 @@
+\chapter{I primi modelli di Machine Learning}
+
+\section{Neurone computazionale - modello di McCulloch-Pitt}
+L'idea iniziale era quella di replicare la struttura dei neuroni:
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=\linewidth]{./images/neurone_computazionale.pdf}
+	\caption{Modello di McCulloch Pitt e due computazioni possibili: AND logico e OR logico}
+	\label{fig:neuronecomputazionale}
+\end{figure}
+
+
+\begin{itemize}
+	\item Degli input $x_1, x_2, \dots, x_d$ binari, che possono essere \textbf{eccitatori }e \textbf{inibitori}. 
+	\item Una threshold $v$, una soglia
+	\item Un output binario.
+\end{itemize}
+
+Supponiamo che $x_1, \dots, x_j$ siano eccitatori, $x_{j+1}, \dots, x_d$ sono inibitori. Se $j \geq 1$ e almeno un inibitore è $=1$, allora il neurone ritorna 0. Un inibitore è sufficiente per bloccare l'output. Altrimenti, si calcola $z = x_1 + \dots + x_j = x_1 + \dots + x_d$, ossia la somma di tutti gli input\footnote{posso considerare anche gli input degli inibitori in quanto $=0$.}. Se la somma è $\geq v$, allora l'output sarà 1, altrimenti 0.
+
+Questo modello è tale da poter computare un $AND$ ($v=n$ e $n$ input eccitatori), un $OR$ ($v=1$ e $n$ input eccitatori), ma non uno $XOR$!
+
+
+\subsection{Limitazioni del modello di McCulloch-Pitt}
+\begin{itemize}
+	\item Non esiste un modo automatico di fare training.
+	\item Gli input sono binari.
+	\item Gli input hanno tutti lo stesso peso.
+	\item Tutte le funzioni computabili sono linearmente separabili.
+\end{itemize}
+
+\section{Percettrone - Rosenblatt}
+
+Il successore del modello di McCulloch-Pitt è il \textbf{percettrone}.
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=\linewidth]{./images/percettrone.pdf}
+	\caption{Modello di Rosenblatt, noto come Percettrone}
+	\label{fig:percettrone}
+\end{figure}
+
+Questo è costituito da:
+\begin{itemize}
+	\item Features $x_1, x_2, \dots, x_d$ normalizzate.  Ciascuno di questi input ha associato un peso $\vartheta_1, \dots, \vartheta_d$.
+	\item Una threshold $\vartheta_0$, una soglia.
+	\item Un output binario.
+	\item Una \textbf{procedura di learning automatico} per stabilire i parametri (il peso di ciascun input).
+\end{itemize}
+
+Il comportamento del percettrone sarà il seguente:
+
+$$
+f(x_1, \dots, x_d) = \begin{cases}
+	1 \qquad \displaystyle\sum_{j=1} x_j v_j \geq \vartheta_0\\
+	0 \qquad \text{altrimenti}
+\end{cases}
+$$
+
+Per semplificare la computazione, verrà aggiunta una feature $x_0 = 1$ con peso $\vartheta_0$, uguale alla threshold. Questo ci aiuterà a scrivere la funzione con la seguente notazione, computabile velocemente come prodotto matriciale: 
+$$
+f([\vartheta^T \overline{x} > 0])
+$$
+
+dove $\vartheta^T$ è il vettore dei pesi. Supponiamo ora di avere 2 parametri, andremo a ottenere:
+$$
+\vartheta_0 + x_1\vartheta_1 + x_2\vartheta_2 \geq 0
+$$
+
+con dei semplici passaggi, possiamo tracciare una retta nello spazio, chiamata \textbf{decision boundary}, che dividerà lo spazio in due parti, quella per cui $f(x_1, \dots, x_d) = 1$, e quella per cui $f(x_1, \dots, x_d) = 0$
+$$
+x_2 = x_1\frac{\vartheta_1}{\vartheta_2} + \frac{\vartheta_0}{\vartheta_2}
+$$
+
+Questa retta, in un task di classificazione, suddivide lo spazio in due classi. In uno spazio 2D è una retta, in uno spazio 3D un piano. Lo spazio dovrà essere \textbf{linearmente separabile}.
+
+\subsection{Processo generale di training del percettrone}
+Descriviamo la procedura di training nel seguente modo:
+
+\begin{enumerate}
+	\item Inizializzazione casuale dei pesi $\vartheta_1, \dots, \vartheta_d \in \mathbb{R}$.
+	\item Computa $\forall x^{(i)}$ il valore di $\hat{y}^{(i)}$.
+	\item Confronta $\hat{y}^{(i)}$ con $y^{(i)}$
+	\begin{itemize}
+		\item Se  $\hat{y}^{(i)} = y^{(i)}$: non fare nulla.
+		\item Se $\hat{y}^{(i)} \neq y^{(i)}$: vanno aggiornati i pesi. Analizziamo come modificare i pesi, in funzione dei risultati.
+	\end{itemize}
+	
+	\item Aggiornamento dei pesi:
+	
+	\begin{center}
+		\begin{tabular}{|c|c|c|}
+			\hline
+			$\hat{y}^{(i)}$ & $y^{(i)}$ & Cosa fare\\
+			\hline
+			0 & 0 & ok!\\
+			0 & 1 & riduci i pesi.\\
+			1 & 0 & aumenta i pesi.\\
+			1 & 1 & ok!\\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	Questo sposterà la retta in maniera opportuna, convergendo ad un risultato opportuno per il dataset di training.
+\end{enumerate}
+
+Questa descrizione generale riflette a grandi linee il processo, tuttavia è opportuno conoscere la procedura dal punto di vista matematico, che riflette poi l'implementazione effettiva.
+
+\subsection{Implementazione del training}
+L'aggiornamento dei pesi avviene nel seguente modo:
+$$
+\underbrace{\hat{\vartheta}_j}_\text{nuovo peso}\leftarrow \vartheta_j + ( y^{(i)} -\hat{y}^{(i)})x_j
+$$
+
+Chiaramente, il percettrone non dovrà modificare i suoi pesi se $\hat{y}^{(i)} = y^{(i)}$. Questa formula lo contempla, in quanto $y^{(i)} - \hat{y}^{(i)} = 0$: il peso non verrà aggiornato. 
+Si può aggiungere un parametro $\alpha$, detto \textbf{learning rate}. Il \underline{percettrone standard non lo prevede}.
+
+$$
+\hat{\vartheta}_j \leftarrow \vartheta_j + \alpha( y^{(i)} -\hat{y}^{(i)})x_j
+$$
+
+Scelto in maniera opportuna, potrebbe migliorare l'apprendimento e la convergenza.
+
+\subsection{Versione successiva dell'algoritmo}
+
+Una versione successiva dell'algoritmo di ricalcolo dei pesi, per stabilire con maggiore precisione di quanto incrementare o decrementare i pesi, stabilisce che
+
+$$
+\hat{\vartheta}_j \leftarrow \vartheta_j + \left( y^{(i)} - \sum_{i}\vartheta_i \cdot x_i\right)x_j
+$$
+
+Osserviamo che il valore $y^{(i)} \in \{0,1\}$, $\displaystyle\sum_{i}\vartheta_i \cdot x_i \in [0,1]$, quindi $y^{(i)} - \displaystyle\sum_{i}\vartheta_i \cdot x_i \in[-1,1]$.
