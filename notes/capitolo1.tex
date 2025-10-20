@@ -517,32 +517,38 @@ Tuttavia, entrambi i set di dati appartengono in origine all'insieme $X$. La sud
 
 
 \subsection{Normalizzazione}
-I nostri dati $x \in \mathbb{R}^d$ possono avere valori appartenenti a range molto ampi, con range diversi per ciascuna di queste features. Per creare spazi in cui le features hanno più o meno la stessa dimensione, si usano delle strategie di normalizzazione, come: 
 
-\begin{itemize}
-	\item Normalizzazione in $[0,1]$:\\
-	Per ogni $j$-esima feature, dobbiamo andare a stabilire il minimo e il massimo del dataset. Dato un dataset di dimensione $m$:
-	
-	$$
-	x_j^{\min } = \min\{x_j^{(i)} | i = 1, 2, \dots, m\}, \qquad 
-	x_j^{\max} = \max\{x_j^{(i)} | i = 1, 2, \dots, m\}
-	$$
-	
-	Possiamo quindi normalizzare secondo la seguente formula:
-	$$
-	\hat{x}_j = \frac{x_j - x_j^{\min}}{x_j^{\max} - x_j^{\min}}
-	$$
-	
-	Ogni dato sarà $\hat{x}_j \in [0,1]$.
-	
-	\item Normalizzazione in $[-1,1]$:\\
-	$$
-	\frac{x_j - \mu_j}{\sigma_j}
-	$$
-	
-	con $\sigma_j$ varianza. Il risultato è un centramento a $(0,0)$ dei nostri dati. L'origine coinciderà con la nostra media. Ogni dato sarà $\hat{x}_j \in [-1,1]$.
-	
-\end{itemize}
+I nostri dati $x \in \mathbb{R}^d$ possono avere valori appartenenti a range molto ampi, con range diversi per ciascuna di queste features. Per creare spazi in cui le features hanno più o meno la stessa dimensione, si usano delle strategie di normalizzazione, come di seguito.
+
+\paragraph{Normalizzazione in $[0,1]$.}
+Per ogni $j$-esima feature, dobbiamo andare a stabilire il minimo e il massimo del dataset. Dato un dataset di dimensione $m$:
+\begin{align*}
+  x_j^{\min } &= \min\{x_j^{(i)} \mid i = 1, 2, \dots, m\},\\
+  x_j^{\max } &= \max\{x_j^{(i)} \mid i = 1, 2, \dots, m\}.
+\end{align*}
+Possiamo quindi normalizzare secondo la seguente formula:
+\[
+  \hat{x}_j = \frac{x_j - x_j^{\min}}{x_j^{\max} - x_j^{\min}},
+\]
+e ogni dato sarà $\hat{x}_j \in [0,1]$.
+
+\paragraph{Normalizzazione in $[-1,1]$.}
+\[
+  \hat{x}_j = \frac{x_j - \mu_j}{\sigma_j}
+\]
+con $\sigma_j$ varianza. Il risultato è un centramento a $(0,0)$ dei nostri dati. L'origine coinciderà con la nostra media. Ogni dato sarà $\hat{x}_j \in [-1,1]$.
+
+\subsubsection*{Quantità statistiche per la $j$-esima feature}
+Per completezza, riportiamo le definizioni delle quantità usate sopra:
+\begin{align*}
+  \text{Media:}\quad
+  \mu_j &= \frac{1}{m}\sum_{i=1}^m x_j^{(i)},\\[4pt]
+  \text{Varianza:}\quad
+  \mathrm{Var}(x_j) &= \frac{1}{m}\sum_{i=1}^m \bigl(x_j^{(i)}-\mu_j\bigr)^2,\\[4pt]
+  \text{Deviazione standard:}\quad
+  \sigma_j &= \sqrt{\frac{1}{m}\sum_{i=1}^m \bigl(x_j^{(i)}-\mu_j\bigr)^2}
+           \;=\; \sqrt{\mathrm{Var}(x_j)}.
+\end{align*}
 
 Bisognerà conservare rispettivamente $x_j^{\min }, x_j^{\max }$ o $\mu_j, \sigma_j$, per permettere la normalizzazione del testing set, in quanto la normalizzazione è fatta in fase di training.
 
@@ -551,9 +557,7 @@ Sono dei parametri che stabiliscono aspetti del nostro modello, e che non sono c
 In fase di training, questi vengono fissati, e \textbf{non influiscono sul training}. Nonostante ciò, gli iperparametri avranno un effetto sulla nostra loss-function. Bisognerà variare gli iperparametri usando un \textbf{validation set}, un terzo set di dati sempre ottenuto dal dataset $X$.
 
 \subsection{k-fold Cross Validation}
-È una strategia che permette di ottenere ottimi risultati anche con dataset più piccoli.
-
-Dividiamo in due parti il nostro dataset $X$, ottenendo l'insieme di training e l'insieme di testing. Dividiamo nuovamente l'insieme di \textbf{training }in $k$ parti. Supporremo $k=3$. Utilizzeremo un $\frac{1}{k}$ per la validazione e le $\frac{k-1}{k}$ rimanenti come training. In questo caso, $1/3$ e $2/3$. Effettueremo tre volte training e validazione, variando ogni volta il subset usato per la validazione e quelli usati per il testing. Da ciascuno dei processi di training, emergerà un valore della loss function: sceglierò gli iperparametri associati a valori della loss function più bassi.
+È una strategia che permette di ottenere ottimi risultati anche con dataset più piccoli. Dividiamo in due parti il nostro dataset $X$, ottenendo l'insieme di training e l'insieme di testing. Dividiamo nuovamente l'insieme di \textbf{training }in $k$ parti. Supporremo $k=3$. Utilizzeremo un $\frac{1}{k}$ per la validazione e le $\frac{k-1}{k}$ rimanenti come training. In questo caso, $1/3$ e $2/3$. Effettueremo tre volte training e validazione, variando ogni volta il subset usato per la validazione e quelli usati per il testing. Da ciascuno dei processi di training, emergerà un valore della loss function: sceglierò gli iperparametri associati a valori della loss function più bassi.
 
 \begin{figure}[htbp]
 	\centering
@@ -567,12 +571,21 @@ Dividiamo in due parti il nostro dataset $X$, ottenendo l'insieme di training e 
 \section{Overfitting e underfitting}
 Sono tra i problemi più grandi che possono emergere con i propri algoritmi di machine learning, e riguardano spesso la \textbf{scelta del modello}. 
 
-\begin{itemize}
-	\item \textbf{Overfitting}.\\
-	Generalmente si parla di overfitting, quando il modello è così complesso da offrire performance ottime in fase di training (impara facilmente e bene), ma fortemente \textbf{peggiori in fase di testing}: il modello è così complesso da imparare troppo bene i dati su cui ha appreso, ma da pessime performance sui dati inediti. 
-	\item \textbf{Underfitting.}\\
-	Caratterizzato da \textbf{pessime performance in fase di training}, troppe poche variabili, modello troppo semplice. L'apprendimento non è tale da permettere al modello di conoscere il proprio dataset. Il modello non impara!
-\end{itemize}
+\begin{description}
+    \item[Overfitting] Generalmente si parla di overfitting, quando il modello è così complesso da offrire performance ottime in fase di training (impara facilmente e bene), ma fortemente \textbf{peggiori in fase di testing}: il modello è così complesso da imparare troppo bene i dati su cui ha appreso, ma da pessime performance sui dati inediti. 
+    \item[Underfitting] Caratterizzato da \textbf{pessime performance in fase di training}, troppe poche variabili, modello troppo semplice. L'apprendimento non è tale da permettere al modello di conoscere il proprio dataset. Il modello non impara!
+\end{description}
+
+Bisogna quindi trovare lo \textit{sweetspot}, il compromesso, tra i modelli più complessi, e quelli più semplici. Il numero di parametri è un fattore da tenere sempre in considerazione. 
+
+\subsection{Bias e Variance}
+
+Osservando i risultati dei nostri modelli, sarà possibile individuare facilmente due tipologie di errori:
+
+\begin{description}
+    \item[Bias Error.] Le previsioni non sono corrette a causa di assunzioni errate nel modello. Un alto bias può portare il modello a non rilevare importanti relazioni tra le features e gli output target, portando a underfitting (es. un modello che erca di approssimare una funzione polinomiale con una lineare). Usare modelli con alto bias causa underfitting.
+    \item[Variance Error.] Le previsioni del modello sono fortemente influenzate da piccole fluttuazioni nel training set. Ad esempio, se rimuoviamo un punto dati e riaddestriamo l'algoritmo, otteniamo previsioni molto diverse. Questo può essere dovuto al fatto che l'algoritmo sta cercando di modellare il rumore casuale presente nei dati di training, il che di solito porta a overfitting.
+\end{description}
 
 \begin{figure}[htbp]
 	\centering
@@ -580,18 +593,3 @@ Sono tra i problemi più grandi che possono emergere con i propri algoritmi di m
 	\caption{In blu i dati di training, in rosso quelli di testing. Nel caso dell'underfitting, vediamo una funzione troppo semplice (una funzione lineare) per approssimare una funzione più complessa. Nel caso dell'overfitting, il modello da output assurdi.}
 	\label{fig:underoverfitting}
 \end{figure}
-
-Bisogna quindi trovare lo \textit{sweetspot}, il compromesso, tra i modelli più complessi, e quelli più semplici. Il numero di parametri è un fattore da tenere sempre in considerazione. 
-
-\subsection{Bias e Variance}
-
-Osservando i risultati dei nostri modelli, sarà possibile individuare facilmente due tipologie di errori:
-\begin{itemize}
-	\item \textbf{Bias error}.\\
-	Modelli troppo semplici non si avvicinano abbastanza ai risultati attesi. Usare modelli con alto bias causa underfitting.
-	\item \textbf{Variance error}.\\
-	Modelli troppo complessi e ad alta varianza nei risultati, presentano overfitting. L'alta varianza ci fa intuire che il rumore nei nostri dati, influenza esageratamente i risultati.
-\end{itemize}
-
-
-

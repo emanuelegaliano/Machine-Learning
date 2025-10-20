@@ -1,7 +1,23 @@
 \chapter{I primi modelli di Machine Learning}
 
 \section{Neurone computazionale - modello di McCulloch-Pitt}
-L'idea iniziale era quella di replicare la struttura dei neuroni:
+L'idea iniziale era quella di replicare la struttura di un neurone biologico con un modello matematico, in modo da poter simulare il funzionamento del cervello umano. 
+
+\paragraph{Neurone biologico.} Un neurone biologico è costituito da:
+\begin{itemize}
+	\item Dendriti: ricevono segnali da altri neuroni.
+	\item Corpo cellulare: elabora i segnali ricevuti.
+	\item Assone: trasmette il segnale elaborato ad altri neuroni.
+\end{itemize}
+
+\noindent
+Il primo modello di neurone computazionale fu proposto da McCulloch e Pitts nel 1943. Si basa su tre componenti principali: 
+
+\begin{itemize}
+	\item Degli input $x_1, x_2, \dots, x_d$ binari, che possono essere \textbf{eccitatori }e \textbf{inibitori}. 
+	\item Una threshold $v$, una soglia
+	\item Un output binario.
+\end{itemize}
 
 \begin{figure}[tbph]
 	\centering
@@ -10,17 +26,9 @@ L'idea iniziale era quella di replicare la struttura dei neuroni:
 	\label{fig:neuronecomputazionale}
 \end{figure}
 
-
-\begin{itemize}
-	\item Degli input $x_1, x_2, \dots, x_d$ binari, che possono essere \textbf{eccitatori }e \textbf{inibitori}. 
-	\item Una threshold $v$, una soglia
-	\item Un output binario.
-\end{itemize}
-
 Supponiamo che $x_1, \dots, x_j$ siano eccitatori, $x_{j+1}, \dots, x_d$ sono inibitori. Se $j \geq 1$ e almeno un inibitore è $=1$, allora il neurone ritorna 0. Un inibitore è sufficiente per bloccare l'output. Altrimenti, si calcola $z = x_1 + \dots + x_j = x_1 + \dots + x_d$, ossia la somma di tutti gli input\footnote{posso considerare anche gli input degli inibitori in quanto $=0$.}. Se la somma è $\geq v$, allora l'output sarà 1, altrimenti 0.
 
-Questo modello è tale da poter computare un $AND$ ($v=n$ e $n$ input eccitatori), un $OR$ ($v=1$ e $n$ input eccitatori), ma non uno $XOR$!
-
+Questo modello è tale da poter computare un $AND$ ($v=n$ e $n$ input eccitatori), un $OR$ ($v=1$ e $n$ input eccitatori, vedere figura \ref{fig:neuronecomputazionale}), ma non uno $XOR$!
 
 \subsection{Limitazioni del modello di McCulloch-Pitt}
 \begin{itemize}
@@ -32,7 +40,7 @@ Questo modello è tale da poter computare un $AND$ ($v=n$ e $n$ input eccitatori
 
 \section{Percettrone - Rosenblatt}
 
-Il successore del modello di McCulloch-Pitt è il \textbf{percettrone}.
+Il successore del modello di McCulloch-Pitt è il \textbf{percettrone}. Questo modello risolve il problema dei pesi, assegnando ad ogni ingresso un peso differente, e introduce una procedura di apprendimento automatico per stabilire i pesi in maniera opportuna.
 \begin{figure}[tbph]
 	\centering
 	\includegraphics[width=\linewidth]{./images/percettrone.pdf}
@@ -40,37 +48,58 @@ Il successore del modello di McCulloch-Pitt è il \textbf{percettrone}.
 	\label{fig:percettrone}
 \end{figure}
 
-Questo è costituito da:
+\noindent
+Le componenti sono:
 \begin{itemize}
-	\item Features $x_1, x_2, \dots, x_d$ normalizzate.  Ciascuno di questi input ha associato un peso $\vartheta_1, \dots, \vartheta_d$.
+	\item Features $x_1, x_2, \dots, x_d$ normalizzate in $[0, 1]$. Ciascuno di questi input ha associato un peso $\vartheta_1, \dots, \vartheta_d$.
 	\item Una threshold $\vartheta_0$, una soglia.
 	\item Un output binario.
 	\item Una \textbf{procedura di learning automatico} per stabilire i parametri (il peso di ciascun input).
 \end{itemize}
 
+\noindent
 Il comportamento del percettrone sarà il seguente:
 
 $$
-f(x_1, \dots, x_d) = \begin{cases}
+f(x_1, \dots, x_d) = 
+\begin{cases}
 	1 \qquad \displaystyle\sum_{j=1} x_j v_j \geq \vartheta_0\\
 	0 \qquad \text{altrimenti}
 \end{cases}
 $$
 
-Per semplificare la computazione, verrà aggiunta una feature $x_0 = 1$ con peso $\vartheta_0$, uguale alla threshold. Questo ci aiuterà a scrivere la funzione con la seguente notazione, computabile velocemente come prodotto matriciale: 
+Per semplificare la computazione, verrà aggiunta una feature $x_0 = 1$ con peso $\vartheta_0$, uguale alla threshold. Questo ci aiuterà a scrivere la funzione con la seguente notazione:
 $$
-f([\vartheta^T \overline{x} > 0])
+f(x_1, \dots, x_d) = 
+\begin{cases}
+	1 \qquad \displaystyle\sum_{j=1} x_j v_j \geq 0\\
+	0 \qquad \text{altrimenti}
+\end{cases}
 $$
 
+\noindent
+E poi come prodotto matriciale:
+$$
+f(x) = [\vartheta^T \overline{x} > 0]
+$$
+
+\noindent
 dove $\vartheta^T$ è il vettore dei pesi. Supponiamo ora di avere 2 parametri, andremo a ottenere:
 $$
 \vartheta_0 + x_1\vartheta_1 + x_2\vartheta_2 \geq 0
 $$
 
-con dei semplici passaggi, possiamo tracciare una retta nello spazio, chiamata \textbf{decision boundary}, che dividerà lo spazio in due parti, quella per cui $f(x_1, \dots, x_d) = 1$, e quella per cui $f(x_1, \dots, x_d) = 0$
+e con dei semplici passaggi, possiamo tracciare una retta nello spazio, chiamata \textbf{decision boundary}, che dividerà lo spazio in due parti, quella per cui $f(x_1, \dots, x_d) = 1$, e quella per cui $f(x_1, \dots, x_d) = 0$
 $$
 x_2 = x_1\frac{\vartheta_1}{\vartheta_2} + \frac{\vartheta_0}{\vartheta_2}
 $$
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./images/decision_boundary.png}
+	\caption{Decision boundary del percettrone in 2D. I punti arancioni sono classificati come 1, quelli blu come 0 e la retta al centro è la \emph{decision boundary}.}
+	\label{fig:decisionboundary}
+\end{figure}
 
 Questa retta, in un task di classificazione, suddivide lo spazio in due classi. In uno spazio 2D è una retta, in uno spazio 3D un piano. Lo spazio dovrà essere \textbf{linearmente separabile}.
 
@@ -119,9 +148,10 @@ $$
 \hat{\vartheta}_j \leftarrow \vartheta_j + \alpha( y^{(i)} -\hat{y}^{(i)})x_j
 $$
 
+\noindent
 Scelto in maniera opportuna, potrebbe migliorare l'apprendimento e la convergenza.
 
-\subsection{Versione successiva dell'algoritmo}
+\subsection{Versione di Adaline}
 
 Una versione successiva dell'algoritmo di ricalcolo dei pesi, per stabilire con maggiore precisione di quanto incrementare o decrementare i pesi, stabilisce che
 
@@ -129,4 +159,12 @@ $$
 \hat{\vartheta}_j \leftarrow \vartheta_j + \left( y^{(i)} - \sum_{i}\vartheta_i \cdot x_i\right)x_j
 $$
 
-Osserviamo che il valore $y^{(i)} \in \{0,1\}$, $\displaystyle\sum_{i}\vartheta_i \cdot x_i \in [0,1]$, quindi $y^{(i)} - \displaystyle\sum_{i}\vartheta_i \cdot x_i \in[-1,1]$.
+\noindent
+Osserviamo che, per ogni esempio $i$-esimo, l'uscita desiderata $y^{(i)}$ può assumere solo due valori, $0$ oppure $1$. Allo stesso tempo, la somma pesata 
+
+\[
+\sum_i \vartheta_i \cdot x_i
+\]
+
+\noindent
+rappresenta una combinazione lineare normalizzata degli ingressi, e pertanto assume valori compresi nell'intervallo $[0,1]$.  Ne consegue che la differenza tra il valore target $y^{(i)}$ e la somma pesata non potrà che appartenere all’intervallo $[-1,1]$. In altre parole, se il neurone commette l’errore massimo possibile, questo sarà pari a $1$ in valore assoluto, cioè la distanza più grande tra un’uscita binaria ($0$ o $1$) e un valore previsto all’interno di $[0,1]$.
