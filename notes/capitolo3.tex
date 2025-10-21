@@ -84,7 +84,7 @@ Sia \(X\in\mathbb{R}^{m\times(n+1)}\) la design matrix con prima colonna di \(1\
 J(\theta)=\frac{1}{2m}\|X\theta-y\|_2^2,\qquad
 \nabla_\theta J(\theta)=\frac{1}{m}X^\top(X\theta-y).
 \]
-\paragraph{Procedura pratica.}
+\paragraph{Pseudocodice.}
 \begin{enumerate}
   \item \textbf{Inizializza} in modo casuale: \(\theta^{(0)}=(\theta_0,\ldots,\theta_n)^\top\).
   \item \textbf{Calcola le derivate parziali}:
@@ -134,9 +134,6 @@ dove tipicamente \(\theta_0\) non si penalizza. Aggiornamenti:
 \theta_0\leftarrow \theta_0-\alpha\,\frac{1}{m}\sum_{i=1}^m(\hat y^{(i)}-y^{(i)}),\qquad
 \theta_j\leftarrow \theta_j-\alpha\left[\frac{1}{m}\sum_{i=1}^m(\hat y^{(i)}-y^{(i)})\tilde x^{(i)}_j+\frac{\lambda}{m}\theta_j\right]\ (j\ge 1).
 \]
-Forma chiusa (Ridge): \(\ \theta^\star=(X^\top X+\lambda \tilde M)^{-1}X^\top y\), con
-\(\tilde M=\mathrm{diag}(0,1,\dots,1)\).
-Con penalità L1 (\textbf{Lasso}) si ottengono pesi sparsi; \textbf{Elastic Net} combina L1+L2.
 
 \section{Regressione multivariata}
 Se \(d_2>1\), stimiamo più uscite in parallelo. Con \(Y\in\mathbb{R}^{m\times d_2}\) (righe \(y^{(i)\top}\))

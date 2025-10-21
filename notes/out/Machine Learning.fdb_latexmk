@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1761069882.84231 "/home/manu/Documents/Machine Learning/Machine-Learning/notes/Machine Learning.tex" "out/Machine Learning.pdf" "Machine Learning" 1761069885.04024 0
+["pdflatex"] 1761070094.65911 "/home/manu/Documents/Machine Learning/Machine-Learning/notes/Machine Learning.tex" "out/Machine Learning.pdf" "Machine Learning" 1761070096.8843 0
   "/home/manu/Documents/Machine Learning/Machine-Learning/notes/Machine Learning.tex" 1761061219.76081 3109 462f592eb1a8e6477fd0376a1099ef64 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1737590400 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc" 1254269338 2375 baa924870cfb487815765f9094cf3728 ""
@@ -243,7 +243,7 @@
   "Machine Learning.tex" 1761061219.76081 3109 462f592eb1a8e6477fd0376a1099ef64 ""
   "capitolo1.tex" 1760946085.88591 32559 4751512fc5bc4c2c71c11915950f0edc ""
   "capitolo2.tex" 1761063018.28364 12929 ef535bb183ca137813ec5509a22e3490 ""
-  "capitolo3.tex" 1761069879.9001 7494 577cc22ba96b2fe01dcc049502ed7ede ""
+  "capitolo3.tex" 1761070094.1341 7265 e4a1c6129eb9752e4440cb1d4ef0927d ""
   "images/cross_validation.png" 1760945271.9759 36718 1357bef0e9a8a89692987c713d770f1a ""
   "images/decision_boundary.png" 1760947515.95465 154649 26edb5d8e46ed2558a166f7cb36ac6cc ""
   "images/designMatrix.jpg" 1760382672.34255 50659 f8c78acae648a11753ef5391f8036295 ""
@@ -255,12 +255,12 @@
   "images/reinforcementLearning.png" 1760382659.19547 194577 3683253e71f7cdf8cfda2cfe6a8dc047 ""
   "images/underoverfitting.png" 1760945271.9779 57397 3e5297d8c999fe81c9691b5964489df4 ""
   "images/xor-schema.jpg" 1761060431.93597 8991 787919df3d719cf85786fa1cf713ee3b ""
-  "out/Machine Learning.aux" 1761069884.82302 726 4e3e0ab510c9f82c44396108a885b150 "pdflatex"
-  "out/Machine Learning.out" 1761069884.82746 10665 f27b4baed54d91861f95bd2f5036f01f "pdflatex"
-  "out/Machine Learning.toc" 1761069884.82802 6101 290245ceed0c7954eed013b2c7f8517b "pdflatex"
-  "out/capitolo1.aux" 1761069884.58501 9316 7ecdd60c23eabb5d858fd2fa891383ba "pdflatex"
-  "out/capitolo2.aux" 1761069884.75001 5396 c3f4e792d1de9c0a3546a0ad8a0dd6a2 "pdflatex"
-  "out/capitolo3.aux" 1761069884.82202 2649 85659b80edce4fb8ac7e3e3b8774b059 "pdflatex"
+  "out/Machine Learning.aux" 1761070096.67961 726 4e3e0ab510c9f82c44396108a885b150 "pdflatex"
+  "out/Machine Learning.out" 1761070096.68466 10665 f27b4baed54d91861f95bd2f5036f01f "pdflatex"
+  "out/Machine Learning.toc" 1761070096.68553 6096 c98470445be3c8a712bf3f2775162b02 "pdflatex"
+  "out/capitolo1.aux" 1761070096.44498 9316 7ecdd60c23eabb5d858fd2fa891383ba "pdflatex"
+  "out/capitolo2.aux" 1761070096.6066 5396 c3f4e792d1de9c0a3546a0ad8a0dd6a2 "pdflatex"
+  "out/capitolo3.aux" 1761070096.67961 2644 e5e8ca023080e0dc02841ffc91d214d1 "pdflatex"
   (generated)
   "out/Machine Learning.aux"
   "out/Machine Learning.log"
