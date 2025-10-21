@@ -168,3 +168,104 @@ Osserviamo che, per ogni esempio $i$-esimo, l'uscita desiderata $y^{(i)}$ può a
 
 \noindent
 rappresenta una combinazione lineare normalizzata degli ingressi, e pertanto assume valori compresi nell'intervallo $[0,1]$.  Ne consegue che la differenza tra il valore target $y^{(i)}$ e la somma pesata non potrà che appartenere all’intervallo $[-1,1]$. In altre parole, se il neurone commette l’errore massimo possibile, questo sarà pari a $1$ in valore assoluto, cioè la distanza più grande tra un’uscita binaria ($0$ o $1$) e un valore previsto all’interno di $[0,1]$.
+
+\section{Modelli lineari}
+Il percettrone funziona funziona correttamente solo se i dati sono \emph{linearmente separabili}, ovvero se esiste una frontiera lineare che separa le due classi. Ad esempio, il problema AND è linearmente separabile.
+
+\subsection{Problema della separabilità non lineare}
+\it{Questa parte è un approfondimento teorico sulla separabilità lineare. Può essere saltata senza problemi.}
+
+\paragraph{Definizione (separabilità lineare).}
+Sia $X=\{x^{(1)},\ldots,x^{(m)}\}\subset\mathbb{R}^{d}$ e sia $y\in\{0,1\}^{m}$ un insieme di etichette.
+Diciamo che i due insiemi di punti $A=\{x^{(i)}:y^{(i)}=1\}$ e $B=\{x^{(i)}:y^{(i)}=0\}$ sono \emph{linearmente separabili} se esistono $w\in\mathbb{R}^{d}$ e $b\in\mathbb{R}$ tali che
+\[
+w^\top x \;>\; b \quad \forall x\in A,
+\qquad
+w^\top x \;<\; b \quad \forall x\in B.
+\]
+Equivalente: esiste un iperpiano $w^\top x=b$ la cui parte positiva contiene tutti i punti di $A$ e la parte negativa tutti i punti di $B$.
+
+\paragraph{Quante funzioni booleane sono linearmente separabili?}
+Per $m$ argomenti binari esistono $2^{2^{m}}$ funzioni booleane possibili; solo una parte è realizzabile con un singolo classificatore lineare.
+Dati noti:
+\[
+\begin{array}{lcl}
+m=2 &\Rightarrow& 14 \text{ su } 16 \text{ sono separabili linearmente},\\[2pt]
+m=3 &\Rightarrow& 104 \text{ su } 256 \text{ sono separabili linearmente},\\[2pt]
+m=4 &\Rightarrow& 1882 \text{ su } 65536 \text{ sono separabili linearmente}.
+\end{array}
+\]
+Non esiste una formula chiusa semplice che dia, in funzione di $m$, quante funzioni sono linearmente separabili; tuttavia si osserva che, all’aumentare di $m$, la \emph{frazione} di funzioni separabili decresce rapidamente.
+
+\paragraph{Dicotomie di un insieme di punti.}
+Dato $X=\{x^{(1)},\ldots,x^{(m)}\}\subset\mathbb{R}^{d}$, le possibili etichettature (o \emph{dicotomie}) sono $2^{m}$:
+\[
+\mathcal{Y}=\{0,1\}^{m} .
+\]
+Solo una parte di queste dicotomie è realizzabile mediante una frontiera lineare. Con $d$ fissata, il numero di dicotomie realizzabili cresce in modo polinomiale in $m$ (ordine al piu $m^{d}$), mentre il totale cresce esponenzialmente ($2^{m}$); di conseguenza,
+\[
+\Pr\{\text{dicotomia separabile linearmente}\}\;\longrightarrow\;0
+\quad\text{quando } m \gg d .
+\]
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/non_linear_separation-probability.png}
+	\caption{Separabilità non lineare. A sinistra: andamento qualitativo della probabilità che una dicotomia sia linearmente separabile al crescere del numero di campioni \(m\) (con dimensione \(d\) fissata); a destra: esempio in \(\mathbb{R}^2\) di punti non separabili con un singolo iperpiano.}
+	\label{fig:nonlinear-separability}
+\end{figure}
+
+Intuitivamente: se il numero di campioni cresce molto a parità di dimensione $d$, è sempre meno probabile che una separazione perfetta con una sola retta/iperpiano esista.
+
+\subsection{Problema dello XOR}
+Supponiamo però di voler computare lo XOR logico. Per farlo, costruiamo la tabella: 
+\begin{center}
+	\begin{tabular}{|c|c|c|}
+		\hline
+		\(x_1\) & \(x_2\) & \(XOR(x_1,x_2)\)\\
+		\hline
+		0 & 0 & 0\\
+		0 & 1 & 1\\
+		1 & 0 & 1\\
+		1 & 1 & 0\\
+		\hline
+	\end{tabular}
+\end{center}
+
+\noindent
+Il problema XOR non è linearmente separabile (immagine \ref{fig:xor-schema}): i quattro punti \((0,0),(1,0),(0,1),(1,1)\) con etichetta di uscita \(0,1,1,0\) non possono essere separati da una singola frontiera lineare. Un percettrone (che produce solo confini di decisione lineari) non riesce quindi a risolverlo.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.55\linewidth]{images/xor-schema.jpg}
+	\caption{Schema del problema XOR: i vertici \((0,1)\) e \((1,0)\) appartengono alla classe \(1\), \((0,0)\) e \((1,1)\) alla classe \(0\). Nessuna frontiera lineare può separare le classi; è necessaria una frontiera non lineare (ottenibile con uno strato nascosto).}
+	\label{fig:xor-schema}
+\end{figure}
+
+\paragraph{Dimostrazione della non-linearità dello XOR.} Assumendo la tabella di verità dello XOR e un percettrone con pesi \(v_1,v_2\) e soglia \(v_0\), le condizioni di attivazione diventano
+
+\[
+\begin{aligned}
+	&1\cdot v_1 + 0\cdot v_2 > v_0,\\
+	&1\cdot v_1 + 1\cdot v_2 < v_0,\\
+	&0\cdot v_1 + 1\cdot v_2 > v_0,\\
+	&0\cdot v_1 + 0\cdot v_2 < v_0.
+\end{aligned}
+\]
+Da cui si ottiene
+\[
+2\,v_0 < v_1 + v_2 < v_0,
+\]
+ovvero una contraddizione: non esiste configurazione dei parametri di un singolo percettrone che risolva XOR.
+
+\paragraph{Rete di percettroni.} La soluzione consiste nell’usare una \emph{rete di percettroni} (uno strato nascosto) che trasformi lo spazio in modo da rendere il problema linearmente separabile all’uscita. Un esempio minimale è:
+\[
+\begin{aligned}
+	&f_1(x_1,x_2) = [\,x_1 - x_2 \ge 0.5\,],\\
+	&f_2(x_1,x_2) = [\,x_2 - x_1 \ge 0.5\,],\\
+	&f_3\big(f_1,f_2\big) = [\,1\cdot f_1 + 1\cdot f_2 \ge 0.5\,],
+\end{aligned}
+\]
+dove \([\cdot]\) indica una funzione soglia (vale \(1\) se la condizione è vera, \(0\) altrimenti). Le funzioni \(f_1\) e \(f_2\) realizzano una trasformazione non lineare degli input; nello spazio così trasformato l’uscita \(f_3\) è ottenuta tramite una semplice soglia lineare.
+
+Infine, sebbene reti di percettroni possano risolvere XOR, l’algoritmo di apprendimento del singolo percettrone non è direttamente applicabile a reti multistrato; storicamente ciò contribuì al primo \emph{AI winter} e la situazione migliorò con la formalizzazione della \emph{retropropagazione} (\emph{backpropagation}).
