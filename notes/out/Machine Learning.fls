@@ -1151,8 +1151,6 @@ INPUT ./images/decision_boundary.png
 INPUT ./images/decision_boundary.png
 INPUT ./images/decision_boundary.png
 INPUT ./images/decision_boundary.png
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmri8.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmri7.tfm
 INPUT ./images/non_linear_separation-probability.png
 INPUT ./images/non_linear_separation-probability.png
 INPUT images/non_linear_separation-probability.png
@@ -1173,6 +1171,15 @@ INPUT ./capitolo3.tex
 INPUT capitolo3.tex
 INPUT ./capitolo3.tex
 INPUT capitolo3.tex
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/rm-lmbx10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/rm-lmbx8.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/rm-lmbx6.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmmib10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmmib10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmmib7.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmbsy10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmbsy10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmbsy7.tfm
 INPUT out/Machine Learning.aux
 INPUT out/capitolo1.aux
 INPUT out/capitolo1.aux
@@ -1195,6 +1202,7 @@ INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmmi10.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmmi6.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmmi8.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmmi9.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmmib10.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmr10.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmr12.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmr6.pfb
