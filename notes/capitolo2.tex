@@ -252,6 +252,7 @@ Il problema XOR non è linearmente separabile (immagine \ref{fig:xor-schema}): i
 	&0\cdot v_1 + 0\cdot v_2 < v_0.
 \end{aligned}
 \]
+
 Da cui si ottiene
 \[
 2\,v_0 < v_1 + v_2 < v_0,
@@ -268,4 +269,11 @@ ovvero una contraddizione: non esiste configurazione dei parametri di un singolo
 \]
 dove \([\cdot]\) indica una funzione soglia (vale \(1\) se la condizione è vera, \(0\) altrimenti). Le funzioni \(f_1\) e \(f_2\) realizzano una trasformazione non lineare degli input; nello spazio così trasformato l’uscita \(f_3\) è ottenuta tramite una semplice soglia lineare.
 
-Infine, sebbene reti di percettroni possano risolvere XOR, l’algoritmo di apprendimento del singolo percettrone non è direttamente applicabile a reti multistrato; storicamente ciò contribuì al primo \emph{AI winter} e la situazione migliorò con la formalizzazione della \emph{retropropagazione} (\emph{backpropagation}).
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/neural-net-xor}
+	\caption{Rete di percettroni per computare lo $XOR$}
+\end{figure}
+
+
+Infine, sebbene reti di percettroni possano risolvere $XOR$, l’algoritmo di apprendimento del singolo percettrone non è direttamente applicabile a reti multistrato; storicamente ciò contribuì al primo \emph{AI winter} e la situazione migliorò con la formalizzazione della \emph{retropropagazione} (\emph{backpropagation}). 
