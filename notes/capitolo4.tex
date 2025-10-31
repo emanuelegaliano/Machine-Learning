@@ -1,0 +1,21 @@
+\chapter{Classificazione}
+
+\section{Introduzione alla classificazione}
+La classificazione è un altro dei problemi che può essere risolto tramite un algoritmo di Machine Learning. Riguarda lo stabilire se un dato input appartiene ad una tra delle classi prestabilite. Il target non sarà più un valore $\mathbb{R}$, ma una tra $k$ classi.
+Per studiare la classificazione, andremo a stabilire i requisiti e i nostri obiettivi.
+\begin{itemize}
+	\item Un modello ben definito.
+	\item Una funzione di loss per stabilire lo scarto con i risultati attesi.
+	\item Un algoritmo di learning per trovare i parametri.
+	\item Delle misure di valutazione.
+	\item Niente overfitting!
+\end{itemize}
+
+\subsection{Classificazione: binaria e di classe}
+Identifichiamo due tipi di task di classificazione:
+\begin{itemize}
+	\item \textbf{Classificazione binaria.}\\
+	Le etichette $y \in \{ 0,1\}$
+	\item \textbf{Classificazione di classe.}\\
+	Le etichette $y \in \{ 0,1, \dots, k-1\}$.
+\end{itemize}
