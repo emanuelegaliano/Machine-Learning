@@ -75,7 +75,7 @@ $$
 
 \begin{itemize}
 	\item Interpretazione probabilistica semplice. Da valori $\in[0,1]$.
-	\item Derivabile.
+	\item Derivabile, più liscia rispetto ad una step function.
 	\item Introduce non lineareità, migliorando la classificazione.
 \end{itemize}
 
@@ -92,7 +92,7 @@ $$
 Questo, perché l'errore deve essere 1 quando $\hat{y} = 0$ e $y = 1$, o quando $\hat{y} = 1$ e $y = 0$.
 
 \begin{center}
-	\textit{Ai fini di chiarezza e univocità della spiegazione, useremo $y$ per indicare ciò che fino ad ora abbiamo specificato con $\hat{y}$.}
+	\textit{Ai fini della semplicità e univocità della spiegazione, useremo $y$ per indicare ciò che fino ad ora abbiamo indicato con $\hat{y}$.}
 \end{center}
 
 
@@ -100,38 +100,55 @@ Questo, perché l'errore deve essere 1 quando $\hat{y} = 0$ e $y = 1$, o quando 
 	\centering
 	\includegraphics[width=0.75\linewidth]{images/loss-logistic-regression}
 \end{figure}
-
+\noindent
 Possiamo esprimere la funzione di Loss anche in questo modo, rendendo unica la definizione della funzione.
 $$
 \text{Loss}(h_\vartheta(x), y) = -[y\log (h_\vartheta(x)) + (1-y)\log (1 - h_\vartheta(x))]
 $$
-
+\noindent
 Definita la funzione di Loss, andremo a definire la funzione di costo
 
 $$
 J(\vartheta) = - \frac{1}{m} \sum_{i=1}^{m}(y^{(i)}\log (h_\vartheta(x)) + (1-y^{(i)})\log (1 - h_\vartheta(x)))
 $$
 
-Possiamo quindi ottenere la nostra discesa del gradiente:
+\noindent
+su cui sarà possibile applicare l'algoritmo di discesa del gradiente, fino alla convergenza del modello.
 $$
-\vartheta_j = \vartheta_j -\alpha\frac{\partial J(\vartheta)}{\partial \vartheta_j} \qquad \forall j
+\vartheta_j^{\text{new}} = \vartheta_j^{\text{old}} -\alpha\frac{\partial J(\vartheta)}{\partial \vartheta_j} \qquad \forall j
 $$
 
-Calcoliamo quindi la derivata ...
+\subsection{Derivata parziale della funzione di costo}
 
-...
-
-..
+Necessaria per applicare la discesa del gradiente.
+$$
+\frac{\partial J(\vartheta)}{\partial \vartheta_j} = \frac{1}{m} \sum_{i=1}^{m} (\underbrace{h_\vartheta(x^{(i)})}_{(*)}- y^{(i)}))x_j^{(i)}) \qquad \forall j = 0, \dots, d
+$$
+(*) Questo membro nascone la funzione sigmoide $\overline{\sigma}(\vartheta^TX^{(i)})$
 
 \subsection{Binary Cross Entropy Loss}
 
+Su questo modello, diamo un'interpretazione probabilistica tramite il concetto di \textbf{entropia} e \textbf{Binary Cross Entropy Loss}.
 
 $$
 H(X) = -\sum_{k=1}^{K} p_k\log(p_k)
 $$
 
-con $p_k$ probabilità di essere di classe $k$. 
-.......
+con $p_k$ probabilità di essere di classe $k$.  La distribuzione di probabilità (e quindi l'entropia). Queste distribuzioni informazioni su:
+\begin{itemize}
+	\item Incertezza.
+	\item Misura del disordine dalle classi.
+	\item Quanto la probabilità è concentrata su una classe.
+	\item Informazione (la distribuzione è molto informativa se è capace di distinguere in maniera opportuna).
+\end{itemize}
+Un esempio su $k=2$ è la funzione 
+$$
+H(X) = - p_2\log(p_2) - p_2\log(p_2)
+$$
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=1\linewidth]{images/cross_entropy}
+\end{figure}
 
 \subsection{Overfitting nella classificazione}
 Rischiamo di cadere in overfitting nell'utilizzo di classificatori polinomiali. Basterà usare i termini di regolarizzazione, ossia
