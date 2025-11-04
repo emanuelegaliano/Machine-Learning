@@ -49,7 +49,7 @@ Ci sono \textbf{due criticità} relative all'utilizzo della regressione. La prim
 	\includegraphics[width=0.7\linewidth]{images/regression-for-classification2}
 \end{figure}
 \newpage
-La seconda criticità riguarda invece la $y$, non sempre limitata tra 0 e 1, come ci aspettiamo in un modello di classificazione binaria. Come ci comportiamo con valori più grandi di 1? E con valori minori di 0? 
+La seconda criticità riguarda invece la $y$, non sempre limitata tra 0 e 1, come ci aspettiamo in un modello di classificazione binaria. Come ci comportiamo con valori più grandi di 1? E con valori minori di 0? Possiamo risolvere il problema introducendo delle funzioni, dette funzioni \textbf{di linking}. Queste ci permettono di \textbf{adattare i nostri valori }a modelli di regressione che altrimenti non sarebbero opportuni per la classificazione. Vediamo un esempio relativo alla regressione logistica usando la funzione \textbf{sigmoide}.
 
 \section{Regressione logicistica - Sigmoide}
 Se la regressione lineare restituisce una $y$ non limitata tra 0 e 1, la \textbf{regressione logistica} risolve il problema con una funzione, detta \textbf{sigmoide}, applicata sul risultato $z = \vartheta^TX$ del modello di regressione. La \textbf{sigmoide} una funzione del tipo
@@ -58,7 +58,7 @@ $$
 \overline{\sigma}(z) = \frac{1}{1 + e^{-z}} = \frac{1}{1 + e^{-\vartheta^TX}}
 $$
 \noindent
-con $z = \vartheta_0 + \vartheta_1 x_1 + \dots + \vartheta_i x_i$. Questa funzione ha un'interpretazione probabilistica molto banale, opportuna per \textbf{adattare i modelli di regressione lineare su problemi di classificazione}\footnote{Non si può pretendere di usare un modello di regressione lineare su task di classificazione, ma è comunque possibile, tramite l'uso della sigmoide, sfruttarlo per task di classificazione binaria.}. Osserviamo che:
+con $z = \vartheta_0 + \vartheta_1 x_1 + \dots + \vartheta_i x_i$. Questa funzione ha un'interpretazione probabilistica molto banale, opportuna per \textbf{adattare i modelli di regressione lineare su problemi di classificazione}\footnote{Non si può pretendere di usare un modello di regressione lineare su task di classificazione, senza fare alcun tipo di modifica, come quelle che introduciamo con la sigmoide.}. Osserviamo che:
 
 \begin{itemize}
 	\item $1-\overline{\sigma} = \sigma(z)$
@@ -74,7 +74,7 @@ $$
 
 \begin{figure}[tbph]
 	\centering
-	\includegraphics[width=0.75\linewidth]{images/sigmoid}
+	\includegraphics[width=0.6\linewidth]{images/sigmoid}
 \end{figure}
 
 
@@ -152,10 +152,12 @@ Un esempio su $k=2$ è la funzione
 $$
 H(X) = - p_1\log_2(p_1) - p_2\log_2(p_2) = -[p_1\log_2(p_1) + p_2\log_2(p_2) ]
 $$
+
 \begin{figure}[tbph]
 	\centering
-	\includegraphics[width=1\linewidth]{images/cross_entropy}
+	\includegraphics[width=1\linewidth]{images/entropy_sketch}
 \end{figure}
+
 
 \textit{$\log_2(0)$ è indefinito. Quando facciamo calcoli relativi alla cross-entropy, consideriamo valori piccoli, mai nulli. In questo esempio e nel prossimo esercizio, quando utilizziamo 0, stiamo approssimando un valore molto piccolo, ma mai effettivamente nullo. Inoltre, in un modello reale, avere una $p_k = 0$ o $p_k = 1$ significa probabile overfitting del modello.}
 \newpage
@@ -195,7 +197,7 @@ Dove (a) è la distribuzione vera della classificazione, detta \textbf{ground tr
 
 \begin{figure}[tbph]
 	\centering
-	\includegraphics[width=0.9\linewidth]{images/coss-entropy2}
+	\includegraphics[width=0.8\linewidth]{images/coss-entropy2}
 \end{figure}
 
 
