@@ -284,3 +284,184 @@ Il modello one vs one, per quanto più oneroso in termini di numero di classific
 	\includegraphics[width=1\linewidth]{images/onevsonevsonevsall}
 \end{figure}
 
+\section{Softmax}
+I problemi di utilizzare modelli OVA o OVO nella classificazione multiclasse sono diversi:
+\begin{itemize}
+	\item Numero di classificatori elevato, che porta a tempi di training lunghi.
+	\item Possibili aree di incertezza.
+	\item Difficoltà nell'interpretare le probabilità restituite dai classificatori.
+\end{itemize}
+
+Si può ovviare a questi problemi con il modello \textbf{Softmax}, che estende la regressione logistica alla classificazione multiclasse.
+
+\subsection{Definizione}
+Sia $K$ il numero di classi da prevedere. Il modello Softmax restituisce un vettore $P_\vartheta^{(k)}$ di lunghezza $K$, in cui ogni elemento $P_\vartheta^{(i)}$ rappresenta \textbf{la probabilità} che l'input $x$ appartenga alla classe $i$. L'obiettivo è quindi, cercare di \textbf{stimare}:
+\[
+P_{\vartheta}^{(k)}(y=k | x) \qquad \forall k \in \{1, \ldots, K\}
+\]
+
+\subsection{Funzione Softmax}
+Partiamo dall'idea che il softmax restituisce un vettore di probabilità:
+\[
+h_{\vartheta}^{(c)}(x) = 
+\begin{pmatrix}
+P_{\vartheta}^{(1)}(y=1 | x) \\
+P_{\vartheta}^{(2)}(y=2 | x) \\
+\vdots \\
+P_{\vartheta}^{(K)}(y=K | x)
+\end{pmatrix}
+= 
+\frac{1}{\underbrace{\sum_{k=0}^{K-1} e^{\vartheta^{(k) T} x}}_{\text{Normalizzatore della distribuzione}}}
+\cdot
+\begin{pmatrix}
+e^{\vartheta^{(1) T} x} \\
+e^{\vartheta^{(2) T} x} \\
+\vdots \\
+e^{\vartheta^{(k) T} x}
+\end{pmatrix}
+=
+\frac{e^{\vartheta^{(c) T} x}}{\sum_{k=0}^{K-1} e^{\vartheta^{(k) T} x}}
+\]
+
+\noindent
+Dove $c$ è la classe di cui vogliamo calcolare la probabilità, $k$ è l'indice che scorre tutte le classi, e $\vartheta^{(k)}$ è il vettore dei parametri associati alla classe $k$.
+
+\textbf{N.B.} Ogni classe $k$ ha il proprio vettore di parametri $\vartheta^{(k)}$ (i pesi del modello). Inoltre, una volta finito il learning del modello, la somma delle probabilità restituite dal softmax sarà sempre pari a 1 ($\sum_{k=1}^{K} P_{\vartheta}^{(k)}(y=k | x) = 1$)
+
+\subsection{Funzione di Costo}
+La funzione di costo del softmax è una funzione chiamata Cross Entropy Loss. Prima di poter definire la funzione di costo, definiamo una variabile ausiliaria \(1\{\text{proposizione}\} \) che vale 1 se la proposizione è vera, 0 altrimenti.
+La funzione di costo del softmax è quindi:
+\[
+J(\vartheta) = 
+- \frac{1}{m} 
+\left[
+\sum_{i=1}^{m} \sum_{c=1}^{K} 1\{y^{(i)} = c\} \log P_{\vartheta}^{(c)}(y=c | x^{(i)})
+\right]
++
+\underbrace{\frac{\lambda}{2} \sum_{c=1}^{K} \sum_{j=1}^{n} (\vartheta_j^{(c)})^2}_{\text{Termine di regolarizzazione}}
+\]
+
+\noindent
+Dove il termine di regolarizzazione serve a prevenire l'overfitting del modello.
+
+\subsection{Obiettivo di Learning}
+L'obiettivo di learning è quello di minimizzare la funzione di costo, trovando i parametri ottimali \(\vartheta\):
+\[
+\vartheta = \arg \min_{\vartheta} J(\vartheta)
+\]
+
+Ovvero , trovare i parametri che minimizzano la distanza tra la distribuzione di probabilità predetta dal modello e la distribuzione di probabilità reale (ground truth).
+
+Per fare questo possiamo usare la discesa del gradiente, per cui abbiamo bisogno della derivata parziale della funzione di costo rispetto ai parametri \(\vartheta_j^{(c)}\):
+\[
+\frac{\partial J(\vartheta)}{\partial \vartheta_j^{(c)}}
+=
+- \frac{1}{m}
+\sum_{i=1}^{m}
+\left[
+\left(1\{y^{(i)} = c\} - P_{\vartheta}^{(c)}(y=c | x^{(i)})\right)
+x_j^{(i)}
+\right]
++
+\underbrace{\lambda \vartheta_j^{(c)}}_{\text{Termine di regolarizzazione}}
+\]
+
+E da questa, aggiorniamo i pesi \(\vartheta_j^{(c)}\) utilizzando la regola di aggiornamento della discesa del gradiente:
+\[
+\vartheta_j^{(c)} \leftarrow \vartheta_j^{(c)} - \alpha \frac{\partial J(\vartheta)}{\partial \vartheta_j^{(c)}}, \qquad \forall j \in [0, n], \quad \forall c \in [0, K-1]
+\]
+
+\subsection{Proprietà del Softmax}
+Il modello softmax è \textbf{overparametrizzato}: per ogni ipotesi che potrebbe essere fatta sui dati, esistono infinite combinazioni di parametri che a partire dal vettore di feature $X \in \mathbb{R}^n$ producono la stessa predizione nel vettore di probabilità $Y$.
+
+\noindent
+Per dimostrarlo, partiamo da:
+\begin{align*}
+h_{\vartheta}^{(c)}(x) 
+&=\dfrac{e^{\vartheta^{(c)\!\top} x}}
+        {\displaystyle\sum_{k=0}^{K-1} e^{\vartheta^{(k)\!\top} x}}
+        && \text{Formula del Softmax} \\[4pt]
+&=\dfrac{e^{(\vartheta^{(c)}-\psi)^{\!\top} x}}
+        {\displaystyle\sum_{k=0}^{K-1} e^{(\vartheta^{(k)}-\psi)^{\!\top} x}}
+        && \text{Sottraiamo lo stesso $\psi$} \\[4pt]
+&=\dfrac{e^{\vartheta^{(c)\!\top} x}\,e^{-\psi^{\!\top} x}}
+        {\displaystyle\sum_{k=0}^{K-1} e^{\vartheta^{(k)\!\top} x}\,e^{-\psi^{\!\top} x}}
+        && \text{Separiamo gli esponenziali} \\[4pt]
+&=\dfrac{e^{\vartheta^{(c)\!\top} x}}
+        {\displaystyle\sum_{k=0}^{K-1} e^{\vartheta^{(k)\!\top} x}}
+        && \text{Si cancella il fattore comune $e^{-\psi^{\!\top} x}$}
+\end{align*}
+
+\noindent
+Dove $\psi \in \mathbb{R}^n$ è un vettore arbitrario. Quindi, sottraendo lo stesso vettore $\psi$ da tutti i vettori di parametri $\vartheta^{(k)}$, otteniamo gli stessi valori di probabilità predetti dal modello, perciò esistono infinite combinazioni di parametri che producono la stessa predizione.
+
+\paragraph{Generalizzazione funzione di costo.}
+É facile vedere che, per $K=2$ (senza regolarizzazione) vale:
+\begin{align*}
+J(\vartheta)
+&= -\frac{1}{m}\sum_{i=1}^{m}\sum_{c=0}^{1}
+\mathbf{1}\{y^{(i)}=c\}\,\log\!\big(h_{\vartheta}^{(c)}(x^{(i)})\big)\\
+&= -\frac{1}{m}\sum_{i=1}^{m}
+\Big[\mathbf{1}\{y^{(i)}=0\}\log h_{\vartheta}^{(0)}(x^{(i)})
+     +\mathbf{1}\{y^{(i)}=1\}\log h_{\vartheta}^{(1)}(x^{(i)})\Big]\\
+&= -\frac{1}{m}\sum_{i=1}^{m}
+\Big[(1-y^{(i)})\log h_{\vartheta}^{(0)}(x^{(i)})
+     +y^{(i)}\log h_{\vartheta}^{(1)}(x^{(i)})\Big]\\
+&= -\frac{1}{m}\sum_{i=1}^{m}
+\Big[(1-y^{(i)})\log\!\big(1-h_{\vartheta}^{(1)}(x^{(i)})\big)
+     +y^{(i)}\log h_{\vartheta}^{(1)}(x^{(i)})\Big],
+\end{align*}
+
+dove si è usata la normalizzazione della softmax $h_{\vartheta}^{(0)}(x)+h_{\vartheta}^{(1)}(x)=1$.
+Questa è esattamente la loss della regressione logistica binaria: dunque la regressione logistica è un caso particolare della softmax.
+
+Si può ulteriormente dimostrare che il softmax è una generalizzazione della regressione logistica multiclasse usando una sua proprietà principale: l'\emph{overparametrizzazione}. Per $K=2$:
+\[
+h_{\vartheta}(x)=
+\begin{bmatrix}
+\dfrac{e^{\vartheta^{(0)\!\top}x}}{e^{\vartheta^{(0)\!\top}x}+e^{\vartheta^{(1)\!\top}x}}\\[6pt]
+\dfrac{e^{\vartheta^{(1)\!\top}x}}{e^{\vartheta^{(0)\!\top}x}+e^{\vartheta^{(1)\!\top}x}}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\dfrac{e^{(\vartheta^{(0)}-\vartheta^{(1)})^\top x}}{e^{(\vartheta^{(0)}-\vartheta^{(1)})^\top x}+e^{\mathbf 0^\top x}}\\[6pt]
+\dfrac{e^{(\vartheta^{(1)}-\vartheta^{(1)})^\top x}}{e^{(\vartheta^{(0)}-\vartheta^{(1)})^\top x}+e^{\mathbf 0^\top x}}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\dfrac{e^{\Delta^\top x}}{1+e^{\Delta^\top x}}\\[6pt]
+\dfrac{1}{1+e^{\Delta^\top x}}
+\end{bmatrix},
+\qquad \Delta=\vartheta^{(0)}-\vartheta^{(1)}.
+\]
+Ponendo \(\mathbf w=\vartheta^{(1)}-\vartheta^{(0)}=-\Delta\) e
+\(\sigma(z)=\dfrac{1}{1+e^{-z}}\) si ottiene
+\[
+h_{\vartheta}(x)=
+\begin{bmatrix}
+1-\sigma(\mathbf w^\top x)\\[4pt]
+\sigma(\mathbf w^\top x)
+\end{bmatrix}.
+\]
+
+\noindent
+Quindi, per $K=2$, il softmax riduce alla regressione logistica binaria.
+
+\subsection{Rete neurale Softmax}
+Il softmax può essere visto come un particolare tipo di rete neurale:
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/softmax_neural_network.png}
+	\caption{Flusso della regressione softmax con due ingressi e tre classi: dai logit
+	$z_i = w_{i,1}x_1 + w_{i,2}x_2 + b_i$ alle probabilità
+	$a_i=\frac{e^{z_i}}{\sum_{k=1}^{3} e^{z_k}}$, fino alla loss a entropia incrociata
+	$L = \sum_{j=1}^{3} -y_j \log(a_j)$.}	
+	\label{fig:softmax_neural_network}
+\end{figure}
+
+\subsection{Funzione di Loss}
+La funzione di Loss usata nel softmax normalmente è una variante di \textbf{cross entropy loss} (molto simile alla funzione di costo). Si possono usare alternative, in particolare la \textbf{Hinge Loss} trasforma la classificazione multiclasse in un problema di massimizzazione del margine tra le classi, come nelle SVM. La Hinge Loss è definita come:
+\[
+\text{Loss}(h_\vartheta(x), y) = \sum_{i \
+neq y} \max(0, h_\vartheta(x)_i - h_\vartheta(x)_y + \Delta)
+\]=
