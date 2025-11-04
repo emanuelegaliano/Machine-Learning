@@ -1,7 +1,7 @@
 \chapter{Classificazione}
 
 \section{Introduzione alla classificazione}
-La classificazione è un altro dei problemi tipici che può essere risolto tramite un algoritmo di Machine Learning. Riguarda lo stabilire se un dato input appartiene ad una tra delle classi prestabilite dal problema. Il target non sarà più un valore $\mathbb{R}$, ma una tra $k$ classi.
+La \textbf{classificazione} è un altro dei problemi tipici che può essere risolto tramite un algoritmo di Machine Learning. Riguarda lo \textbf{stabilire se un dato input appartiene ad una tra delle classi} prestabilite dal problema. Il\textbf{ target non sarà più un valore} $\in \mathbb{R}$, ma una tra $k$ classi.
 Per studiare la classificazione, andremo a stabilire i requisiti e i nostri obiettivi.
 \begin{itemize}
 	\item Un modello ben definito.
@@ -13,6 +13,7 @@ Per studiare la classificazione, andremo a stabilire i requisiti e i nostri obie
 
 \subsection{Classificazione: binaria e di classe}
 Identifichiamo due tipi di task di classificazione:
+
 \begin{itemize}
 	\item \textbf{Classificazione binaria.}\\
 	Le etichette $y \in \{ 0,1\}$. Va associata ad $x$ una delle due etichette, o le probabilità relativa a ciascuna delle due.
@@ -22,39 +23,39 @@ Identifichiamo due tipi di task di classificazione:
 
 È fondamentale sottolineare l'importanza che gli output di questi algoritmi siano sempre $\in[0,1]$, in quanto da interpretare come \textbf{probabilità}.
 \section{Classificazione binaria}
-Nonostante i classificatori binari possano sembrare limitati, questi trovano applicazioni in vari task: solitamente, questi si basano sulla suddivisione di immagini più grandi in \textit{patches} più piccole, con una successiva, appunto, classificazione, per individuare determinati elementi. Nel medical imaging, i classificatori binari possono individuare piccoli tumori. Nei controlli qualità in ambito industriale, possono individuare imperfezioni nei materiali. Nel campo più generale della computer vision, gli algoritmi di classificazione (binaria e non) sono fondamentali. 
+Nonostante i classificatori binari possano sembrare limitati, questi trovano applicazioni in vari task: solitamente, questi si basano sulla suddivisione di immagini più grandi in \textit{patches} più piccole, con una successiva, appunto, classificazione, per individuare determinati elementi. Nel \textbf{medical imaging}, i classificatori binari possono individuare piccoli tumori. Nei \textbf{controlli qualità }in ambito industriale, possono individuare \textbf{imperfezioni} nei materiali. Nel campo più generale della \textbf{computer vision}, gli algoritmi di classificazione (binaria e non) sono fondamentali.
 
 \subsection{Perché non usare la regressione lineare per la classificazione?}
 
-Si potrebbe pensare di usare un modello di regressione lineare per effettuare classificazione binaria, e l'intuizione non sarebbe nemmeno totalmente sbagliata: potremmo usare, ad esempio, la regressione per trovare una retta che unisce i dati in maniera opportuna, e in funzione della pendenza di questa retta, stabilire un valore di sogliatura per distinguere due classi.
+Si potrebbe pensare di \textbf{usare un modello di regressione lineare per effettuare classificazione binaria}, e l'intuizione non sarebbe nemmeno totalmente sbagliata: potremmo usare, ad esempio, la regressione per \textbf{trovare una retta che unisce i dati }in maniera opportuna, e in funzione della pendenza di questa retta, \textbf{stabilire un valore di sogliatura }per distinguere due classi.
 
 Forniamo il seguente esempio: vogliamo addestrare un modello per prevedere se un tumore è benigno o maligno usando una singola feature (dimensione del tumore).
 
-Usiamo la regressione lineare e facciamo il fitting di una retta nello spazio (troviamo la retta, cioè la funzione che meglio si posiziona a media tra tutti i punti). Possiamo trovare il miglior $y = \vartheta^Tx$ dal nostro set di dati e quindi selezionare una soglia su y per classificare quando il tumore è maligno o meno.
+Usiamo la regressione lineare e facciamo il fitting di una retta nello spazio (troviamo la retta, cioè la funzione che meglio si posiziona a media tra tutti i punti). Possiamo trovare il miglior $y = \vartheta^Tx$ dal nostro set di dati e quindi selezionare una \textbf{soglia} su $y$ per classificare quando il tumore è maligno o meno:
+$h_\vartheta(x) \leq 0.5 \to 0, \quad h_\vartheta(x) \geq 0.5 \to 1$.
 
 \begin{figure}[tbph]
 	\centering
 	\includegraphics[width=0.7\linewidth]{images/regression-for-classification.png}
 \end{figure}
 
-$$
-h_\vartheta(x) \leq 0.5 \to 0 \qquad h_\vartheta(x) \geq 0.5 \to 1
-$$
 
-Ci sono due criticità. La prima, riguarda la versatilità del modello: il fitting della retta non è opportuno, in  quanto la regressione lineare dipende fortemente dalla distribuzione dei dati.\\
+
+Ci sono \textbf{due criticità} relative all'utilizzo della regressione. La prima, riguarda la versatilità del modello: il fitting della retta non è opportuno, in  quanto la regressione lineare dipende fortemente dalla distribuzione dei dati.
+
 
 \begin{figure}[tbph]
 	\centering
 	\includegraphics[width=0.7\linewidth]{images/regression-for-classification2}
 \end{figure}
-
+\newpage
 La seconda criticità riguarda invece la $y$, non sempre limitata tra 0 e 1, come ci aspettiamo in un modello di classificazione binaria. Come ci comportiamo con valori più grandi di 1? E con valori minori di 0? 
 
 \section{Regressione logicistica - Sigmoide}
-Se la regressione lineare restituisce una $y$ non limitata tra 0 e 1, la \textbf{regressione logistica} risolve il problema con una funzione, detta \textbf{sigmoide}, applicata sul risultato $z = \vartheta^T$ del modello di regressione. La \textbf{sigmoide} una funzione del tipo
+Se la regressione lineare restituisce una $y$ non limitata tra 0 e 1, la \textbf{regressione logistica} risolve il problema con una funzione, detta \textbf{sigmoide}, applicata sul risultato $z = \vartheta^TX$ del modello di regressione. La \textbf{sigmoide} una funzione del tipo
 
 $$
-\overline{\sigma}(z) = \frac{1}{1 + e^{-z}} = \frac{1}{1 + e^{-\vartheta^Tx}}
+\overline{\sigma}(z) = \frac{1}{1 + e^{-z}} = \frac{1}{1 + e^{-\vartheta^TX}}
 $$
 \noindent
 con $z = \vartheta_0 + \vartheta_1 x_1 + \dots + \vartheta_i x_i$. Questa funzione ha un'interpretazione probabilistica molto banale, opportuna per \textbf{adattare i modelli di regressione lineare su problemi di classificazione}\footnote{Non si può pretendere di usare un modello di regressione lineare su task di classificazione, ma è comunque possibile, tramite l'uso della sigmoide, sfruttarlo per task di classificazione binaria.}. Osserviamo che:
@@ -71,6 +72,12 @@ $$
 \vartheta_0x_0 + \vartheta_1x_1 + \vartheta_2x_2 + \dots \vartheta_dx_d  
 $$
 
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.75\linewidth]{images/sigmoid}
+\end{figure}
+
+
 \subsection{Vantaggi relativi all'uso della sigmoide}
 
 \begin{itemize}
@@ -79,7 +86,7 @@ $$
 	\item Introduce non lineareità, migliorando la classificazione.
 \end{itemize}
 
-\subsection{Funzione di Loss}
+\section{Funzione di Loss}
 Avere una funzione di Loss associata al modello è fondamentale per capire come effettuare il training, e quali sono i migliori parametri di $\vartheta^T$ per la classificazione. 
 Per modellare questa funzione (da minimizzare secondo l'algoritmo di discesa del gradiente), utilizzeremo due funzioni logaritmiche. La funzione di Loss sarà definita in funzione dell'etichetta $\hat{y}$.
 $$
@@ -98,7 +105,7 @@ Questo, perché l'errore deve essere 1 quando $\hat{y} = 0$ e $y = 1$, o quando 
 
 \begin{figure}[tbph]
 	\centering
-	\includegraphics[width=0.75\linewidth]{images/loss-logistic-regression}
+	\includegraphics[width=0.50\linewidth]{images/loss-logistic-regression}
 \end{figure}
 \noindent
 Possiamo esprimere la funzione di Loss anche in questo modo, rendendo unica la definizione della funzione.
@@ -124,14 +131,14 @@ Necessaria per applicare la discesa del gradiente.
 $$
 \frac{\partial J(\vartheta)}{\partial \vartheta_j} = \frac{1}{m} \sum_{i=1}^{m} (\underbrace{h_\vartheta(x^{(i)})}_{(*)}- y^{(i)}))x_j^{(i)}) \qquad \forall j = 0, \dots, d
 $$
-(*) Questo membro nascone la funzione sigmoide $\overline{\sigma}(\vartheta^TX^{(i)})$
+(*) Questo membro nasconde la funzione sigmoide $\overline{\sigma}(\vartheta^TX^{(i)})$.
 
-\subsection{Binary Cross Entropy Loss}
+\subsection{Entropia dell'informazione}
 
-Su questo modello, diamo un'interpretazione probabilistica tramite il concetto di \textbf{entropia} e \textbf{Binary Cross Entropy Loss}.
+La loss function di questo modello presenta un'interpretazione probabilistica basata sul concetto di \textbf{entropia} dell'informazione. Parleremo quindi \textbf{Binary Cross Entropy Loss}. La seguente, è la formula dell'entropia:
 
 $$
-H(X) = -\sum_{k=1}^{K} p_k\log(p_k)
+H(X) = -\sum_{k=1}^{K} p_k\log_2(p_k)
 $$
 
 con $p_k$ probabilità di essere di classe $k$.  La distribuzione di probabilità (e quindi l'entropia). Queste distribuzioni informazioni su:
@@ -143,31 +150,135 @@ con $p_k$ probabilità di essere di classe $k$.  La distribuzione di probabilit�
 \end{itemize}
 Un esempio su $k=2$ è la funzione 
 $$
-H(X) = - p_2\log(p_2) - p_2\log(p_2)
+H(X) = - p_1\log_2(p_1) - p_2\log_2(p_2) = -[p_1\log_2(p_1) + p_2\log_2(p_2) ]
 $$
 \begin{figure}[tbph]
 	\centering
 	\includegraphics[width=1\linewidth]{images/cross_entropy}
 \end{figure}
 
-\subsection{Overfitting nella classificazione}
-Rischiamo di cadere in overfitting nell'utilizzo di classificatori polinomiali. Basterà usare i termini di regolarizzazione, ossia
+\textit{$\log_2(0)$ è indefinito. Quando facciamo calcoli relativi alla cross-entropy, consideriamo valori piccoli, mai nulli. In questo esempio e nel prossimo esercizio, quando utilizziamo 0, stiamo approssimando un valore molto piccolo, ma mai effettivamente nullo. Inoltre, in un modello reale, avere una $p_k = 0$ o $p_k = 1$ significa probabile overfitting del modello.}
+\newpage
+
+\subsubsection{Esercizio sull'entropia}
+Riordina le seguenti distribuzioni in ordine crescente di entropia.
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=1\linewidth]{entropia-esercizio}
+\end{figure}
+
 $$
-J(\vartheta) = - \frac{1}{m} \sum_{i=1}^{m}(y^{(i)}\log (h_\vartheta(x)) + (1-y^{(i)})\log (1 - h_\vartheta(x))) + \lambda\sum_{j=1}^n\vartheta_j^2
+H(X) = - p_1\log_2(p_1) - p_2\log_2(p_2) = -[p_1\log_2(p_1) + p_2\log_2(p_2) + p_3\log_2(p_3) ]
+$$
+
+\begin{enumerate}
+	\item $H(X_1) =  -[0\log(0) + 1\log(1) + 0\log(0) ] = 0$
+	\item $H(X_2) =  -[1\log(1) + 0\log(0) + 0\log(0) ] = 0$
+	\item $H(X_3) =  -[0,33\log(0,33) + 0,33\log(0,33) + 0,33\log(0,33) ] \approx 1,5848$
+	\item $H(X_4) =  -[0,80\log(0,80) + 0,20\log(0,20) + 0\log(0) ] \approx 0,722$
+\end{enumerate}
+
+$$
+X_1 = X_2 < X_4 < X_3
+$$
+
+\subsection{Binary Cross Entropy Loss}
+
+La seguente formula è equivalente alla nostra funzione di Loss, ma fornisce un'interpretazione più intuitiva. Definiamo la \textbf{Binary Cross Entropy Loss} come:
+
+$$
+H_{BCE}(X) = \frac{1}{m}\sum_{i=1}^{m} \left(-\sum_{k=1}^{K}\underbrace{p_k^{(i)}}_{\text{(a)}} \log_2(\underbrace{q_k^{(i)}}_{\text{(b)}})\right)
+$$
+
+Dove (a) è la distribuzione vera della classificazione, detta \textbf{ground truth}, ovvero quella con probabilità massima sulla classe attesa, mentre (b) è la distribuzione data dal classificatore. Misura quindi la \textbf{distanza tra le due distribuzioni}. Minimizzare $H_{BCE}(X)$, significherà rendere le distribuzioni ideali e quelle effettive del classificatore, quanto più simili possibile.
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.9\linewidth]{images/coss-entropy2}
+\end{figure}
+
+
+\newpage
+
+\section{Overfitting nella classificazione}
+Rischiamo di cadere in overfitting nell'utilizzo di classificatori polinomiali. Basterà usare i termini di regolarizzazione per diminuire o annullare l'impatto di alcuni termini di grado eccessivamente alto, ottenendo così:
+$$
+J(\vartheta) = - \frac{1}{m} \sum_{i=1}^{m}(y^{(i)}\log (h_\vartheta(x)) + (1-y^{(i)})\log (1 - h_\vartheta(x))) + \frac{\lambda}{2m}\sum_{j=1}^n\vartheta_j^2
 $$ 
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=1\linewidth]{images/underoverfitting-classification}
+\end{figure}
+
+\section{Reject Region, regione d'incertezza}
+
+Sia nella classificazione binaria, che in quella multiclasse, è possibile osservare casi in cui la probabilità stimata che un input appartenga ad una tra le classi specificate, non superi un determinato valore di certezza. Sono dei casi limite che vanno gestiti in maniera opportuna:
+\begin{enumerate}
+	\item Prendere il valore con certezza più alta (se è proprio obbligatorio stabilire una classe, e il task non è particolarmente delicato).
+	\item Scartare l'input.
+\end{enumerate}
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.47\linewidth]{images/rejection-region}
+	\caption{La zona d'incertezza (in cui $P(C_1|x) \sim P(C_2|x)$)}
+\end{figure}
+
+
 \newpage
 
 \section{Classificazione multiclasse e one vs all}  
-Il dataset di input non avrà più etichette binarie, ma $k$ etichette. A ogni classe si associa un numero. Possiamo ottenere una classificazione multiclasse usando la metodologia \textbf{one vs all}. Avremo $k$ classificatori. Immaginiamo di avere un sistema di classificazione triangoli, quadrati e cerchi.
-Avremo bisogno di tre classificatori, $h_{\vartheta_1}, h_{\vartheta_2}, h_{\vartheta_3}$, capaci di misurare $P(\text{triangoli}|x), P(\text{quadrato}|x), $ $P(\text{cerchio}|x)$. Prenderemo poi 
+La classificazione multiclasse si distingue da quella binaria per il numero di classi.
+Il dataset di input non avrà più etichette binarie, ma $k$ etichette. A ogni classe si associa un numero, ai fini di semplicità. 
+
+\subsection{Metodo One vs All}
+Possiamo ottenere una classificazione multiclasse da dei classificatori binari, usando la metodologia \textbf{one vs all}. Immaginiamo di avere un sistema di classificazione figure geometriche, con le classi \textit{triangolo}, \textit{quadrato }e \textit{cerchio }($c_1,c_2,c_3$).
+Avremo bisogno di tre classificatori, $h_{\vartheta}^1, h_{\vartheta}^2, h_{\vartheta}^3$, capaci di misurare $P(\text{triangolo}|x), P(\text{quadrato}|x), $ $P(\text{cerchio}|x)$. Prenderemo poi l'etichetta associata al valore di probabilità più alto
 
 $$
-\text{arg}\max_k h_{\vartheta_k}(\overline{x})
+\hat{k} = \text{arg}\max_k h_{\vartheta}^k(\overline{x})
 $$
 
-\subsection{One vs one}
-In questo caso, i classificatori distinguono classi a due a due. Si fanno poi le opportune valutazioni per capire se è possibile assegnare una classe, quale o se rejectare.
+ottenendo effettivamente una classificazione multiclasse. 
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.8\linewidth]{images/onevsrest}
+\end{figure}
+
+Il training è effettuato sui singoli classificatori binari.
+Osserviamo inoltre che, con $k$ classi:
 
 $$
-\text{Numero di classificatori one vs one} = \frac{k(k-1)}{2}
+\text{Numero di classificatori richiesti in one vs all} = k 
 $$
+
+\subsection{Metodo One vs One}
+In questo caso, i classificatori distinguono classi a due a due. Si fanno poi le opportune valutazioni per capire quale classe assegnare. Il numero di classificatori risulta essere più alto. Con $k$ classi abbiamo:
+
+$$
+\text{Numero di classificatori richiesti in one vs one} = \frac{k(k-1)}{2}
+$$
+
+Immaginiamo un classificatore per lo stesso problema precedentemente esposto: otteniuamo le classi $(c_1,c_2,c_3)$. Questi classificatori su coppie, daranno poi degli opportuni risultati:
+$$
+c_1 \text{ vs } c_2, \quad c_2 \text{ vs } c_3, \quad c_1 \text{ vs } c_3
+$$
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.75\linewidth]{images/onevsone}
+\end{figure}
+
+La classe con più voti è quella predetta. 
+
+\subsection{Confronto tra \textit{One vs All} e \textit{One vs One}}
+Il modello one vs one, per quanto più oneroso in termini di numero di classificatori binari richiesti, non presenta l'area di incertezza su tutte le classi, che invece possiamo trovare nel classificatore one vs all.
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=1\linewidth]{images/onevsonevsonevsall}
+\end{figure}
+
