@@ -264,7 +264,7 @@ $$
 \text{Numero di classificatori richiesti in one vs one} = \frac{k(k-1)}{2}
 $$
 
-Immaginiamo un classificatore per lo stesso problema precedentemente esposto: otteniuamo le classi $(c_1,c_2,c_3)$. Questi classificatori su coppie, daranno poi degli opportuni risultati:
+Immaginiamo un classificatore per lo stesso problema precedentemente esposto: otteniuamo le classi $(c_1,c_2,c_3)$. Questi classificatori su coppie, daranno poi dei risultati. La classe più votata vince:
 $$
 c_1 \text{ vs } c_2, \quad c_2 \text{ vs } c_3, \quad c_1 \text{ vs } c_3
 $$
@@ -274,18 +274,18 @@ $$
 	\includegraphics[width=0.75\linewidth]{images/onevsone}
 \end{figure}
 
-La classe con più voti è quella predetta. 
 
 \subsection{Confronto tra \textit{One vs All} e \textit{One vs One}}
 Il modello one vs one, per quanto più oneroso in termini di numero di classificatori binari richiesti, non presenta l'area di incertezza su tutte le classi, che invece possiamo trovare nel classificatore one vs all.
 
 \begin{figure}[tbph]
 	\centering
-	\includegraphics[width=1\linewidth]{images/onevsonevsonevsall}
+	\includegraphics[width=0.75\linewidth]{images/onevsonevsonevsall}
 \end{figure}
 
 \section{Softmax}
-I problemi di utilizzare modelli OVA o OVO nella classificazione multiclasse sono diversi:
+Abbiamo quindi visto com'è possibile implementare un classificatore multiclasse utilizzando più classificatori binari. Tuttavia, questa strategia (a prescindere da OVA e OVO) presenta delle criticità.
+
 \begin{itemize}
 	\item Numero di classificatori elevato, che porta a tempi di training lunghi.
 	\item Possibili aree di incertezza.
@@ -326,7 +326,7 @@ e^{\vartheta^{(k) T} x}
 \noindent
 Dove $c$ è la classe di cui vogliamo calcolare la probabilità, $k$ è l'indice che scorre tutte le classi, e $\vartheta^{(k)}$ è il vettore dei parametri associati alla classe $k$.
 
-\textbf{N.B.} Ogni classe $k$ ha il proprio vettore di parametri $\vartheta^{(k)}$ (i pesi del modello). Inoltre, una volta finito il learning del modello, la somma delle probabilità restituite dal softmax sarà sempre pari a 1 ($\sum_{k=1}^{K} P_{\vartheta}^{(k)}(y=k | x) = 1$)
+\textbf{N.B.} Ogni classe $k$ ha il proprio vettore di parametri $\vartheta^{(k)}$ (i pesi del modello). Inoltre, una volta finito il learning del modello, la somma delle probabilità restituite dal softmax sarà sempre pari a 1 ($\displaystyle\sum_{k=1}^{K} P_{\vartheta}^{(k)}(y=k | x) = 1$).
 
 \subsection{Funzione di Costo}
 La funzione di costo del softmax è una funzione chiamata Cross Entropy Loss. Prima di poter definire la funzione di costo, definiamo una variabile ausiliaria \(1\{\text{proposizione}\} \) che vale 1 se la proposizione è vera, 0 altrimenti.
