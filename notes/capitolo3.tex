@@ -49,6 +49,7 @@ J(\vartheta)=\frac{1}{2m}\sum_{i=1}^{m}\big(h_\vartheta(x^{(i)})-y^{(i)}\big)^2.
 Il fattore \(1/2\) è una costante di comodo che semplifica le derivate; il quadrato rende
 positivi tutti i contributi ed enfatizza gli errori grandi. In regressione lineare \(J\) è
 convessa rispetto ai parametri, quindi il minimo è unico (se c'è variabilità negli \(x^{(i)}\)). Otteniamo un grafico a tazza.
+
 \section{Regressione lineare multipla}
 Estendiamo al caso con più variabili in ingresso. Dato il vettore
 \(x=(x_1,\dots,x_n)\), usiamo un parametro per ogni dimensione più il bias:
@@ -70,7 +71,7 @@ Questo modello è, in sostanza, un \emph{percettrone senza soglia}: la combinazi
 Per far funzionare bene (e in fretta) la discesa del gradiente, le feature vanno portate
 su scale simili. Due opzioni comuni:
 \[
-\text{z-scoring:}\quad x_j\leftarrow\frac{x_j-\mu_j}{\sigma_j},
+z\text{-scoring:}\quad x_j\leftarrow\frac{x_j-\mu_j}{\sigma_j},
 \qquad
 \text{min--max:}\quad x_j\leftarrow\frac{x_j-x_j^{\min}}{x_j^{\max}-x_j^{\min}}.
 \]

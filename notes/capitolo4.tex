@@ -218,8 +218,8 @@ $$
 
 Sia nella classificazione binaria, che in quella multiclasse, è possibile osservare casi in cui la probabilità stimata che un input appartenga ad una tra le classi specificate, non superi un determinato valore di certezza. Sono dei casi limite che vanno gestiti in maniera opportuna:
 \begin{enumerate}
-	\item Prendere il valore con certezza più alta (se è proprio obbligatorio stabilire una classe, e il task non è particolarmente delicato).
-	\item Scartare l'input.
+	\item Prendere il valore con certezza più alta, se è proprio obbligatorio stabilire una classe, e il task non è particolarmente delicato.
+	\item Scartare l'input. Un'opzione migliore in campi più dellicati, come quello medico.
 \end{enumerate}
 
 \begin{figure}[tbph]
@@ -231,7 +231,7 @@ Sia nella classificazione binaria, che in quella multiclasse, è possibile osser
 
 \newpage
 
-\section{Classificazione multiclasse e one vs all}  
+\section{Classificazione multiclasse, approccio naive OVA e OVO}  
 La classificazione multiclasse si distingue da quella binaria per il numero di classi.
 Il dataset di input non avrà più etichette binarie, ma $k$ etichette. A ogni classe si associa un numero, ai fini di semplicità. 
 
@@ -283,8 +283,22 @@ Il modello one vs one, per quanto più oneroso in termini di numero di classific
 	\includegraphics[width=0.75\linewidth]{images/onevsonevsonevsall}
 \end{figure}
 
-\section{Softmax}
-Abbiamo quindi visto com'è possibile implementare un classificatore multiclasse utilizzando più classificatori binari. Tuttavia, questa strategia (a prescindere da OVA e OVO) presenta delle criticità.
+\section{Stochastic Gradient Descent}
+L'algoritmo di discesa del gradiente, computa $J(\vartheta)$ su \textbf{tutti} i campioni del training set: associando al numero di campioni il valore $m$, a $d$ il numero di feature e ad $e$ le epoche di training, otteniamo un numero di operazioni complessive pari a 
+
+$$
+m \times d \times e
+$$
+
+Questo prodotto raggiunge facilmente valori molto alti. Un modo per ridurre il numero di operazioni, senza intaccare il risultato del training, e arrivare a convergenza, è l'uso della \textbf{SGD}, ossia della \textbf{discesa del gradiente stocastica}. Ad ogni iterazione del training si campiona un mini-\textbf{batch} di campioni di dimensione $b \leq m$. Questo campione è scelto randomicamente a ogni iterazione.
+$$
+b \times d \times e
+$$
+
+L'algoritmo deve arrivare a convergenza: se non arriva a convergenza, si ripete il campionamento e si ripete il training.
+
+\section{Softmax - Classificazione Multiclasse}
+Abbiamo quindi visto com'è possibile implementare un classificatore multiclasse utilizzando più classificatori binari. Tuttavia, questa strategia (a prescindere da OVA e OVO) presenta delle criticità:
 
 \begin{itemize}
 	\item Numero di classificatori elevato, che porta a tempi di training lunghi.
@@ -300,6 +314,7 @@ Sia $K$ il numero di classi da prevedere. Il modello Softmax restituisce un vett
 P_{\vartheta}^{(k)}(y=k | x) \qquad \forall k \in \{1, \ldots, K\}
 \]
 
+la somma di ogni elemento del vettore, è sempre $=1$.
 \subsection{Funzione Softmax}
 Partiamo dall'idea che il softmax restituisce un vettore di probabilità:
 \[

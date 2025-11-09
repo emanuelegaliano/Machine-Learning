@@ -1,5 +1,19 @@
 \chapter{Design, valutazione e scelta dei parametri di un algoritmo di ML}
 
+\section{Momento e gradiente}
+Una variante dell'algoritmo di discesa del gradiente, ovvero \textbf{la discesa del gradiente con momento}, modifica la nostra formula del gradiente nel seguente modo:
+
+$$
+\vartheta_j^\text{new} \leftarrow \vartheta_j^\text{old} - \alpha z^\text{new}
+$$
+
+$$
+z^\text{new} \leftarrow \beta z^\text{old} + \frac{\partial J(\vartheta^\text{old})}{\partial \vartheta^\text{old}} 
+$$
+
+l'idea è quella di mantenere in $z$ una \textbf{media dei gradienti recenti}, in modo da mantenere coerenza durante la convergenza: valori incoerenti del gradiente sono \textbf{rumore}, e questo \textbf{può causare zig-zag e rallentamenti nella convergenza}. Tenendo uno storico dei valori del gradiente (usando il \textbf{momentum} $\beta$ come parametro che stabilisce l'influenza dei vecchi valori su quelli nuovi), diventa possibile \textbf{annullare parzialmente o totalmente l'effetto del rumore}. Accelera anche la convergenza stessa, \textbf{rinforzando i passi coerenti}. Si accorcia quindi il training, e si migliorano le performance a parità di epoche. Osservazioni statistiche consigliano l'utilizzo di $\beta = 0.90$ per ottenere risultati migliori.
+
+
 \section{Design di Algoritmi}
 Progettare bene un algoritmo di ML permette di ottenere migliori risultati in meno tempo e con meno risorse computazionali. Si pensi al cercare di inserire a casaccio i parametri di un modello, senza una logica precisa: si rischia di perdere tempo, se invece si pensa a come variare i parametri in maniera sistematica, per capire l'impatto di ciascuno di essi sul modello si potrebbe ottenere un modello migliore in meno tempo.
 
@@ -94,17 +108,25 @@ Per valutare le prestazioni di un modello possiamo usare i valori del bias e del
 
 \paragraph{Bias.} Ricordiamo che il bias è \textbf{l'errore sistematico} che il modello commette sui dati. Un modello con alto bias tende a sottostimare la complessità del problema, portando a errori elevati sia sul training set che sul test set. Questo fenomeno è noto come \textbf{underfitting}. Nell'immagine \ref{fig:ovfit_underfit_rightfit}, il grafico a sinistra mostra un esempio di underfitting, dove il modello lineare non riesce a catturare la relazione tra le variabili e commette un errore sistematico sia sul training set (punti blu) che sul test set (punti rossi).
 
-\paragraph{Varianza.} La varianza rappresenta la sensibilità del modello alle variazioni nei dati di training. Un modello con alta varianza tende a sovradattarsi ai dati di training, catturando il rumore invece della vera relazione tra le variabili. Questo porta a errori bassi sul training set ma elevati sul test set, fenomeno noto come \textbf{overfitting}. Nell'immagine \ref{fig:ovfit_underfit_rightfit}, il grafico a destra mostra un esempio di overfitting, dove il modello polinomiale è troppo complesso e si adatta troppo strettamente ai dati di training, risultando in prestazioni scadenti sui dati di test\footnote{Si noti che basterebbe rimuovere un punto del training set per far cambiare completamente il modello, in quanto altamente sensibile ai dati di input.}.
-
-Come si vede dall'immagine al centro della figura \ref{fig:ovfit_underfit_rightfit}, un modello con capacità adeguata riesce a bilanciare bias e varianza, ottenendo buone prestazioni sia sul training set che sul test set.
-
-Per valutare e risolvere i problemi sul modello, possiamo andare a controllare come Bias e Varianza variano al variare dei parametri del modello e notiamo che si può costruire una correlazione tra l'errore commesso dal modello (quindi o in $J_{\text{TEST}}$ o in $J_{\text{VAL}}$) e la complessità del polinomio (il grado):
+\paragraph{Varianza.} La varianza rappresenta la sensibilità del modello alle variazioni nei dati di training. Un modello con alta varianza tende a sovradattarsi ai dati di training, catturando il rumore invece della vera relazione tra le variabili. Questo porta a errori bassi sul training set ma elevati sul test set, fenomeno noto come \textbf{overfitting}. 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/bias_variance_tradeoff.png}
+	\includegraphics[width=0.75\textwidth]{images/bias_variance_tradeoff.png}
 	\caption{Trade-off tra bias e varianza in funzione della complessità del modello.}
 	\label{fig:bias_variance_tradeoff}
 \end{figure}
+ 
+Nella figura \ref{fig:ovfit_underfit_rightfit}, il grafico a destra mostra un esempio di overfitting, dove il modello polinomiale è troppo complesso e si adatta troppo strettamente ai dati di training, risultando in prestazioni scadenti sui dati di test\footnote{Si noti che basterebbe rimuovere un punto del training set per far cambiare completamente il modello, in quanto altamente sensibile ai dati di input.}.
+Come si vede dall'immagine al centro della figura \ref{fig:ovfit_underfit_rightfit}, un modello con capacità adeguata riesce a bilanciare bias e varianza, ottenendo buone prestazioni sia sul training set che sul test set. Per valutare e risolvere i problemi sul modello, possiamo andare a controllare come Bias e Varianza variano al variare dei parametri del modello\footnote{In quella che molti chiamano \textbf{bias-variance trade-off}.} e notiamo che si può costruire una correlazione tra l'errore commesso dal modello (quindi o in $J_{\text{TEST}}$ o in $J_{\text{VAL}}$) e la complessità del polinomio (il grado):
+
 
 \paragraph{Parametro di regolarizzazione.}
+
+Anche i parametri di regolarizzazione, esattamente come il modello (i suoi parametri), devono essere stabiliti sperimentalmente. Si parte da $\lambda^0 = 0$, testando valori di  $\lambda^{i}, \lambda^{i+1}, \lambda^{i+2} \dots$ sempre più grandi, verificando come cambia $J_{\text{VAL}}(\vartheta^i)$ in funzione di $\lambda^i$. Solitamente 
+
+$$
+J_{\text{VAL}}(\vartheta^\text{best}) = \min J_{\text{VAL}}(\vartheta^i)
+$$
+
+quindi $\lambda^\text{best}$ minimizza la funzione di costo.
