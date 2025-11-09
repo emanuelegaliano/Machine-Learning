@@ -1269,6 +1269,23 @@ INPUT ./capitolo5.tex
 INPUT capitolo5.tex
 INPUT ./capitolo5.tex
 INPUT capitolo5.tex
+INPUT ./images/splits_folds_example.png
+INPUT ./images/splits_folds_example.png
+INPUT images/splits_folds_example.png
+INPUT ./images/splits_folds_example.png
+INPUT ./images/splits_folds_example.png
+INPUT ./images/ovfit_underfit_rightfit.png
+INPUT ./images/ovfit_underfit_rightfit.png
+INPUT images/ovfit_underfit_rightfit.png
+INPUT ./images/ovfit_underfit_rightfit.png
+INPUT ./images/ovfit_underfit_rightfit.png
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/rm-lmbx9.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/rm-lmbx5.tfm
+INPUT ./images/bias_variance_tradeoff.png
+INPUT ./images/bias_variance_tradeoff.png
+INPUT images/bias_variance_tradeoff.png
+INPUT ./images/bias_variance_tradeoff.png
+INPUT ./images/bias_variance_tradeoff.png
 INPUT out/Machine Learning.aux
 INPUT out/capitolo1.aux
 INPUT out/capitolo1.aux

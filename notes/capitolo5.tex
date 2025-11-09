@@ -1,0 +1,110 @@
+\chapter{Design, valutazione e scelta dei parametri di un algoritmo di ML}
+
+\section{Design di Algoritmi}
+Progettare bene un algoritmo di ML permette di ottenere migliori risultati in meno tempo e con meno risorse computazionali. Si pensi al cercare di inserire a casaccio i parametri di un modello, senza una logica precisa: si rischia di perdere tempo, se invece si pensa a come variare i parametri in maniera sistematica, per capire l'impatto di ciascuno di essi sul modello si potrebbe ottenere un modello migliore in meno tempo.
+
+\subsection{Strategie di miglioramento}
+Supponiamo di aver implementato la regressione lineare con regolarizzazione, ma gli errori su nuovi campioni sono comunque troppo alti. Potremmo pensare ad alcune strategie per migliorare il modello:
+\begin{description}
+	\item[Aumentare i campioni di Training.] Non è sempre una scelta utile, anche perché se il modello non funziona su nuovi campioni significa che il problema (molto probabilmente) è di overfitting. Aumentare i campioni di training potrebbe aiutare, ma non è detto che lo faccia.
+	\item[Ridurre il set di Features.] Si potrebbe pensare di ridurre il numero di features in input al modello, in modo da semplificare il problema e ridurre il rischio di overfitting. Questa tecnica può essere efficace se alcune features sono ridondanti o non rilevanti per il task. Tuttavia, è importante fare attenzione a non eliminare informazioni utili. 
+	\item[Cercare nuove features.] L'opposto della riduzione delle features: il problema è di underfitting, in quanto il modello non ha abbastanza informazioni per generalizzare bene. Aggiungere nuove features può aiutare a migliorare le prestazioni del modello ma richiede un'attenta selezione delle stesse per evitare di introdurre rumore.
+	\item[Utilizzare features polinomiali.] Trasformare le features esistenti in polinomiali può aiutare a catturare relazioni non lineari tra le variabili. Questa tecnica può essere utile se si sospetta che il modello lineare non sia sufficiente per rappresentare i dati. Tuttavia, l'aggiunta di termini polinomiali aumenta la complessità del modello e il rischio di overfitting, quindi è importante bilanciare questa scelta con tecniche di regolarizzazione.
+	\item[Far variare il parametro di regolarizzazione $\lambda$.] Modificare il parametro di regolarizzazione può influenzare significativamente le prestazioni del modello. Un valore più alto di $\lambda$ penalizza maggiormente i pesi del modello, riducendo il rischio di overfitting, mentre un valore più basso consente al modello di adattarsi meglio ai dati di training, ma aumenta il rischio di overfitting. È importante trovare un equilibrio ottimale attraverso tecniche come la validazione incrociata (che vedremo più avanti). 
+\end{description}
+
+Solitamente si cerca di effettuare test di diagnostica applicati al modello, per permettere di ottenere informazioni dettagliate su cosa funziona o non funziona con l'obiettivo di ottenere indicazioni per migliorare le prestazioni.
+
+\section{Valutazione}
+La valutazione di un algoritmo di ML è fondamentale per capire se il modello è adatto al task. 
+
+\subsection{Valutazione incrociata}
+Un modo di fare valutazione incrociata è una variante della k-Fold Cross Validation: non si suddivide più in training e test sets, ma piuttosto in training e validation sets. In questo modo si può utilizzare il validation set per scegliere i parametri del modello, mentre il test set viene utilizzato solo alla fine per valutare le prestazioni finali del modello.
+
+\noindent
+La procedura è la seguente:
+\begin{enumerate}
+	\item Si suddivide il dataset originale in training/validation set e un test set che non verrà usato fino alla fine della valutazione.
+	\item Si suddivide il dataset rimanente in $t$ splits e in $k$ folds.
+	\item Si seleziona uno split come validation set e gli altri $t-1$ come training set.
+	\item Si allena il modello sui $t-1$ training splits.
+	\item Si valuta il modello con una funzione $J_{\text{VAL}}$ sul validation fold (non usato per il training).
+	\item Si ripete il processo per tutti i $t$ splits, ottenendo $t$ valori di $J_{\text{VAL}}$.
+	\item Si calcola la media dei $t$ valori di $J_{\text{VAL}}$ per ottenere una stima complessiva delle prestazioni del modello.
+	\item Si ripete l'intero processo per tutti i possibili set di iperparametri del modello.
+	\item Si selezionano gli iperparametri che hanno prodotto la migliore prestazione media sul validation set.
+	\item Infine, si valuta il modello finale con gli iperparametri selezionati sul test set per ottenere una stima finale delle prestazioni del modello.
+\end{enumerate}
+
+In questo modo il modello è robusto perché è stato allenato su diversi training set per i dati, allenato sui validation set per gli iperparametri e testato su un test set \textbf{mai visto prima}.
+
+\paragraph{Esempio.}
+Ipotizziamo di avere un certo dataset, dividiamolo in un test set (20\% dei dati) e in un training/validation set (80\% dei dati). Definiamo le funzioni di costo:
+\begin{itemize}
+	\item \textbf{Funzione di costo di training:}
+	\[
+	J_{\text{TR}}(\vartheta) = \frac{1}{2m_{\text{TR}}} \sum_{i=1}^{m_{\text{TR}}} \left( h_\vartheta(x^{(i)}_{\text{TR}}) - y^{(i)}_{\text{TR}} \right)^2
+	\]
+	Dove $m_{\text{TR}}$ è il numero di campioni nel training set, $x^{(i)}_{\text{TR}}$ e $y^{(i)}_{\text{TR}}$ sono rispettivamente l'input e l'output del $i$-esimo campione del training set.
+	\item \textbf{Funzione di costo di validation:}
+	\[
+	J_{\text{VAL}}(\vartheta) = \frac{1}{2m_{\text{VAL}}} \sum_{i=1}^{m_{\text{VAL}}} \left( h_\vartheta(x^{(i)}_{\text{VAL}}) - y^{(i)}_{\text{VAL}} \right)^2
+	\]
+	Dove $m_{\text{VAL}}$ è il numero di campioni nel validation set, $x^{(i)}_{\text{VAL}}$ e $y^{(i)}_{\text{VAL}}$ sono rispettivamente l'input e l'output del $i$-esimo campione del validation set.
+	\item \textbf{Funzione di costo di test:}
+	\[
+	J_{\text{TEST}}(\vartheta) = \frac{1}{2m_{\text{TEST}}} \sum_{i=1}^{m_{\text{TEST}}} \left( h_\vartheta(x^{(i)}_{\text{TEST}}) - y^{(i)}_{\text{TEST}} \right)^2
+	\]
+	Dove $m_{\text{TEST}}$ è il numero di campioni nel test set, $x^{(i)}_{\text{TEST}}$ e $y^{(i)}_{\text{TEST}}$ sono rispettivamente l'input e l'output del $i$-esimo campione del test set.
+\end{itemize}
+
+\noindent
+Supponiamo di voler utilizzare $t=5$ splits e $k=5$ folds. La suddivisione del training/validation set sarà la seguente:
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/splits_folds_example.png}
+	\caption{Dataset diviso in split e folds per la valutazione incrociata.}
+\end{figure}
+
+Dopo aver suddiviso i dati, ognuno dei dati produrrà una stima di $J_{\text{VAL}}^H(\vartheta^{(i)})$ per un certo $i$-esimo set valutata sull'iperparametro $H$. Da queste andiamo a fare la media:
+\[
+\bar{J}_{\text{VAL}}^H(\vartheta) = \frac{1}{t} \sum_{i=1}^{t} J_{\text{VAL}}^H(\vartheta^{(i)})
+\]
+
+Ottenuta la media $\bar{J}_{\text{VAL}}^H(\vartheta)$ per ogni set di iperparametri $H$, si seleziona quello che minimizza la funzione di costo media:
+\[
+H^* = \arg\min_H \bar{J}_{\text{VAL}}^H(\vartheta)
+\]
+
+Una volta fissato il miglior iperparametro $H^*$, si allena il modello sul test set per ottenere la stima finale:
+\[
+J_{\text{TEST}}^{H^*}(\vartheta)
+\]
+
+\subsection{Bias e Varianza}
+Per valutare le prestazioni di un modello possiamo usare i valori del bias e della varianza per fare delle stime su come il modello si comporta sui dati.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/ovfit_underfit_rightfit.png}
+	\caption{Underfitting---capacità adeguata---overfitting in regressione polinomiale: punti blu \(=\) dati di training (\(\mathrm{TR}\)), punti rossi \(=\) fuori da \(\mathrm{TR}\); la linea verde mostra il fit del modello: lineare (sinistra), polinomio di grado \(2\) (centro) e polinomio di grado \(5\) (destra).}
+	\label{fig:ovfit_underfit_rightfit}
+\end{figure}
+
+\paragraph{Bias.} Ricordiamo che il bias è \textbf{l'errore sistematico} che il modello commette sui dati. Un modello con alto bias tende a sottostimare la complessità del problema, portando a errori elevati sia sul training set che sul test set. Questo fenomeno è noto come \textbf{underfitting}. Nell'immagine \ref{fig:ovfit_underfit_rightfit}, il grafico a sinistra mostra un esempio di underfitting, dove il modello lineare non riesce a catturare la relazione tra le variabili e commette un errore sistematico sia sul training set (punti blu) che sul test set (punti rossi).
+
+\paragraph{Varianza.} La varianza rappresenta la sensibilità del modello alle variazioni nei dati di training. Un modello con alta varianza tende a sovradattarsi ai dati di training, catturando il rumore invece della vera relazione tra le variabili. Questo porta a errori bassi sul training set ma elevati sul test set, fenomeno noto come \textbf{overfitting}. Nell'immagine \ref{fig:ovfit_underfit_rightfit}, il grafico a destra mostra un esempio di overfitting, dove il modello polinomiale è troppo complesso e si adatta troppo strettamente ai dati di training, risultando in prestazioni scadenti sui dati di test\footnote{Si noti che basterebbe rimuovere un punto del training set per far cambiare completamente il modello, in quanto altamente sensibile ai dati di input.}.
+
+Come si vede dall'immagine al centro della figura \ref{fig:ovfit_underfit_rightfit}, un modello con capacità adeguata riesce a bilanciare bias e varianza, ottenendo buone prestazioni sia sul training set che sul test set.
+
+Per valutare e risolvere i problemi sul modello, possiamo andare a controllare come Bias e Varianza variano al variare dei parametri del modello e notiamo che si può costruire una correlazione tra l'errore commesso dal modello (quindi o in $J_{\text{TEST}}$ o in $J_{\text{VAL}}$) e la complessità del polinomio (il grado):
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{images/bias_variance_tradeoff.png}
+	\caption{Trade-off tra bias e varianza in funzione della complessità del modello.}
+	\label{fig:bias_variance_tradeoff}
+\end{figure}
+
+\paragraph{Parametro di regolarizzazione.}
