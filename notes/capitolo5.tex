@@ -123,10 +123,60 @@ Come si vede dall'immagine al centro della figura \ref{fig:ovfit_underfit_rightf
 
 \paragraph{Parametro di regolarizzazione.}
 
-Anche i parametri di regolarizzazione, esattamente come il modello (i suoi parametri), devono essere stabiliti sperimentalmente. Si parte da $\lambda^0 = 0$, testando valori di  $\lambda^{i}, \lambda^{i+1}, \lambda^{i+2} \dots$ sempre più grandi, verificando come cambia $J_{\text{VAL}}(\vartheta^i)$ in funzione di $\lambda^i$. Solitamente 
+Anche i parametri di regolarizzazione, esattamente come il modello (i suoi parametri), devono essere stabiliti sperimentalmente. Si parte da $\lambda^0 = 0$, testando valori di $\lambda^{(1)}, \lambda^{(2)} \ldots \lambda^{(k)}$ sempre più grandi, verificando come cambia $J_{\text{VAL}}(\vartheta^i)$ in funzione di $\lambda^i$:
+\[
+\left[
+\begin{array}{c}
+\lambda^{(0)}\\
+\lambda^{(1)}\\
+\lambda^{(2)}\\
+\lambda^{(3)}\\
+\vdots\\
+\lambda^{(k)}
+\end{array}
+\right]
+\;\Rightarrow\;
+\min_{\vartheta} J(\vartheta)
+\;\Rightarrow\;
+\left[
+\begin{array}{c}
+\vartheta^{(0)}\\
+\vartheta^{(1)}\\
+\vdots \\
+\vartheta^{(k)}
+\end{array}
+\right]
+\quad
+\left[
+\begin{array}{c}
+J_{\text{VAL}}(\vartheta^{(0)})\\
+J_{\text{VAL}}(\vartheta^{(1)})\\
+\vdots \\
+J_{\text{VAL}}(\vartheta^{(k)})
+\end{array}
+\right]
+\;\Rightarrow\;
+\underbrace{\text{BEST } J_{\text{VAL}}}_{\text{min}}
+\;\Rightarrow\;
+J_{\text{TEST}}\!\big(\vartheta^{\text{BEST}}\big)
+\]
 
-$$
-J_{\text{VAL}}(\vartheta^\text{best}) = \min J_{\text{VAL}}(\vartheta^i)
-$$
 
-quindi $\lambda^\text{best}$ minimizza la funzione di costo.
+In questo modo si riesce a trovare il miglior parametro di regolarizzazione che minimizza l'errore sul validation set, e si può usare questo parametro per valutare il modello sul test set.
+
+\paragraph{Altre curve.}
+Un'altra curva potrebbe essere quella che mostra l'\textbf{errore} su \emph{train set} e \emph{validation set} in funzione del numero di campioni di training (figura \ref{fig:error_vs_training_size}). In questo modo si può capire se il modello soffre di overfitting o underfitting:
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/learning_curve_train_validation.png}
+	\caption{Learning curves: errore su training \(J_{\mathrm{TRAIN}}\) e su validation \(J_{\mathrm{VAL}}\) in funzione del numero di esempi \(m\). \(J_{\mathrm{VAL}}\) decresce, \(J_{\mathrm{TRAIN}}\) cresce leggermente e il \emph{generalization gap} (freccia) si riduce; le curve si avvicinano all'errore irreducibile.}
+	\label{fig:error_vs_training_size}
+\end{figure}
+
+La figura conferma il fatto che esiste il trade-off bias-varianza, in quanto:
+\begin{itemize}
+	\item Se siamo in presenza di \emph{high bias}, quindi un alto gap tra la curva di train e l'asse delle ascisse, aumentare il numero di dati di training non aiuta molto. 
+	\item Se siamo in presenza di \emph{high variance}, quindi un grande gap tra l'errore commesso tra il training set e il validation set, aumentare il numero di dati di training potrebbe aiutare a migliorare i risultati (non sempre).
+\end{itemize}
+

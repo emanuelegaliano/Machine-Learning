@@ -51,7 +51,7 @@ Ci sono \textbf{due criticità} relative all'utilizzo della regressione. La prim
 \newpage
 La seconda criticità riguarda invece la $y$, non sempre limitata tra 0 e 1, come ci aspettiamo in un modello di classificazione binaria. Come ci comportiamo con valori più grandi di 1? E con valori minori di 0? Possiamo risolvere il problema introducendo delle funzioni, dette funzioni \textbf{di linking}. Queste ci permettono di \textbf{adattare i nostri valori }a modelli di regressione che altrimenti non sarebbero opportuni per la classificazione. Vediamo un esempio relativo alla regressione logistica usando la funzione \textbf{sigmoide}.
 
-\section{Regressione logicistica - Sigmoide}
+\section{Regressione logistica - Sigmoide}
 Se la regressione lineare restituisce una $y$ non limitata tra 0 e 1, la \textbf{regressione logistica} risolve il problema con una funzione, detta \textbf{sigmoide}, applicata sul risultato $z = \vartheta^TX$ del modello di regressione. La \textbf{sigmoide} una funzione del tipo
 
 $$
@@ -66,7 +66,7 @@ con $z = \vartheta_0 + \vartheta_1 x_1 + \dots + \vartheta_i x_i$. Questa funzio
 	\item È inoltre dimostrabile che $\displaystyle\overline{\sigma} = \frac{1}{2} + \frac{1}{2}\tanh\left(\frac{z}{2}\right)$. Questo ci apre le porte a implementazioni molto più semplici.
 \end{itemize}
 
-Concludiamo che la regressione logicistica, è ottimale per trovare opportuni parametri di $\vartheta^T$, che moltiplicati a $x$, ci permetteranno di stabilire il \textbf{decision boundary}, nella ben nota forma:
+Concludiamo che la regressione logistica, è ottimale per trovare opportuni parametri di $\vartheta^T$, che moltiplicati a $x$, ci permetteranno di stabilire il \textbf{decision boundary}, nella ben nota forma:
 
 $$
 \vartheta_0x_0 + \vartheta_1x_1 + \vartheta_2x_2 + \dots \vartheta_dx_d  

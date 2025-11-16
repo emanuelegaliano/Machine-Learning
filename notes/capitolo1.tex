@@ -1,13 +1,14 @@
 \chapter{Introduzione al Machine Learning}
 
-\section{Definizione di Machine Learning (Arthur Samuel - 1959)}
+\section{Prime definizioni di Machine Learning}
 
+\subsection{Arthur Samuel - 1959}
 
 Nel 1959, Arthur Samuel fornisce una \textbf{definizione di machine learning}: il machine learning è il campo di studi che abilita i computer ad \textbf{imparare}, \textbf{senza essere esplicitamente programmati}.
 
 Il paradigma alla base è fortemente diverso da quello tipico: se un algoritmo classico è \textbf{programmato ad hoc }per risolvere un task, e si comporta in maniera prettamente \textbf{deterministica}, un algoritmo di machine learning può \textbf{imparare a risolvere problemi} associati a vasti set di dati (classificare elementi, riconoscerli, trovare correlazioni). Questo permette di spostare il nostro focus non più sullo sviluppo di tutti gli step necessari affinchè un algoritmo risolvi \textbf{un problema specifico}, ma sulla creazione di un modello che riesca ad apprendere come risolvere \textbf{un insieme di problemi simili}.
 
-\section{Perchè abbiamo bisogno del Machine Learning}
+\subsection{Perchè abbiamo bisogno del Machine Learning}
 
 L'approccio utilizzato finora per risolvere i problemi è quello di:
 
@@ -54,15 +55,16 @@ Vogliamo creare un algoritmo di machine learning in grado di determinare se una 
     \item \verb|Ciao Giovanni, come stai?| $\rightarrow$ Ham
 \end{itemize}
 
-\section{Machine Learning Algorithm (Tom Mitchel - 1998)}
-
+\subsection{Tom Mitchel - 1998}
 Un algoritmo \textbf{apprende dall'esperienza} $E$ rispetto a una certa classe di \textbf{Task} $T$ e a una misura di \textbf{performance} $P$. Se la sua \textbf{performance} nel compito $T$, misurata tramite $P$, migliora con l’\textbf{esperienza }$E$, allora quel modello ha appreso con successo.
 
-\section{Definizione di Task}
+\section{Definizioni fondamentali}
+
+\subsection{Definizione di Task}
 
 Rappresenta il problema che deve essere risolto. Nell'esempio di determinare se una mail è spam o meno, il task è quello di \textbf{predire} l'etichetta ($Y=$"spam" oppure $Y=$"ham"), ed è strettamente legata al modello, che rappresentiamo come funzione parametrizzata, indicata con $h_\theta$.
 
-\section{Definizione di Esperienza}
+\subsection{Definizione di Esperienza}
 
 Rappresentano i dati, ovvero i valori assunti dalle \textbf{random variables}, nell'esempio $X$ è il contenuto della mail ed $Y$ l'etichetta. La coppia di valori:
 
@@ -73,7 +75,7 @@ $$
 \noindent
 Rappresenta l'esperienza. Generalmente vista come una collezione di elementi chiamati \textbf{esempi}.
 
-\section{Definizione di Performance}
+\subsection{Definizione di Performance}
 
 Funzione $P$ che \textbf{valuta quanto bene } il modello è in grado di \textbf{risolvere un certo task} $T$.
 Supponiamo che il nostro algoritmo abbia previsto un insieme di etichette per un dato numero di email che indichiamo con:
@@ -101,7 +103,7 @@ Questa funzione restituisce un valore reale appartenente al range [0,1].
 \noindent
 Indichiamo con il termine \textbf{misura di errore} il valore: $1 - P$. Per risolvere problemi di machine learning ci affidiamo a modelli statistici che dipendono dal task.
 
-\section{Esempio completo}
+\subsection{Esempio completo}
 
 Siano:
 
@@ -126,7 +128,7 @@ $$ h_\theta(x^{(2)}) = \hat{y}^{(2)} $$
 
 \section{Task, Esempi ed Etichette}
 
-Un esempio è generalmente espresso come una raccolta di valori che sono stati misurati quantitativamente da un evento osservato. Un esempio è generato da un vettore:
+Un esempio (o osservazione) è generalmente espresso come una raccolta di valori che sono stati misurati quantitativamente da un evento osservato. Un esempio è generato da un vettore:
 
 $$ x \in \mathbb{R}^{d} $$
 
@@ -139,7 +141,9 @@ I valori del vettore $x$ sono detti \textbf{features}, in quanto rappresentano \
 
 Torniamo al nostro esempio: determinare se un'e-mail è spam o ham. In questo caso, l'input è l'email, le features possono essere caratteristiche dell'email, come il numero di errori ortografici o la presenza di alcune parole chiave, mentre l'output atteso è l'etichetta (spam o ham).
 
-\section{Estrazione delle features}
+\section{Features}
+
+\subsection{Estrazione}
 
 Per gestire le email, dobbiamo prima trasformarle in un'\textbf{entità quantificabile}. Questo di solito viene fatto \textbf{identificando alcune caratteristiche} dei dati che sono \textbf{rilevanti per il compito dato} (numero di errori ortografici o la presenza di alcune parole chiave). In pratica, stiamo cercando una funzione $f$ che trasformi l'entità dalla sua forma originale a una forma di destinazione, che è buona per risolvere un compito specifico:
 
@@ -163,7 +167,7 @@ Le rappresentazioni sono di 2 tipi:
 \noindent
 L'estrazione delle features \textbf{mette in luce caratteristiche salienti} trascurandone altre.
 
-\section{Features}
+\subsection{Definizione formale}
 
 Generalmente, l'output di una funzione di rappresentazione è nella forma:
 
@@ -303,8 +307,9 @@ Sono algoritmi ottimi per trovare relazioni tra i dati ed effettuare predizioni.
     \label{fig:regressione}
 \end{figure}
 
-\newpage
-\section{Supervised Learning e Unsupervised Learning}
+\section{Tipi di Machine Learning}
+
+\subsection{Supervised Learning e Unsupervised Learning}
 
 Gli approcci di Machine Learning possono essere approssimativamente divisi in \textbf{supervised} e \textbf{unsupervised learning}.
 
@@ -320,9 +325,7 @@ Questi tipi di compiti mirano generalmente a \textbf{modellare la struttura dei 
 
 Gli approcci supervised sono generalmente più facili da gestire, ma richiedono la presenza di \textbf{labels}. Ottenere labels è spesso un problema costoso in termini di tempo, poiché richiede che le persone annotino manualmente i dati. Ad esempio, se dobbiamo costruire un spam-detector utilizzando un approccio supervised, è necessario che qualcuno etichetti manualmente diverse email come ‘spam’ o ‘non-spam’.
 
-\newpage
-
-\section{Reinforcement Learning}
+\subsection{Reinforcement Learning}
 
 Alcuni autori fanno riferimento anche a una terza classe di algoritmi di Machine Learning: il \textbf{Reinforcement Learning}.
 
@@ -362,7 +365,8 @@ $$
 \frac{4}{5} = 0.8 \quad \text{ovvero} \quad 80\%
 $$
 
-\section{Experience (E)}
+\section{Elementi fondamentali del Machine Learning}
+\subsection{Experience (E)}
 
 Un algoritmo di Machine Learning apprende dall'\textbf{experience} per migliorare una performance measure su un determinato task.
 
@@ -392,7 +396,7 @@ Esistono due principali tipi di algoritmi di Machine Learning:
 \noindent
 L'\textbf{experience} assume forme diverse a seconda del tipo di approccio di Machine Learning utilizzato.
 
-\section{Dataset (D)}
+\subsection{Dataset (D)}
 
 Le performance measures vengono generalmente calcolate rispetto a un insieme di esempi, piuttosto che su singoli esempi. Un insieme di esempi (eventualmente con labels) è chiamato \textbf{dataset}. I datasets sono generalmente omogenei, nel senso che i dati contenuti al loro interno hanno un formato simile. Ad esempio:
 
@@ -401,7 +405,7 @@ Le performance measures vengono generalmente calcolate rispetto a un insieme di 
     \item In un dataset di immagini di food, ogni immagine è associata a una class che indica il piatto specifico.
 \end{itemize}
 
-\section{Design Matrix}
+\subsection{Design Matrix}
 
 Un modo comune per rappresentare un dataset è utilizzare una design matrix. Poiché ogni esempio è una collezione di $n$ features, un dataset di $m$ elementi può essere rappresentato tramite una matrice
 
@@ -460,11 +464,11 @@ Le labels sono contenute in un vettore
 $$ Y \in \{0,1\}^{1000} $$
 dove $ Y_i $ rappresenta la label associata all’$i$-\textbf{esimo esempio} (ad esempio, 0 = not spam, \textbf{1 = spam}).
 
-\section{Learning}
+\subsection{Learning}
 
 Un algoritmo di Machine Learning \textbf{utilizza un dataset di esempi} per \textbf{migliorare la sua performance} in un determinato \textbf{task}. Il processo di miglioramento della performance dell'algoritmo è chiamato \textbf{learning} o \textbf{training}.
 
-\subsection{In cosa consiste il training?}
+\paragraph{In cosa consiste il training?}
 
 \begin{itemize}
 \item Un algoritmo di Machine Learning ha alcuni parametri chiamati parameters, che possono essere regolati per modificarne il comportamento. Questi parametri sono legati a un model (una funzione matematica) utilizzata per risolvere il task.
@@ -472,7 +476,7 @@ Un algoritmo di Machine Learning \textbf{utilizza un dataset di esempi} per \tex
 \item Alcuni parametri non possono essere regolati automaticamente dal training. Questi sono detti hyperparameters e devono essere ottimizzati al di fuori della training procedure, spesso attraverso un metodo trial and error.
 \end{itemize}
 
-\subsection{Esempio}
+\paragraph{Esempio.}
 
 Consideriamo un semplice spam detector che classifica le email come spam o non-spam in base al numero di errori ortografici. 
 
@@ -493,7 +497,7 @@ L'algoritmo dipende da un singolo parametro $a$. La domanda è: quale valore dov
 \noindent
 Una semplice training procedure consisterebbe nel provare diversi valori per $a$ e registrare le performance dell'algoritmo per ciascun valore di $a$. Alla fine, possiamo scegliere il valore di $a$ che massimizza la performance measure P.
 
-\section{Il paradigma Training/Testing}
+\subsection{Il paradigma Training/Testing}
 	Ciascun algoritmo di Machine Learning presenta al suo interno dei parametri. Una scelta opportuna dei parametri, dovrebbe garantire il funzionamento del modello. La procedura generale, per la scelta e la verifica dei parametri dell'algoritmo, è suddivisa in due parti:
 
 \begin{enumerate}
@@ -503,11 +507,7 @@ Una semplice training procedure consisterebbe nel provare diversi valori per $a$
 	Passiamo ora ai dati di testing, usati per verificare se i parametri scelti sul dataset di training, sono opportuni su dati mai visti prima. Andremo a valutare quindi il nostro modello, secondo quelle che chiamiamo \textbf{misure di valutazione}.
 \end{enumerate}
 
-\newpage
-
-\section{Sui dati}
-
-\subsection{Testing - Training}
+\subsubsection*{Suddivisione dei dati}
 Come accennato in precedenza, distinguiamo due insiemi di dati: i \textbf{dati di training} e i \textbf{dati di testing}. È importante che i dati usati in fase di training, e i dati usati in fase di inferenza, siano \textbf{totalmente disgiunti}. 
 $$
 \text{Training }\cap \text{Testing} = \varnothing
@@ -532,7 +532,7 @@ Possiamo quindi normalizzare secondo la seguente formula:
 \]
 e ogni dato sarà $\hat{x}_j \in [0,1]$.
 
-\paragraph{Normalizzazione in $[-1,1]$.}
+\paragraph{Standardizzazione in $[-1,1]$.}
 \[
   \hat{x}_j = \frac{x_j - \mu_j}{\sigma_j}
 \]
@@ -589,7 +589,7 @@ Osservando i risultati dei nostri modelli, sarà possibile individuare facilment
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/underoverfitting}
+	\includegraphics[width=0.6\textwidth]{images/underoverfitting}
 	\caption{In blu i dati di training, in rosso quelli di testing. Nel caso dell'underfitting, vediamo una funzione troppo semplice (una funzione lineare) per approssimare una funzione più complessa. Nel caso dell'overfitting, il modello da output assurdi.}
 	\label{fig:underoverfitting}
 \end{figure}
