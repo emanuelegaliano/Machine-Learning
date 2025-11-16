@@ -1318,6 +1318,16 @@ INPUT ./capitolo7.tex
 INPUT capitolo7.tex
 INPUT ./capitolo7.tex
 INPUT capitolo7.tex
+INPUT ./images/weather_table.png
+INPUT ./images/weather_table.png
+INPUT images/weather_table.png
+INPUT ./images/weather_table.png
+INPUT ./images/weather_table.png
+INPUT ./images/decision_tree_weather.png
+INPUT ./images/decision_tree_weather.png
+INPUT images/decision_tree_weather.png
+INPUT ./images/decision_tree_weather.png
+INPUT ./images/decision_tree_weather.png
 INPUT out/Machine Learning.aux
 INPUT out/capitolo1.aux
 INPUT out/capitolo1.aux

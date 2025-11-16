@@ -1,4 +1,92 @@
 \chapter{Decision Tree}
-Gli alberi decisionali (decision tree) sono modelli utilizzati per la classificazione. Essi rappresentano un insieme di regole decisionali organizzate in una struttura ad albero, dove ogni nodo interno rappresenta una condizione su una caratteristica dei dati, ogni ramo rappresenta l'esito della condizione e ogni foglia rappresenta una classe o un'etichetta di output.
+Gli alberi decisionali (decision tree) sono modelli utilizzati per la classificazione e la regressione. Essi rappresentano un insieme di regole decisionali organizzate in una struttura ad albero, dove ogni nodo interno rappresenta una condizione su una caratteristica dei dati, ogni ramo rappresenta l'esito della condizione e ogni foglia rappresenta una classe o un'etichetta di output.
+
+\section{Alberi di classificazione}
+Un albero decisionale per la classificazione è una struttura gerarchica composta da nodi interni e foglie. Ogni nodo interno rappresenta un test su una caratteristica specifica del dataset, mentre ogni foglia rappresenta una classe di output. L'obiettivo principale di un albero decisionale è suddividere il dataset in modo tale che le tuple appartenenti alla stessa classe siano raggruppate insieme nelle foglie dell'albero.
 
 Questo approccio, comunemente chiamato \textbf{divide and conquer}, suddivide iterativamente il dataset in sottoinsiemi più piccoli basati su condizioni specifiche, fino a quando non si raggiungono le foglie dell'albero che rappresentano le decisioni finali.
+
+\subsection{Divisione ricorsiva}
+La classe di una tupla $q$ si ottiene seguendo il cammino radice $\rightarrow$ foglia guidato dai blocchi condizionali sui nodi interni. Ogni nodo interno applica un test su una caratteristica $A$ e, in base al risultato del test, si procede lungo il ramo corrispondente fino a raggiungere una foglia che fornisce la classificazione finale. L'insieme di regole \emph{deve} essere \textbf{esaustivo} e \textbf{mutuamente esclusivo}\footnote{Se così non fosse, alcune tuple potrebbero non essere classificate o potrebbero essere classificate da più regole contemporaneamente} (ogni tupla deve essere classificata da una e una sola regola).
+
+La costruzione dell'albero decisionale è molto semplice:
+\begin{enumerate}
+  \item Se tutte le tuple del nodo $X$ hanno la \emph{stessa} classe $C$, crea una foglia $C$.
+  \item Altrimenti scegli un attributo $A$ (non ancora usato) e \emph{ramifica} $X$ (\emph{splitting}) secondo i valori/soglia di $A$; crea i figli.
+  \item Per ogni figlio $X_i$: se puro, fermati; se impuro, ripeti ricorsivamente.
+\end{enumerate}
+
+\paragraph{Pruning.}
+Se le tuple nel nodo sono poche o la profondità è elevata, si può fermare prima e rendere il nodo una foglia (vedere figura \ref{fig:weather-tree} con l'attributo "overcast").
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[t]{.50\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/weather_table.png}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/decision_tree_weather.png}
+  \end{minipage}
+  \caption{Dataset \emph{weather} (a sinistra) e albero decisionale appreso (a destra). 
+  La tabella contiene 14 esempi con quattro attributi descrittivi (\texttt{Outlook}, \texttt{Temperature}, 
+  \texttt{Humidity}, \texttt{Windy}) e la classe binaria \texttt{P/N}. 
+  L’albero (stile ID3/C4.5) sceglie come radice \texttt{Outlook}; il ramo \texttt{overcast} porta 
+  direttamente alla classe \texttt{P}, mentre per \texttt{sunny} si testa \texttt{Humidity} e per \texttt{rain} 
+  si testa \texttt{Windy}. L’esempio illustra il passaggio da dati tabellari a regole interpretabili.}
+  \label{fig:weather-tree}
+\end{figure}
+
+\subsection{Migliore divisione dei nodi}
+Diciamo che per il nodo $m$, $N_m$ è il numero di tuple nel training set che raggiungono il nodo $m$ (per la radice, $N_{root} = N$, il numero totale di tuple). Sia $N_m^i$ il numero di tuple di classe $C_i$ che raggiungono il nodo $m$, con $\sum_i N_m^i = N_m$. Sapendo che una tupla $x$ raggiunge il nodo $m$, la probabilità stimata che appartenga alla classe $C_i$ è:
+\[
+\hat{P}(C_i | x, m) \equiv p_m^i = \frac{N_m^i}{N_m}
+\]
+
+Definiamo un \textbf{nodo puro} come un nodo in cui tutte le tuple appartengono alla stessa classe:
+\[
+\exists i : N_m^i = N_m \implies p_m^i = 1 \quad \text{e} \quad \forall j \neq i : p_m^j = 0
+\]
+ovvero la probabilità stimata di una classe è 1, mentre per tutte le altre è 0. Un nodo è \textbf{impuro} se contiene tuple di classi diverse. Un modo frequente per misurare l'impurità di un nodo è utilizzare l'entropia di Shannon:
+\[
+H(m) = - \sum_{i} p_m^i \log_2(p_m^i)
+\]
+L'entropia misura l'incertezza associata alla distribuzione delle classi nel nodo. Un nodo puro ha \emph{entropia zero}, mentre un nodo con una distribuzione uniforme delle classi ha \emph{entropia massima}.
+
+Per trovare la miglior combinazione dei nodi eseguiamo la seguente procedura ricorsiva:
+\begin{itemize}
+    \item Se il nodo è \emph{puro}, creiamo una foglia con la classe corrispondente.
+    \item Altrimenti, per ogni attributo $A$ non ancora usato, si divide.
+\end{itemize}
+
+Per calcolare l'impurità dei nodi dopo lo splitting (un nodo impuro) bisogna diminuire il valore di impurità. Per calcolarlo:
+\[
+\hat{P}(C_i | x, m, j) \equiv p_{mj}^i = \frac{N_{mj}^i}{N_{mj}}
+\]
+dove $N_{mj}$ è il numero di tuple che raggiungono il figlio $j$ del nodo $m$ e $N_{mj}^i$ è il numero di tuple di classe $C_i$ che raggiungono il figlio $j$ del nodo $m$. Questo si traduce in una nuova entropia calcolata come:
+\[
+H^j(m) = - \sum_{j=1}^n \frac{N_{mj}}{N_m} \sum_{i}^k p_{mj}^i \log_2(p_{mj}^i)
+\]
+dove $n$ è il numero di figli del nodo $m$ e $k$ è il numero di classi. L'entropia dopo lo splitting è una media pesata delle entropie dei figli, ponderata per la proporzione di tuple che raggiungono ciascun figlio. 
+
+\section{Alberi di regressione}
+Un albero di regressione è un modello predittivo utilizzato per stimare valori continui basati su un insieme di caratteristiche. A differenza degli alberi decisionali per la classificazione, che suddividono i dati in classi discrete, gli alberi di regressione suddividono i dati in intervalli continui e forniscono una stima numerica come output. Ipotizziamo di avere un nodo $m$, con $\mathcal{X}_m$ che rappresenta l'insieme $\mathcal{X}$ delle tuple che raggiungono il nodo $m$. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in \mathcal{X}$ e $x$ raggiunge il nodo $m$. Possiamo definire:
+\[
+b_m(x) = 
+\begin{cases}
+1 & \text{se } x \in \mathcal{X}_m \\
+0 & \text{altrimenti}
+\end{cases}
+\]
+ovvero una funzione indicatrice che vale 1 se la tupla $x$ raggiunge il nodo $m$ e 0 altrimenti.
+
+Nella regressione, la \emph{goodness}\footnote{Qualità} di una divisione viene misurata utilizzando la somma dei quadrati degli errori (SSE, Sum of Squared Errors). Per un nodo $m$, la SSE è definita come:
+\[
+E_m = \frac{1}{N_m} \sum_{t} (y^t - \hat{y}_m)^2 \, b_m(x^t)
+\]
+dove $y^t$ è il valore reale della tupla $t$, $\hat{y}_m$ è la stima associata al nodo $m$, e $N_m$ è il numero di tuple che raggiungono il nodo $m$. Si moltiplica per la funzione indicatrice $b_m(x^t)$ per considerare solo le tuple che effettivamente raggiungono il nodo $m$. La stima media $\hat{y}_m$ per il nodo $m$ è calcolata come:
+\[
+\hat{y}_m = \frac{\sum_{t} b_m(x^t)\, y^t}{\sum_{t} b_m(x^t)} = \frac{1}{N_m} \sum_{t} b_m(x^t)\, y^t
+\]
+dove la somma è calcolata su tutte le tuple $t$ che raggiungono il nodo $m$. In pratica, $\hat{y}_m$ è la media dei valori di output delle tuple che raggiungono il nodo $m$.
