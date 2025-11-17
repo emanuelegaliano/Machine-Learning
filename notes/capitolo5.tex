@@ -33,9 +33,9 @@ Solitamente si cerca di effettuare test di diagnostica applicati al modello, per
 La valutazione di un algoritmo di ML è fondamentale per capire se il modello è adatto al task. 
 
 \subsection{Valutazione incrociata}
-Un modo di fare valutazione incrociata è una variante della k-Fold Cross Validation: non si suddivide più in training e test sets, ma piuttosto in training e validation sets. In questo modo si può utilizzare il validation set per scegliere i parametri del modello, mentre il test set viene utilizzato solo alla fine per valutare le prestazioni finali del modello.
+Un modo di fare valutazione incrociata\footnote{Per valutazione incrociata si intende la tecnica di suddividere il dataset in più parti per allenare e testare il modello in modo iterativo, garantendo una stima più robusta delle prestazioni.} è la \textbf{grid search}, che sfrutta la k-Fold Cross Validation: si suddivide il dataset in $t$ splits e in $k$ folds, e si allena il modello su $t-1$ splits e si valuta su uno split di validation, ripetendo il processo per tutti i $t$ splits. In questo modo si ottengono $t$ stime delle prestazioni del modello, che vengono poi mediate per ottenere una stima complessiva. Questo processo viene ripetuto per tutti i possibili set di iperparametri del modello, selezionando quelli che producono la \emph{migliore prestazione} media sul validation set. Infine, si valuta il modello finale con gli iperparametri selezionati sul test set per ottenere una stima finale delle prestazioni del modello.
 
-\noindent
+\paragraph{Procedura.}
 La procedura è la seguente:
 \begin{enumerate}
 	\item Si suddivide il dataset originale in training/validation set e un test set che non verrà usato fino alla fine della valutazione.

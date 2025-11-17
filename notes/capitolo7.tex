@@ -126,13 +126,90 @@ Il pruning è una tecnica utilizzata per ridurre la complessità di un albero de
 \end{figure}
 
 \subsection{Pre-pruning}
-Il pre-pruning consiste nell'interrompere la crescita dell'albero prima che raggiunga la sua massima profondità. Durante la costruzione dell'albero, si valuta la bontà di ogni divisione e si decide di fermarsi se la divisione non migliora significativamente le prestazioni del modello. Questo può essere fatto utilizzando criteri come la riduzione dell'impurità o la diminuzione dell'errore di regressione.
+Il pre-pruning consiste nell'interrompere la crescita dell'albero prima che raggiunga la sua massima profondità. Durante la costruzione dell'albero, si valuta la bontà\footnote{La bontà indica la qualità di misura.} di ogni divisione e si decide di fermarsi se la divisione non migliora significativamente le prestazioni del modello. Questo può essere fatto utilizzando criteri come la riduzione dell'impurità o la diminuzione dell'errore di regressione.
 
 \subsection{Post-pruning}
 Il post-pruning, invece, avviene dopo che l'albero è stato completamente costruito. In questa fase, si esaminano i nodi dell'albero e si valutano le prestazioni del modello su un set di validazione. I nodi che non contribuiscono significativamente alla precisione del modello vengono rimossi, in quanto contribuiscono all'\emph{overfitting}, e i loro figli vengono sostituiti con foglie che rappresentano la stima media o la classe più frequente delle tuple che raggiungevano quel nodo.
 
 \section{Regole di learning}
-Generalmente il metodo IF-THEN funziona per addestrare un albero decisional e dopo convertire questo in regole. Altri metodi riguardano l'apprendimento sulle \textbf{regole stesse}.
+Generalmente il metodo IF-THEN funziona per addestrare un albero decisional e dopo convertire questo in regole. Altri metodi riguardano l'apprendimento sulle \textbf{regole stesse}: invece di costruire un albero e poi estrarre le regole, si \emph{imparano} le regole dai dati e dopo si costruisce l'albero, procedura nota come \textbf{rule induction}.
 
-\subsection{Introduzione di regole}
-In questo approccio 
+\subsection{Rule induction}
+Una regola è generalmente espressa nella forma:
+\[
+\text{IF } \text{condition(s)} \text{ THEN } \text{conclusion}
+\]
+dove le \emph{condition(s)} sono un insieme di test su attributi e la \emph{conclusion} è una classe (per classificazione) o una stima (per regressione). L'obiettivo dell'apprendimento delle regole è identificare un insieme di regole che descrivano accuratamente i dati di addestramento.
+
+\paragraph{Sequential Covering.}
+Le \emph{condition} possono essere combinate utilizzando operatori logici come AND e OR per formare regole più complesse. Ad esempio, una regola potrebbe essere:
+\[
+\text{IF } (A_1 > 5) \text{ AND } (A_2 = 'Yes') \text{ THEN } \text{Class = Positive}
+\]
+e si aggiungono \textbf{una alla volta} per ottimizzare una certa \emph{euristica} (per esempio l'entropia o la riduzione dell'errore). Nell'esempio di prima, si inizia con la prima regola $R_1 = A_1 > 5$, si valuta la bontà di $R_11$ e si continua ad aggiungere condizioni finché non si raggiunge un certo criterio di arresto (ad esempio, la regola copre un numero sufficiente di tuple positive senza coprire troppe tuple negative). Una volta che una regola è stata appresa, le tuple coperte da quella regola vengono rimosse dal dataset e il processo continua con le tuple rimanenti fino a quando tutte le tuple sono state coperte o non è possibile apprendere ulteriori regole utili.
+
+\paragraph{Differenza con alberi decisionali.}
+Mentre gli alberi decisionali suddividono i dati in modo gerarchico, le regole di apprendimento si concentrano sull'identificazione di condizioni specifiche che portano a conclusioni. Le regole possono essere più flessibili e interpretabili rispetto agli alberi decisionali, poiché possono essere applicate in modo indipendente l'una dall'altra. Si parla infatti di:
+\begin{description}
+  \item[Breadth-First] Questo approccio, utilizzato dagli alberi decisionali, esplora tutte le possibili divisioni, in modo parallelo, ad ogni livello dell'albero prima di procedere al livello successivo (quindi cresce in \emph{larghezza}). 
+  \item[Depth-First] Questo approccio, utilizzato dalle regole di apprendimento, esplora una singola divisione alla volta, procedendo in profondità lungo un percorso specifico prima di tornare indietro e esplorare altre divisioni (quindi cresce in \emph{profondità}).
+\end{description}
+
+
+\subsection{Copertura delle regole}
+Si dice che una regole \textbf{copre} una tupla $t$ se le condizioni della regola sono soddisfatte dalla tupla $t$. L'insieme delle tuple coperte da una regola è chiamato \textbf{coverage} (copertura) della regola. La copertura aiuta a \textbf{valutare} l'efficiacia di una regola: una regola con una copertura elevata è generalmente considerata più utile, poiché si applica a un numero maggiore di tuple nel dataset.
+
+\paragraph{Ripper.}
+Un esempio può essere Ripper (Repeated Incremental Pruning to Produce Error Reduction), un algoritmo di apprendimento delle regole che utilizza una strategia di copertura sequenziale per generare un insieme di regole a partire dai dati di addestramento. Ripper:
+\begin{enumerate}
+  \item Inizia con un insieme vuoto di regole $\mathcal{R} = \emptyset$.
+  \item Ripete fino a quando tutte le tuple positive sono coperte:
+  \begin{enumerate}
+    \item Crea una nuova regola $R$ iniziando con una condizione vuota.
+    \item Aggiunge condizioni a $R$ finché la regola non soddisfa un criterio di arresto (ad esempio, copre un numero sufficiente di tuple positive senza coprire troppe tuple negative).
+    \item Aggiunge la regola $R$ all'insieme delle regole $\mathcal{R}$.
+    \item Rimuove le tuple coperte da $R$ dal dataset.
+  \end{enumerate}
+\end{enumerate}
+
+\section{Alberi decisionali multivariati}
+Nel caso di alberi decisionali univariati, ogni nodo interno effettua un testo su un singolo attributo alla volta. Si conisdera quindi una funzione del tipo:
+\[
+f(x) = 
+\begin{cases}
+\text{figlio destro} & \text{se } A_i \leq \theta \\
+\text{figlio sinistro} & \text{se } A_i > \theta
+\end{cases}
+\]
+dove $A_i$ è un singolo attributo e $\theta$ è una soglia. Questo approccio è semplice e facile da interpretare, ma potrebbe non catturare tutte le relazioni complesse tra gli attributi.
+
+\subsection{Alberi decisionali multivariati lineari}
+In alcuni casi, potrebbe essere vantaggioso considerare più attributi contemporaneamente per prendere decisioni più complesse, portando alla creazione di \emph{alberi decisionali multivariati lineari} dove si considera una \textbf{combinazione lineare} di attributi in ogni nodo:
+\[
+f_m(x) = \mathbf{w}_m^T \cdot x + w_{m0} > 0
+\]
+dove $\mathbf{w}_m$ è un vettore di pesi associati agli attributi, $x$ è il vettore delle caratteristiche della tupla, e $w_{m0}$ è un termine di bias. In questo caso, la decisione su quale figlio seguire dipende dalla valutazione di una combinazione lineare di tutti gli attributi, piuttosto che da un singolo attributo. Questo consente di catturare relazioni più complesse tra gli attributi e può portare a una migliore performance del modello in alcuni scenari.
+
+\subsection{Interpretazione geometrica}
+L'uso di combinazioni lineari di attributi in ogni nodo può essere interpretato geometricamente come la suddivisione dello spazio delle caratteristiche in regioni definite da iperpiani. In particolare, la funzione di decisione $f_m(x)$ definisce un iperpiano nello spazio delle caratteristiche, che separa lo spazio in due metà: una metà in cui la condizione è vera (portando al figlio destro) e l'altra metà in cui la condizione è falsa (portando al figlio sinistro) (figura \ref{fig:multivariate_decision_tree}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=.8\textwidth]{images/multivariate_decision_tree.png}
+    \caption{Esempio di nodo multivariato: a sinistra, gli esempi delle due classi $C_1$ (cerchi) e $C_2$ (quadrati) vengono separati da un iperpiano lineare $dove\; w_{11}x_1 + w_{12}x_2 + w_{10} = 0$. A destra è mostrato il corrispondente nodo dell'albero di decisione, che instrada gli esempi in base al test 
+    $w_{11}x_1 + w_{12}x_2 + w_{10} > 0$.}
+    \label{fig:multivariate_decision_tree}
+\end{figure}
+
+\subsection{Alberi decisionali multivariati non lineari}
+Il concetto di alberi decisionali multivariati può essere esteso ulteriormente per includere funzioni non lineari nei nodi. In questo caso, invece di utilizzare una combinazione lineare di attributi, si possono utilizzare funzioni non lineari più complesse, come polinomi, funzioni radiali o reti neurali. Ad esempio, un nodo potrebbe utilizzare una funzione del tipo:
+\[
+f_m(x): x^T \mathbf{W}_m x + \mathbf{w}_m^T x + w_{m0} > 0
+\]
+dove $\mathbf{W}_m$ è una matrice di pesi che definisce una funzione quadratica. Questo approccio consente di catturare relazioni ancora più complesse tra gli attributi, ma può rendere l'interpretazione del modello più difficile.
+
+In generale, una funzione non lineare può essere rappresentata come:
+\[
+f_m(x) = g_m(x) > 0
+\]
+dove $g_m(x)$ è una funzione non lineare definita sui dati di input. L'uso di funzioni non lineari nei nodi può migliorare la capacità del modello di adattarsi a dati complessi, ma richiede anche tecniche di ottimizzazione più sofisticate per addestrare l'albero decisionale e non finire in overfitting.
