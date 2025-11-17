@@ -71,7 +71,10 @@ H^j(m) = - \sum_{j=1}^n \frac{N_{mj}}{N_m} \sum_{i}^k p_{mj}^i \log_2(p_{mj}^i)
 dove $n$ è il numero di figli del nodo $m$ e $k$ è il numero di classi. L'entropia dopo lo splitting è una media pesata delle entropie dei figli, ponderata per la proporzione di tuple che raggiungono ciascun figlio. 
 
 \section{Alberi di regressione}
-Un albero di regressione è un modello predittivo utilizzato per stimare valori continui basati su un insieme di caratteristiche. A differenza degli alberi decisionali per la classificazione, che suddividono i dati in classi discrete, gli alberi di regressione suddividono i dati in intervalli continui e forniscono una stima numerica come output. Ipotizziamo di avere un nodo $m$, con $\mathcal{X}_m$ che rappresenta l'insieme $\mathcal{X}$ delle tuple che raggiungono il nodo $m$. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in \mathcal{X}$ e $x$ raggiunge il nodo $m$. Possiamo definire:
+Un albero di regressione è un modello predittivo utilizzato per stimare valori continui basati su un insieme di caratteristiche. A differenza degli alberi decisionali per la classificazione, che suddividono i dati in classi discrete, gli alberi di regressione suddividono i dati in intervalli continui e forniscono una stima numerica come output. 
+
+\subsection{Costruzione dell'albero di regressione}
+Ipotizziamo di avere un nodo $m$, con $\mathcal{X}_m$ che rappresenta l'insieme $\mathcal{X}$ delle tuple che raggiungono il nodo $m$. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in \mathcal{X}$ e $x$ raggiunge il nodo $m$. Possiamo definire:
 \[
 b_m(x) = 
 \begin{cases}
@@ -90,3 +93,46 @@ dove $y^t$ è il valore reale della tupla $t$, $\hat{y}_m$ è la stima associata
 \hat{y}_m = \frac{\sum_{t} b_m(x^t)\, y^t}{\sum_{t} b_m(x^t)} = \frac{1}{N_m} \sum_{t} b_m(x^t)\, y^t
 \]
 dove la somma è calcolata su tutte le tuple $t$ che raggiungono il nodo $m$. In pratica, $\hat{y}_m$ è la media dei valori di output delle tuple che raggiungono il nodo $m$.
+
+\subsection{Divisione di un nodo}
+Per dividere un nodo $m$, si seleziona un attributo $A$ e una soglia di divisione. La divisione crea più figli per il nodo $m$, ciascuno corrispondente a un intervallo di valori dell'attributo $A$. Dopo la divisione, si calcola l'errore $E_m^j$ per ciascun figlio $j$ del nodo $m$. 
+
+Se l'errore $E_m$ viene ritenuto accettabile, ovvero $E_m < \theta_r$ per una certa soglia, si crea una foglia con la stima $\hat{y}_m$. Altrimenti, se l'errore non è accettabile, si procede viene diviso tante volte finché non si raggiunge una stima accettabile o si esauriscono gli attributi disponibili per la divisione. Si definisce $\mathcal{X}_{mj}$ come l'insieme delle tuple che raggiungono il figlio $j$ del nodo $m$ sottoinsieme di $\mathcal{X}_m$. Definiamo ulteriormente:
+\[
+b_{mj}(x) =
+\begin{cases}
+1 & \text{se } x \in \mathcal{X}_{mj} \\
+0 & \text{altrimenti}
+\end{cases}
+\]
+La stima media per il figlio $j$ del nodo $m$ è calcolata come:
+\[
+\hat{y}_{mj} = \frac{\sum_{t} b_{mj}(x^t)\, y^t}{\sum_{t} b_{mj}(x^t)} = \frac{1}{N_{mj}} \sum_{t} b_{mj}(x^t)\, y^t
+\]
+dove $N_{mj}$ è il numero di tuple che raggiungono il figlio $j$ del nodo $m$. L'errore dopo lo split è calcolato come:
+\[
+E^j_m = \frac{1}{N_m} \sum_{t} \sum_{j} (y^t - \hat{y}_{mj})^2 \, b_{mj}(x^t)
+\]
+dove la somma esterna è calcolata su tutte le tuple $t$ che raggiungono il nodo $m$ e la somma interna è calcolata su tutti i figli $j$ del nodo $m$. Ipotizziamo di avere un nodo m, con Xm che rappresenta l'insieme X delle tuple che raggiungono il nodo m. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in X$ e $x$ raggiunge il nodo $m$.
+
+\section{Pruning: riduzione dell'albero}
+Il pruning è una tecnica utilizzata per ridurre la complessità di un albero decisionale (di classificazione) o di regressione, al fine di migliorare la sua capacità di generalizzazione sui dati non visti. Durante la costruzione dell'albero, è possibile che si creino nodi che si adattano troppo strettamente ai dati di addestramento, portando ad \emph{overftting}. Il pruning mira a rimuovere questi nodi superflui, semplificando l'albero e migliorando le prestazioni sui dati di test.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=.9\textwidth]{images/regression_tree_thresholds.png}
+    \caption{Esempio di albero di regressione in cui si mostra l'effetto del parametro di complessità $\theta_r$ sulla funzione stimata: al diminuire di $\theta_r$ l'albero produce più suddivisioni e una funzione a gradini più irregolare e aderente ai dati.}
+    \label{fig:regression_tree_theta}
+\end{figure}
+
+\subsection{Pre-pruning}
+Il pre-pruning consiste nell'interrompere la crescita dell'albero prima che raggiunga la sua massima profondità. Durante la costruzione dell'albero, si valuta la bontà di ogni divisione e si decide di fermarsi se la divisione non migliora significativamente le prestazioni del modello. Questo può essere fatto utilizzando criteri come la riduzione dell'impurità o la diminuzione dell'errore di regressione.
+
+\subsection{Post-pruning}
+Il post-pruning, invece, avviene dopo che l'albero è stato completamente costruito. In questa fase, si esaminano i nodi dell'albero e si valutano le prestazioni del modello su un set di validazione. I nodi che non contribuiscono significativamente alla precisione del modello vengono rimossi, in quanto contribuiscono all'\emph{overfitting}, e i loro figli vengono sostituiti con foglie che rappresentano la stima media o la classe più frequente delle tuple che raggiungevano quel nodo.
+
+\section{Regole di learning}
+Generalmente il metodo IF-THEN funziona per addestrare un albero decisional e dopo convertire questo in regole. Altri metodi riguardano l'apprendimento sulle \textbf{regole stesse}.
+
+\subsection{Introduzione di regole}
+In questo approccio 

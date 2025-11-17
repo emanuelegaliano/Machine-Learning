@@ -13,4 +13,5 @@
 - 4.4.3 aggiungere grafico fatto in Python
 - Portare 4.9.6 nel capitolo relativo alle reti neurali
 
-## Capitolo 
+## Capitolo X
+- rinominare valutazione come grid search (nota di Manu al volo).
