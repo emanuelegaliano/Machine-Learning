@@ -1,1 +1,64 @@
 \chapter{SVM: Support Vector Machines}
+Le SVM sono dei modelli di machine learning supervisionato che possono essere utilizzati sia per problemi di classificazione che di regressione. L'idea alla base delle SVM è trovare un iperpiano che separi i dati di diverse classi con il massimo margine possibile. Questo significa che l'iperpiano scelto non solo separa le classi, ma lo fa in modo tale da massimizzare la distanza tra l'iperpiano e i punti dati più vicini di ciascuna classe, noti come vettori di supporto.
+
+\section{Iperpiani di separazione}
+Un iperpiano è una generalizzazione di un piano in uno spazio multidimensionale. In uno spazio bidimensionale, un iperpiano è una linea, mentre in uno spazio tridimensionale è un piano. In uno spazio a $n$ dimensioni, un iperpiano è una sottospazio di dimensione $n-1$ che divide lo spazio in due metà. 
+
+\subsection{Funzione di decisione lineare}
+L'idea principale della classificazione è quello di rappresentare i dati di uno spazio $\mathbb{R}^D$ come partizioni di questo spazio, nel caso binario di due classi distinte. Ipotizziamo un esempio $x \in \mathbb{R}^D$ come elemento dello spazio e consideriamo una funzione:
+\[
+f: \mathbb{R}^D \rightarrow \mathbb{R}
+\]
+\[
+x \rightarrow f(x) := <w, x> + b
+\]
+dove $w \in \mathbb{R}^D$ è un vettore di pesi, $b \in \mathbb{R}$ è un bias e $<w, x>$ rappresenta il prodotto scalare tra i vettori $w$ e $x$. La funzione $f(x)$ definisce un iperpiano di separazione nello spazio $\mathbb{R}^D$. 
+
+\subsection{Proprietà dell'iperpiano}
+Prendiamo due punti nello spazio $x_a, x_b$ e utilizziamoli nell'iperpiano:
+\[
+f(x_a) = 0 \quad \text{e} \quad f(x_b) = 0
+\]
+Questo implica che entrambi i punti giacciono sull'iperpiano di separazione, ovvero:
+\[
+<w, x_a> + b = 0
+\]
+e questo significa che il prodotto interno tra il vettore $x_a$ e $x_b$ è zero. Quindi il vettore $w$ è ortogonale all'iperpiano di separazione.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/svm_hyperplane.png}
+    \caption{(a) Iperpiano separatore in uno spazio tridimensionale, con il vettore normale $w$ perpendicolare all'iperpiano. 
+    (b) Proiezione bidimensionale della configurazione: l'intercetta $b$ rappresenta la distanza firmata 
+    dall'origine all'iperpiano, mentre il segno di $f(x)$ indica se un punto appartiene alla classe positiva o negativa.}
+    \label{fig:svm_hyperplane}
+\end{figure}
+
+Sapendo che questo vettore è ortogonale all'iperpiano, possiamo calcolare la distanza tra un punto $x_0$ e l'iperpiano come:
+\[
+\text{distanza} = \frac{|f(x_0)|}{\|w\|}
+\]
+e questa distanza è positiva se il punto si trova da un lato dell'iperpiano e negativa se si trova dall'altro lato:
+\[
+<w, x_i > + b \ge 0 \Rightarrow y_i = +1
+<w, x_i > + b < 0 \Rightarrow y_i = -1
+\]
+
+\section{Il concetto di margine}
+Il problema che si pone SVM è: data una serie di punti appartenenti a due classi, quanti iperpiani validi esistono per separare le due classi? Quanti sono buoni? La risposta è che esistono infiniti iperpiani che separano le due classi, ma non tutti sono ugualmente validi. Qui si introduce il \textbf{concetto di margine}: la distanza minima tra l'iperpiano e i punti dati più vicini di ciascuna classe. L'obiettivo delle SVM è trovare l'iperpiano che massimizza questo margine, poiché un margine più ampio tende a migliorare la generalizzazione del modello sui dati non visti.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/svm_margin.png}
+    \caption{(a) Esempio di diversi iperpiani che separano le due classi lineari (Class A e Class B). 
+    (b) Iperpiano ottimale trovato dalla SVM, con i vettori di supporto evidenziati e la larghezza del margine 
+    determinata dalla distanza tra i due iperpiani paralleli.}
+    \label{fig:svm_margin}
+\end{figure}
+
+\subsection{Separazione degli iperpiani}
+Dati due esempi rappresentati come vettori $x_i$ e $x_j$, un modo 
+
+
+\section*{Bibiliografia}
+Parti del capitolo 12 di \cite{Deisenroth2020MML}.
