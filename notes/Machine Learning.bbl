@@ -1,0 +1,67 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global/global}
+    \entry{Deisenroth2020MML}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=f9733f0a0e8718b4f6e95508bc8def08}{%
+           family={Deisenroth},
+           familyi={D\bibinitperiod},
+           given={Marc\bibnamedelima Peter},
+           giveni={M\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=9d615b8302523782e27d90ca2147edfe}{%
+           family={Faisal},
+           familyi={F\bibinitperiod},
+           given={A.\bibnamedelimi Aldo},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=25aead4b15ea1d822aac07a7de816978}{%
+           family={Ong},
+           familyi={O\bibinitperiod},
+           given={Cheng\bibnamedelima Soon},
+           giveni={C\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Cambridge University Press}%
+      }
+      \strng{namehash}{090b27548fe0530c8f4a5e9e2778b484}
+      \strng{fullhash}{090b27548fe0530c8f4a5e9e2778b484}
+      \strng{fullhashraw}{090b27548fe0530c8f4a5e9e2778b484}
+      \strng{bibnamehash}{090b27548fe0530c8f4a5e9e2778b484}
+      \strng{authorbibnamehash}{090b27548fe0530c8f4a5e9e2778b484}
+      \strng{authornamehash}{090b27548fe0530c8f4a5e9e2778b484}
+      \strng{authorfullhash}{090b27548fe0530c8f4a5e9e2778b484}
+      \strng{authorfullhashraw}{090b27548fe0530c8f4a5e9e2778b484}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Mathematics for Machine Learning}
+      \field{year}{2020}
+      \verb{urlraw}
+      \verb https://mml-book.com
+      \endverb
+      \verb{url}
+      \verb https://mml-book.com
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
