@@ -948,6 +948,9 @@ INPUT out/capitolo6.aux
 INPUT out/capitolo7.aux
 INPUT out/capitolo7.aux
 INPUT out/capitolo7.aux
+INPUT out/capitolo9.aux
+INPUT out/capitolo9.aux
+INPUT out/capitolo9.aux
 OUTPUT out/Machine Learning.aux
 INPUT /usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
@@ -1308,6 +1311,26 @@ INPUT ./capitolo6.tex
 INPUT capitolo6.tex
 INPUT ./capitolo6.tex
 INPUT capitolo6.tex
+INPUT ./images/NeuralNet1pdf.pdf
+INPUT images/NeuralNet1pdf.pdf
+INPUT ./images/NeuralNet1pdf.pdf
+INPUT ./images/NeuralNet1pdf.pdf
+INPUT ./images/NeuralNet2pdf.pdf
+INPUT images/NeuralNet2pdf.pdf
+INPUT ./images/NeuralNet2pdf.pdf
+INPUT ./images/NeuralNet2pdf.pdf
+INPUT ./images/activation-functions.png
+INPUT images/activation-functions.png
+INPUT ./images/activation-functions.png
+INPUT ./images/activation-functions.png
+INPUT ./images/neural-net.pdf
+INPUT images/neural-net.pdf
+INPUT ./images/neural-net.pdf
+INPUT ./images/neural-net.pdf
+INPUT ./images/linear-reg-neuralnet.pdf
+INPUT images/linear-reg-neuralnet.pdf
+INPUT ./images/linear-reg-neuralnet.pdf
+INPUT ./images/linear-reg-neuralnet.pdf
 INPUT ./capitolo7.tex
 INPUT ./capitolo7.tex
 INPUT ./capitolo7.tex
@@ -1338,6 +1361,16 @@ INPUT ./images/multivariate_decision_tree.png
 INPUT images/multivariate_decision_tree.png
 INPUT ./images/multivariate_decision_tree.png
 INPUT ./images/multivariate_decision_tree.png
+INPUT ./capitolo9.tex
+INPUT ./capitolo9.tex
+INPUT ./capitolo9.tex
+OUTPUT out/capitolo9.aux
+INPUT ./capitolo9.tex
+INPUT ./capitolo9.tex
+INPUT ./capitolo9.tex
+INPUT capitolo9.tex
+INPUT ./capitolo9.tex
+INPUT capitolo9.tex
 INPUT out/Machine Learning.aux
 INPUT out/capitolo1.aux
 INPUT out/capitolo1.aux
@@ -1360,6 +1393,9 @@ INPUT out/capitolo6.aux
 INPUT out/capitolo7.aux
 INPUT out/capitolo7.aux
 INPUT out/capitolo7.aux
+INPUT out/capitolo9.aux
+INPUT out/capitolo9.aux
+INPUT out/capitolo9.aux
 INPUT out/Machine Learning.out
 INPUT out/Machine Learning.out
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/bera/fvmb8a.pfb
