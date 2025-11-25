@@ -2,63 +2,102 @@
 Le SVM sono dei modelli di machine learning supervisionato che possono essere utilizzati sia per problemi di classificazione che di regressione. L'idea alla base delle SVM è trovare un iperpiano che separi i dati di diverse classi con il massimo margine possibile. Questo significa che l'iperpiano scelto non solo separa le classi, ma lo fa in modo tale da massimizzare la distanza tra l'iperpiano e i punti dati più vicini di ciascuna classe, noti come vettori di supporto.
 
 \section{Iperpiani di separazione}
-Un iperpiano è una generalizzazione di un piano in uno spazio multidimensionale. In uno spazio bidimensionale, un iperpiano è una linea, mentre in uno spazio tridimensionale è un piano. In uno spazio a $n$ dimensioni, un iperpiano è una sottospazio di dimensione $n-1$ che divide lo spazio in due metà. 
+Dati due esempi $x_i$ e $x_j$, un modo di di definire la similarità tra i due è tramite il prodotto scalare\footnote{In generale, il prodotto scalare tra due vettori $a$ e $b$ è definito come $a^T b$, dove $a^T$ è la trasposizione di $a$.}  tra i due vettori:
+\[
+\langle x_i, x_j \rangle = x_i^T x_j
+\]
+Il valore di questo prodotto dipende dalla norma\footnote{La norma di un vettore è una misura della sua lunghezza o grandezza, come il modulo di un vettore in uno spazio euclideo.} dei due vettori. Questo permette di definire un iperpiano di separazione come l'insieme dei punti $x$ che soddisfano l'equazione:
+\[
+\langle w, x \rangle + b = 0
+\]
+dove $w$ è un vettore normale all'iperpiano e $b$ è l'intercetta.
 
 \subsection{Funzione di decisione lineare}
-L'idea principale della classificazione è quello di rappresentare i dati di uno spazio $\mathbb{R}^D$ come partizioni di questo spazio, nel caso binario di due classi distinte. Ipotizziamo un esempio $x \in \mathbb{R}^D$ come elemento dello spazio e consideriamo una funzione:
+L'idea principale dietro a diversi algoritmi di classificazione è quello di rappresentare i dati in uno spazio $\mathbb{R}^d$, dove $d$ è il numero di features del piano, e trovare quel \emph{decision boundary} grazie al quale l'algoritmo è capace di separare le diverse classi. Nel caso di una classificazione binaria si separa lo spazio in due regioni corrispondenti alla classe positiva e negativa e si cerca quell'iperpiano che separa le due regioni. Sia $x \in \mathbb{R}^d$ un esempio nello spazio dei dati, consideriamo la funzione:
 \[
-f: \mathbb{R}^D \rightarrow \mathbb{R}
+f: \mathbb{R}^d \rightarrow \mathbb{R}, \quad f(x) := \langle w, x \rangle + b
 \]
-\[
-x \rightarrow f(x) := <w, x> + b
-\]
-dove $w \in \mathbb{R}^D$ è un vettore di pesi, $b \in \mathbb{R}$ è un bias e $<w, x>$ rappresenta il prodotto scalare tra i vettori $w$ e $x$. La funzione $f(x)$ definisce un iperpiano di separazione nello spazio $\mathbb{R}^D$. 
-
-\subsection{Proprietà dell'iperpiano}
-Prendiamo due punti nello spazio $x_a, x_b$ e utilizziamoli nell'iperpiano:
-\[
-f(x_a) = 0 \quad \text{e} \quad f(x_b) = 0
-\]
-Questo implica che entrambi i punti giacciono sull'iperpiano di separazione, ovvero:
-\[
-<w, x_a> + b = 0
-\]
-e questo significa che il prodotto interno tra il vettore $x_a$ e $x_b$ è zero. Quindi il vettore $w$ è ortogonale all'iperpiano di separazione.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{images/svm_hyperplane.png}
-    \caption{(a) Iperpiano separatore in uno spazio tridimensionale, con il vettore normale $w$ perpendicolare all'iperpiano. 
-    (b) Proiezione bidimensionale della configurazione: l'intercetta $b$ rappresenta la distanza firmata 
-    dall'origine all'iperpiano, mentre il segno di $f(x)$ indica se un punto appartiene alla classe positiva o negativa.}
-    \label{fig:svm_hyperplane}
-\end{figure}
-
-Sapendo che questo vettore è ortogonale all'iperpiano, possiamo calcolare la distanza tra un punto $x_0$ e l'iperpiano come:
-\[
-\text{distanza} = \frac{|f(x_0)|}{\|w\|}
-\]
-e questa distanza è positiva se il punto si trova da un lato dell'iperpiano e negativa se si trova dall'altro lato:
-\[
-<w, x_i > + b \ge 0 \Rightarrow y_i = +1
-<w, x_i > + b < 0 \Rightarrow y_i = -1
-\]
-
-\section{Il concetto di margine}
-Il problema che si pone SVM è: data una serie di punti appartenenti a due classi, quanti iperpiani validi esistono per separare le due classi? Quanti sono buoni? La risposta è che esistono infiniti iperpiani che separano le due classi, ma non tutti sono ugualmente validi. Qui si introduce il \textbf{concetto di margine}: la distanza minima tra l'iperpiano e i punti dati più vicini di ciascuna classe. L'obiettivo delle SVM è trovare l'iperpiano che massimizza questo margine, poiché un margine più ampio tende a migliorare la generalizzazione del modello sui dati non visti.
+dove $w \in \mathbb{R}^d$ e $b \in \mathbb{R}$ sono rispettivamente il vettore dei pesi e il bias. In questo modo, un iperpiano può essere definito come il \textbf{separatore} lineare delle due classi, ovvero:
+\begin{equation}
+\{ x \in \mathbb{R}^d : f(x) = 0 \}
+\label{eq:svm_hyperplane}
+\end{equation}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{images/svm_margin.png}
-    \caption{(a) Esempio di diversi iperpiani che separano le due classi lineari (Class A e Class B). 
-    (b) Iperpiano ottimale trovato dalla SVM, con i vettori di supporto evidenziati e la larghezza del margine 
-    determinata dalla distanza tra i due iperpiani paralleli.}
+    \includegraphics[width=\textwidth]{images/svm_hyperplane.png}
+    \caption{Esempio di iperpiano come frontiera di decisione: il vettore $w$ è normale all'iperpiano e ne determina l'orientamento, mentre il termine $b$ ne stabilisce la posizione rispetto all'origine, separando i punti delle due classi sul lato positivo e su quello negativo.}
+    \label{fig:svm_hyperplane}
+\end{figure}
+
+\subsection{Interpretazione geometrica}
+Come si vede in figura \ref{fig:svm_hyperplane}, il vettore $w$ è normale\footnote{Un vettore è normale a un iperpiano se è perpendicolare a ogni vettore che giace sull'iperpiano.} all'iperpiano e ne determina l'orientamento, mentre il termine $b$ ne stabilisce la posizione rispetto all'origine, separando i punti delle due classi sul lato positivo e su quello negativo. Questo è anche possibile dimostrarlo prendendo in considerazione due esempi $x_a, x_b$ giacenti sull'iperpiano:
+\begin{align*}
+&f(x_a) = f(x_b) \\
+\Rightarrow & f(x_a) - f(x_b) = 0 \\
+\Rightarrow & \langle w, x_a \rangle + b - (\langle w, x_b \rangle + b) = 0 \\
+\Rightarrow & \langle w, x_a - x_b \rangle = 0
+\end{align*}
+
+Utilizzando l'equazione dell'iperpiano \eqref{eq:svm_hyperplane}, possiamo, per un certo esempio $x$ capire se si tratta di una classe positiva o negativa a seconda della regione in cui si trova rispetto all'iperpiano:
+\[
+y = 
+\begin{cases}
++1 & \text{se } f(x) \geq 0 \\
+-1 & \text{se } f(x) < 0
+\end{cases}
+\]
+dove $y$ è l'etichetta di classe associata all'esempio $x$ e $f(x)$ è l'equazione dell'iperpiano. Questo si può rappresentare in una singola equazione come:
+\[
+y \cdot (\langle w, x \rangle + b) \geq 0
+\]
+
+\section{Primal SVM}
+Questa formulazione delle SVM ha l'obiettivo di trovare quell'iperpiano che massimizza il margine tra le due classi. Ipotizziamo un dataset $\{(x_1, y_1), \ldots, (x_n, y_n)\}$ linearmente separabile, dove $x_i \in \mathbb{R}^d$ sono gli esempi e $y_i \in \{-1, +1\}$ sono le etichette di classe. Esistono infiniti iperpiani che possono separare le due classi, ma possiamo dire che un iperpiano è migliore di un altro se performa meglio sui dati di test. 
+
+\subsection{Concetto di margine}
+Per ottenere questo iperpiano, dobbiamo trovare quello che massimizza il margine: è la distanza che separa l'iperpiano dai punti dati \textbf{più vicini} di ciascuna classe. 
+
+\paragraph{Scala dei dati.}
+Un problema di trovare le distanze minime è che non tutte le feature potrebbero avere la stessa scala di valori. Questo si può anche dimostrare matematicamente, dicendo che la scala dell'iperpiano dipende da $w$ e $b$. Infatti, se moltiplichiamo entrambi per una costante positiva $\alpha > 0$, otteniamo lo stesso iperpiano:
+\[
+\langle \alpha w, x \rangle + \alpha b = 0
+\]
+
+Per risolere questo, si fissa una scala non sui dati ma direttamente sui parametri del modello. In particolare, preso un punto $x_a$ e la sua proiezione corrispondente sull'iperpiano $x_a'$ si può calcolare la distanza $r$ tra i due (ovvero tra il punto e l'iperpiano):
+\[
+r = \frac{1}{||w||}
+\]
+dove $||w||$ è la norma del vettore $w$. Questo valore $r$ è esattamente il \emph{margine}, o scala, che vogliamo fissare. Una volta trovato $R$ possiamo lavorare sulla distanza assoluta tra $x_a$ e $x_a'$:
+\[
+x_a = x_a' + r \frac{w}{||w||} = x_a' + r \hat{w}
+\]
+dove $\hat{w} = \frac{w}{||w||}$ è il versore nella direzione di $w$. Un altro modo di pensare $r$ è come la coordinata di $x_a$ nella direazione del sottospazio generato da $w/||w||$. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/svm_margin_distance.png}
+    \caption{Distanza $r$ tra un punto $x_a$ e la sua proiezione $x_a'$ sull'iperpiano di separazione.}
     \label{fig:svm_margin}
 \end{figure}
 
-\subsection{Separazione degli iperpiani}
-Dati due esempi rappresentati come vettori $x_i$ e $x_j$, un modo 
+Ricordando che vogliamo che gli esempi positivi siano al di sopra dell'iperpiano e quelli negativi al di sotto, possiamo scrivere la seguente condizione per ogni esempio $x_i$:
+\[
+y_i (\langle w, x_i \rangle + b) \geq r
+\]
+ovvero, un esempio positivo ($y_i = +1$) deve essere almeno a distanza $r$ dall'iperpiano, mentre un esempio negativo ($y_i = -1$) deve essere almeno a distanza $r$ dall'iperpiano sul lato opposto. Poiché siamo interessati unicamente alla direzione di $w$, possiamo imporre che il vettore dei pesi abbia norma unitaria, ovvero:
+\[
+\|w\| = 1 .
+\]
+Questa scelta non modifica l'orientamento dell'iperpiano, ma rende l'interpretazione del margine più immediata: con $\|w\| = 1$, la distanza $r$ coincide direttamente con lo spostamento lungo la direzione normale all'iperpiano.
 
+Con questa convenzione, la condizione
+\[
+y_i (\langle w, x_i \rangle + b) \ge r
+\]
+impone che tutti gli esempi si trovino almeno a distanza $r$ dall'iperpiano, nel verso coerente con la loro etichetta. Questo vincolo compatto unifica i requisiti delle due classi: gli esempi positivi sono almeno a distanza $r$ nella direzione di $w$, mentre quelli negativi sono almeno a distanza $r$ nella direzione opposta.
 
-\section*{Bibiliografia}
+\subsection{Formulazione dell'ottimizzazione}
+
+\section*{Riferimenti}
 Parti del capitolo 12 di \cite{Deisenroth2020MML}.
