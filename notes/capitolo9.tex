@@ -1,8 +1,8 @@
 \chapter{SVM: Support Vector Machines}
-Le SVM sono dei modelli di machine learning supervisionato che possono essere utilizzati sia per problemi di classificazione che di regressione. L'idea alla base delle SVM è trovare un iperpiano che separi i dati di diverse classi con il massimo margine possibile. Questo significa che l'iperpiano scelto non solo separa le classi, ma lo fa in modo tale da massimizzare la distanza tra l'iperpiano e i punti dati più vicini di ciascuna classe, noti come vettori di supporto.
+Le SVM sono modelli di machine learning supervisionato che possono essere utilizzati sia per problemi di classificazione che di regressione.  L'idea alla base delle SVM è trovare un iperpiano che separi i dati di diverse classi con il massimo margine possibile: sono quindi una delle soluzioni più eleganti e semplici da visualizzare per quando riguarda la classificazione. L'iperpiano scelto non solo separa le classi, ma lo fa in modo tale da \textbf{massimizzare la distanza tra l'iperpiano e i punti} più vicini di ciascuna classe, noti come vettori di supporto. 
 
 \section{Iperpiani di separazione}
-Dati due esempi $x_i$ e $x_j$, un modo di di definire la similarità tra i due è tramite il prodotto scalare\footnote{In generale, il prodotto scalare tra due vettori $a$ e $b$ è definito come $a^T b$, dove $a^T$ è la trasposizione di $a$.}  tra i due vettori:
+Dati i vettori $x_i$ e $x_j$, un modo di di definirne la similarità è il prodotto scalare tra i due\footnote{In generale, il prodotto scalare tra due vettori $a$ e $b$ è definito come $a^T b$, dove $a^T$ è la trasposizione di $a$.} :
 \[
 \langle x_i, x_j \rangle = x_i^T x_j
 \]
@@ -19,8 +19,8 @@ f: \mathbb{R}^d \rightarrow \mathbb{R}, \quad f(x) := \langle w, x \rangle + b
 \]
 dove $w \in \mathbb{R}^d$ e $b \in \mathbb{R}$ sono rispettivamente il vettore dei pesi e il bias. In questo modo, un iperpiano può essere definito come il \textbf{separatore} lineare delle due classi, ovvero:
 \begin{equation}
-\{ x \in \mathbb{R}^d : f(x) = 0 \}
-\label{eq:svm_hyperplane}
+	\{ x \in \mathbb{R}^d : f(x) = 0 \}
+	\label{eq:svm_hyperplane}
 \end{equation}
 
 \begin{figure}[htbp]
@@ -33,18 +33,18 @@ dove $w \in \mathbb{R}^d$ e $b \in \mathbb{R}$ sono rispettivamente il vettore d
 \subsection{Interpretazione geometrica}
 Come si vede in figura \ref{fig:svm_hyperplane}, il vettore $w$ è normale\footnote{Un vettore è normale a un iperpiano se è perpendicolare a ogni vettore che giace sull'iperpiano.} all'iperpiano e ne determina l'orientamento, mentre il termine $b$ ne stabilisce la posizione rispetto all'origine, separando i punti delle due classi sul lato positivo e su quello negativo. Questo è anche possibile dimostrarlo prendendo in considerazione due esempi $x_a, x_b$ giacenti sull'iperpiano:
 \begin{align*}
-&f(x_a) = f(x_b) \\
-\Rightarrow & f(x_a) - f(x_b) = 0 \\
-\Rightarrow & \langle w, x_a \rangle + b - (\langle w, x_b \rangle + b) = 0 \\
-\Rightarrow & \langle w, x_a - x_b \rangle = 0
+	&f(x_a) = f(x_b) \\
+	\Rightarrow & f(x_a) - f(x_b) = 0 \\
+	\Rightarrow & \langle w, x_a \rangle + b - (\langle w, x_b \rangle + b) = 0 \\
+	\Rightarrow & \langle w, x_a - x_b \rangle = 0
 \end{align*}
 
 Utilizzando l'equazione dell'iperpiano \eqref{eq:svm_hyperplane}, possiamo, per un certo esempio $x$ capire se si tratta di una classe positiva o negativa a seconda della regione in cui si trova rispetto all'iperpiano:
 \[
 y = 
 \begin{cases}
-+1 & \text{se } f(x) \geq 0 \\
--1 & \text{se } f(x) < 0
+	+1 & \text{se } f(x) \geq 0 \\
+	-1 & \text{se } f(x) < 0
 \end{cases}
 \]
 dove $y$ è l'etichetta di classe associata all'esempio $x$ e $f(x)$ è l'equazione dell'iperpiano. Questo si può rappresentare in una singola equazione come:
@@ -52,8 +52,9 @@ dove $y$ è l'etichetta di classe associata all'esempio $x$ e $f(x)$ è l'equazi
 y \cdot (\langle w, x \rangle + b) \geq 0
 \]
 
+
 \section{Primal SVM}
-Questa formulazione delle SVM ha l'obiettivo di trovare quell'iperpiano che massimizza il margine tra le due classi. Ipotizziamo un dataset $\{(x_1, y_1), \ldots, (x_n, y_n)\}$ linearmente separabile, dove $x_i \in \mathbb{R}^d$ sono gli esempi e $y_i \in \{-1, +1\}$ sono le etichette di classe. Esistono infiniti iperpiani che possono separare le due classi, ma possiamo dire che un iperpiano è migliore di un altro se performa meglio sui dati di test. 
+Questa formulazione delle SVM ha l'obiettivo di trovare quell'iperpiano che massimizza il margine tra le due classi. Ipotizziamo un dataset $\{(x_1, y_1), \ldots, (x_n, y_n)\}$ linearmente separabile, dove $x_i \in \mathbb{R}^d$ sono gli esempi e $y_i \in \{-1, +1\}$ sono le etichette di classe. Esistono infiniti iperpiani che possono separare le due classi, ma possiamo dire che un iperpiano è migliore di un altro se performa meglio sui dati di test. Formuliamo quindi un vero e proprio \textbf{problema di ottimizzazione}, cui risoluzione ci offrirà i valori ottimali di $w$ e $b$.
 
 \subsection{Concetto di margine}
 Per ottenere questo iperpiano, dobbiamo trovare quello che massimizza il margine: è la distanza che separa l'iperpiano dai punti dati \textbf{più vicini} di ciascuna classe. 
@@ -74,6 +75,12 @@ x_a = x_a' + r \frac{w}{||w||} = x_a' + r \hat{w}
 \]
 dove $\hat{w} = \frac{w}{||w||}$ è il versore nella direzione di $w$. Un altro modo di pensare $r$ è come la coordinata di $x_a$ nella direazione del sottospazio generato da $w/||w||$. 
 
+
+Ricordando che vogliamo che gli esempi positivi siano al di sopra dell'iperpiano e quelli negativi al di sotto, possiamo scrivere la seguente condizione per ogni esempio $x_i$:
+\[
+y_i (\langle w, x_i \rangle + b) \geq r
+\]
+
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/svm_margin_distance.png}
@@ -81,23 +88,64 @@ dove $\hat{w} = \frac{w}{||w||}$ è il versore nella direzione di $w$. Un altro 
     \label{fig:svm_margin}
 \end{figure}
 
-Ricordando che vogliamo che gli esempi positivi siano al di sopra dell'iperpiano e quelli negativi al di sotto, possiamo scrivere la seguente condizione per ogni esempio $x_i$:
-\[
-y_i (\langle w, x_i \rangle + b) \geq r
-\]
-ovvero, un esempio positivo ($y_i = +1$) deve essere almeno a distanza $r$ dall'iperpiano, mentre un esempio negativo ($y_i = -1$) deve essere almeno a distanza $r$ dall'iperpiano sul lato opposto. Poiché siamo interessati unicamente alla direzione di $w$, possiamo imporre che il vettore dei pesi abbia norma unitaria, ovvero:
+ovvero, un esempio positivo ($y_i = +1$) deve essere almeno a distanza $r$ dall'iperpiano, mentre un esempio negativo ($y_i = -1$) deve essere almeno a distanza $r$ dall'iperpiano sul lato opposto. 
+
+\paragraph{Margine unitario.} 
+Poiché siamo interessati unicamente alla direzione di $w$, possiamo imporre che il vettore dei pesi abbia norma unitaria, ovvero:
 \[
 \|w\| = 1 .
 \]
 Questa scelta non modifica l'orientamento dell'iperpiano, ma rende l'interpretazione del margine più immediata: con $\|w\| = 1$, la distanza $r$ coincide direttamente con lo spostamento lungo la direzione normale all'iperpiano.
-
 Con questa convenzione, la condizione
 \[
 y_i (\langle w, x_i \rangle + b) \ge r
 \]
-impone che tutti gli esempi si trovino almeno a distanza $r$ dall'iperpiano, nel verso coerente con la loro etichetta. Questo vincolo compatto unifica i requisiti delle due classi: gli esempi positivi sono almeno a distanza $r$ nella direzione di $w$, mentre quelli negativi sono almeno a distanza $r$ nella direzione opposta.
+impone che tutti gli esempi si trovino almeno a distanza $r$ dall'iperpiano, nel verso coerente con la loro etichetta. Questo vincolo compatto unifica i requisiti delle due classi: gli esempi positivi sono almeno a distanza $r$ nella direzione di $w$, mentre quelli negativi sono almeno a distanza $r$ nella direzione opposta. 
 
-\subsection{Formulazione dell'ottimizzazione}
+Negli SVM, si può sempre assumere (senza perdita di generalità) che i vincoli siano
+$$
+y_n(\langle w, x_n\rangle + b) \geq 1
+$$
 
-\section*{Riferimenti}
+\subsubsection{Approfondimento - dimostrazione del teorema del margine a 1}
+
+Imponiamo $\|w\| = 1$. Questo può essere scritto come $ \displaystyle w = \frac{w'}{\|w'\|}$, dove $w'$ è un vettore di parametri qualsiasi non normalizzato. Sostituendo nella formulazione iniziale, otteniamo
+
+$$
+y \left(\Big\langle \frac{w'}{\|w'\|}, x\Big\rangle + b\right) \geq r
+$$
+
+Noto che $r \geq 0$ in quanto una distanza euclidea, possiamo andare a dividere l'intero vincolo per $r$. Otteniamo:
+
+$$
+y \left(\Big\langle \frac{w'}{\|w'\|r}, x\Big\rangle + \underbrace{\frac{b}{r}}_{b''} \right) \geq 1
+$$
+
+Bene, adesso definiamo $\displaystyle \|w''\|
+= \left\|\frac{w'}{\|w'\| r}\right\|
+= \frac{1}{r}\,\frac{\|w'\|}{\|w'\|}
+= \frac{1}{r}, \Rightarrow r = \frac{1}{\| w''\|}$. \\
+Per facilitare la dimostrazione, imponiamo di dover massimizzare $r^2$, ossia  $\displaystyle\frac{1}{\|w''\|^2}$. Tuttavia, massimizzare questo valore, significa minimizzare  $\|w''\|^2$, o, per semplificare il lavorare con le derivate, equivale a minimizzare $\displaystyle\frac{1}{2} \|w''\|^2$.
+
+
+$$
+\min_{w'',b''} \frac12\|w\|^2 \qquad y (\langle w'', x\rangle + b'') \geq 1
+$$
+Data questa totale equivalenza, abbiamo dimostriamo il teorema.
+
+\section{Primal SVM con Soft Margin}
+Cambiamo il nostro approccio alle SVM, seguendo il \textbf{principio di minimizzazione del rischio empirico}\footnote{Nella teoria dell'apprendimento statistico, la minimizzazione del rischio empirico (in inglese empirical risk minimization, da cui la sigla ERM) è un principio che definisce una famiglia di algoritmi di apprendimento e viene utilizzato per fornire limiti teorici alle loro prestazioni.
+	L'idea centrale è che non è possibile sapere esattamente quanto bene funzionerà un algoritmo nella pratica (il "rischio vero") perché è ignota la vera distribuzione dei dati su cui lavorerà l'algoritmo, ma è invece possibile misurarne le prestazioni su un insieme di dati di addestramento noto (il rischio "empirico").}. 
+Nel modello SVM, scegliamo come classe di ipotesi\footnote{insieme di tutti i modelli possibili che consideriamo} gli iperpiani, ossia funzioni del tipo
+
+$$f(x) = \langle w, x \rangle + b$$
+
+TODO
+
+\section{Dual SVM}
+TODO
+
+
+
+
 Parti del capitolo 12 di \cite{Deisenroth2020MML}.
