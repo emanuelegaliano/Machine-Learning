@@ -133,19 +133,296 @@ $$
 $$
 Data questa totale equivalenza, abbiamo dimostriamo il teorema.
 
-\section{Primal SVM con Soft Margin}
+\section{Soft Margin SVM}
+Nel caso di dati non linearmente separabili, potremmo desiderare di permettere ad alcuni esempi di cadere all'interno dell'area del margine, o addirittura di finire dalla parte sbagliata dell'iperpiano. Il modello che permette alcuni errori di classificazzione, è detto \textbf{soft margin SVM}. Introduciamo una variabile, detta \textbf{variabile di slack}, indicata con $\xi_n$. Sottrarre questo termine, ci permetterà di rilassare i \textit{contrains} relativi alla classificazione, consentendo errori.
+
+$$
+\begin{aligned}
+	&\min_{w,b,\xi} && \frac{1}{2}\|w\|^{2} + C \sum_{n=1}^{N} \xi_n \\
+	&\text{rispetto a} && y_n \big( \langle w, x_n \rangle + b \big) \ge 1 - \xi_n, \\
+	& && \xi_n \ge 0
+\end{aligned}
+$$
+
+La variabile di slack dovrà essere non-negativa. Il parametro $C>0$ nella funzione obiettivo gestisce il tradeoff tra la dimensione del margine e la dimensione complessiva di rilassamento. È detto \textbf{parametro di regolarizzazione}. Indichiamo invece con il nome \textbf{regolarizzatore} il termine $\|w\|^2$, questo controlla la larghezza del margine. 
+
+\begin{itemize}
+	\item $C$ \textbf{grande}: penalizzi molto le $\xi_n$. Il modello cercherà di commettere pochissimi errori, anche se questo porta ad avere un margine più stretto, rischiando \textbf{overfitting}.
+	\item $C$ \textbf{piccolo}: gli errori costano poco, accettando più violazioni, in cambio con un margine più grande, ottenendo un modello più regolare.
+\end{itemize}
+
+
+\subsection{Soft Margin SVM e Loss function}
 Cambiamo il nostro approccio alle SVM, seguendo il \textbf{principio di minimizzazione del rischio empirico}\footnote{Nella teoria dell'apprendimento statistico, la minimizzazione del rischio empirico (in inglese empirical risk minimization, da cui la sigla ERM) è un principio che definisce una famiglia di algoritmi di apprendimento e viene utilizzato per fornire limiti teorici alle loro prestazioni.
-	L'idea centrale è che non è possibile sapere esattamente quanto bene funzionerà un algoritmo nella pratica (il "rischio vero") perché è ignota la vera distribuzione dei dati su cui lavorerà l'algoritmo, ma è invece possibile misurarne le prestazioni su un insieme di dati di addestramento noto (il rischio "empirico").}. 
+L'idea centrale è che non è possibile sapere esattamente quanto bene funzionerà un algoritmo nella pratica (il "rischio vero") perché è ignota la vera distribuzione dei dati su cui lavorerà l'algoritmo, ma è invece possibile misurarne le prestazioni su un insieme di dati di addestramento noto (il rischio "empirico").}. 
 Nel modello SVM, scegliamo come classe di ipotesi\footnote{insieme di tutti i modelli possibili che consideriamo} gli iperpiani, ossia funzioni del tipo
 
 $$f(x) = \langle w, x \rangle + b$$
 
-TODO
+dove il margine, coincide con il termine di regolarizzazione. Affrontiamo adesso l'argomento relativo alla loss function, che dovrà essere mirata al task principale del modello, ossia classificazione binaria. 
+
+\paragraph{Zero-One Loss}
+La \textbf{zero-one loss} potrebbe sembrare una buona idea: l'obiettivo è minimizzare il numero di mismatch tra la classe predetta e l'etichetta effettiva ($y$ e $\hat{y}$). Questa funzione è denotabile con
+
+$$
+\textbf{1}(f(x_n)) \neq y_n
+$$
+
+per quanto l'idea sembra funzionare, questo rende il training un vero e proprio problema di ottimizzazione combinatorio, i quali sono tendenzialmente molto complessi da risolvere. Scartiamo quindi l'idea.
+
+\paragraph{Hinge Loss} Consideriamo l'errore tra l'output del predittore $f(x_n)$ e l'etichetta $y_n$. La funzione di loss deve descrivere l'errore commesso sui dati di training. Ci aspettiamo errore 0 se la predizione è corretta, ed è fuori dal margine. Una predizione corretta all'interno del margine dovrà comunque essere penalizzata. Una predizione sbagliata verrà penalizzata, come da atteso.
+
+$$
+L(t) = \max\{0, 1-t\}\quad \text{con} \quad t = yf(x)= y(\langle w, x \rangle + b)
+$$
+
+È altrimenti formulabile come una funzione definita a tratti:
+
+$$
+L(t) = \begin{cases}
+0 \quad \text{se } t\geq 1\\
+0 \quad \text{se } t < 1\\
+\end{cases}
+$$
+
+\newpage
 
 \section{Dual SVM}
-TODO
+La formulazione di SVM descritta in precedenza, è nota come primal SVM. Ha variabili $w$ e $b$, e $w$ è di dimensione pari a $x \in \mathbb{R}^D$, con $D$ features. Ne consegue che il problema di ottimizzazione cresce linearmente all'aumentare del numero di features. La seguente formulazione, crescerà invece col numero di esempi del dataset, non dipendendo più dal numero di features. Sarà inoltre semplice applicarne dei kernel, per separare meglio dati non linearmente separabili. Chiarememo questa formulazione \textbf{Dual SVM}, e si presenterà così:
+
+$$
+\begin{aligned}
+	&\min_{\alpha} && 
+	\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} 
+	y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
+	- \sum_{i=1}^{N} \alpha_i \\
+	&\text{soggetto a} && 
+	\sum_{i=1}^{N} y_i \alpha_i = 0, \\
+	& && 0 \le \alpha_i \le C \quad \text{per } i = 1,\dots, N .
+\end{aligned}
+$$
+
+\paragraph{Prerequisito matematico: Lagrangiani}
+Data una funzione $f$ da ottimizzare, e un insieme di condizioni $g_1, \dots, g_n$, un \textbf{Lagrangiano} è una funzione $\mathcal{L}(f,g_1, \dots, g_n, \alpha_1, \dots, \alpha_n)$ che incorpora le condizioni del problema di ottimizzazione:
+
+$$
+\mathcal{L}(f,\alpha_1,\ldots,\alpha_n)
+= f(x_1,\ldots,x_k) - \sum_{i=1}^{n} \alpha_i\, g_i(x_1,\ldots,x_k)
+$$
+
+Ad esempio, se $f(w) = \displaystyle\frac{w^2}{2}$ e $\displaystyle g_1(w,x) : wx-1 \geq 0$, allora
+
+$$
+\mathcal{L}(w,\alpha) = \frac{w^2}{2} - \alpha(wx-1), \quad \alpha \geq 0
+$$
+
+Si calcolano le varie derivate parziali rispetto alle variabili del Lagrangiano, in questo esempio $w$ e $\alpha$, e si impongono nulle. Si risolve poi il sistema di equazioni ottenuto, ottenendo i valori che soddisfano il problema. $\mathcal{L}$ dovrà essere massimizzata rispetto alle \textbf{variabili primarie} ($w$), ma minimizzata rispetto alle variabili duali ($\alpha$).
+
+$$
+L(f(w),\alpha) = \frac{w^{2}}{2} - \alpha(wx - 1), \quad \alpha \ge 0
+$$
+
+$$
+\frac{\partial L}{\partial w} = w - \alpha x = 0 \;\Rightarrow\; w = \alpha x
+$$
+
+$$
+\frac{\partial L}{\partial \alpha} = -wx = 0
+$$
 
 
+\subsection{Convex duality con Moltiplicatori di Lagrange}
+Dalle variabili della precedente formulazione, riprendiamo $w, b, \xi$. Usiamo $\alpha_n \geq 0$ come moltiplicatore corrispondente al constraint $y_n \big( \langle w, x_n \rangle + b \big) \ge 1 - \xi_n$, e $\gamma_n \geq 0$ come moltiplicatore di Lagrange corrispondente al vincolo di non negatività delle variabili di Slack. Il Lagrangiano è dato da
 
+$$
+\begin{aligned}
+\mathcal{L}(w,b,\xi,\alpha,\gamma)
+&= \frac{1}{2}\|w\|^{2} + C \sum_{n=1}^{N} \xi_n\\
+&- \sum_{n=1}^{N} \alpha_n \big( y_n (\langle w, x_n \rangle + b) - 1 + \xi_n \big)
+- \sum_{n=1}^{N} \gamma_n \xi_n .
+\end{aligned}
+$$
+
+\noindent
+Riduciamo il Lagrangiano derivandolo rispetto alle variabili primali, ossia
+
+$$
+\begin{aligned}
+	\frac{\partial \mathcal{L}}{\partial w}
+	&= w^{\top} - \sum_{n=1}^{N} \alpha_n y_n x_n^{\top}, \\
+	\frac{\partial \mathcal{L}}{\partial b}
+	&= - \sum_{n=1}^{N} \alpha_n y_n , \\
+	\frac{\partial \mathcal{L}}{\partial \xi_n}
+	&= C - \alpha_n - \gamma_n .
+\end{aligned}
+$$
+
+E le imponiamo nulle, in modo da trovare il valore massimo del Lagrangiano. Dalla prime delle tre, otteniamo
+
+$$
+w = \sum_{n=1}^{N} \alpha_n y_n x_n
+$$
+
+osservando che il vettore dei pesi è una combinazione lineare di $x_n$, ossia degli esempi. Questa è una particolare istanza di \textbf{representer theorem}\footnote{Per molti problemi di apprendimento con regolarizzazione, la soluzione ottima può sempre essere scritta come combinazione dei dati di training.}. Sostituiamo $w$ nel Lagrangiano, ottenendo il Duale\footnote{Il problema duale è il problema di ottimizzazione espresso nelle variabili dei moltiplicatori di Lagrange, ottenuto minimizzando la Lagrangiana rispetto alle variabili originali. Per l’SVM, il duale vive sugli $\alpha_i$, usa solo prodotti scalari tra punti, e ci permette sia di usare i kernel sia di capire chi sono i support vector.}.
+
+$$
+\begin{aligned}
+\mathcal{D}(\xi,\alpha,\gamma)
+= &\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} 
+y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
+- \sum_{i=1}^{N} y_i \alpha_i 
+\left\langle \sum_{j=1}^{N} y_j \alpha_j x_j, x_i \right\rangle
+\\
+&+ C \sum_{i=1}^{N} \xi_i
+- b \sum_{i=1}^{N} y_i \alpha_i
++ \sum_{i=1}^{N} \alpha_i
+- \sum_{i=1}^{N} \alpha_i \xi_i
+- \sum_{i=1}^{N} \gamma_i \xi_i 
+\end{aligned}
+$$
+
+Dalla seconda derivata delle tre posta a zero, otteniamo che $\sum_{n=1}^{N} y_b \alpha_n = 0$.  Inoltre, possiamo semplificare il termine
+
+$$
+ \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} 
+y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
+- \sum_{i=1}^{N} y_i \alpha_i 
+\left\langle \sum_{j=1}^{N} y_j \alpha_j x_j, x_i \right\rangle
+\to
+-\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
+y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
+$$
+
+\noindent
+Otteniamo quindi
+
+$$
+\mathcal{D}(\xi,\alpha,\gamma)
+= -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
+y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
++ \sum_{i=1}^{N} \alpha_i
++ \sum_{i=1}^{N} (C - \alpha_i - \gamma_i)\,\xi_i .
+$$
+
+Dalla terza derivata delle tre posta a zero, $C - \alpha_n - \gamma_n = 0$, possiamo annullare l'ultimo termine.
+
+$$
+\mathcal{D}(\xi,\alpha,\gamma)
+= -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
+y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
++ \sum_{i=1}^{N} \alpha_i
+$$
+
+Ora, massimizzare il problema del duale è equivale a minimizzare il suo negativo. Arriviamo quindi alla formulazione del \textbf{Dual SVM}.
+
+$$
+\begin{aligned}
+	&\min_{\alpha} && 
+	\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
+	y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
+	- \sum_{i=1}^{N} \alpha_i \\
+	&\text{rispetto a} && 
+	\sum_{i=1}^{N} y_i \alpha_i = 0, \\
+	& && 0 \le \alpha_i \leq C \quad \text{per } i = 1,\dots,N .
+\end{aligned}
+$$
+
+$a_i \leq C$ si ottiene da $C = a_n + \gamma_n$, sapendo che $\gamma_n$ sono non negativi.
+
+\paragraph{Box Constraints} Indichiamo con questo nome l'insieme di disuguaglianze $0 \le \alpha_i \le C \quad\text{per } i=1,\dots,N$. Questi, limitano il vettore dei moltiplicatori di Lagrange $\alpha = [\alpha_1, \dots, \alpha_N]^\top\in \mathbb{R}^N$ in una "scatola" definita tra 0 e $C$ per ogni asse.
+
+\paragraph{Dal Duale al Primale} Una volta trovati i parametri $\alpha$, possiamo ottenere i parametri $w$ usando il \textbf{representer theorem}.
+
+$$
+w = \sum_{n=1}^{N} \alpha_n y_n x_n
+$$
+
+e indicheremo il suo valore ottimale con $w^*$. Per trovare invece $b^*$, dobbiamo trovare un punto sul margine, ossia $y_n(\langle w^*, x_n\rangle + b^*) = 1$. Calcoliamo il bias nel seguente modo
+
+$$
+b^* = y_n - \langle w^*, x_n\rangle
+$$
+
+
+\newpage
+
+\section{Kernel Trick}
+
+La formulazione Dual SVM è molto potente, in quanto permette l'uso di quello che è noto in letteratura come "\textbf{kernel trick}". Questo torna utile quando i dati non sono linearmente separabili nello spazio originale.
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.75\linewidth]{images/non_linear_SVM}
+	\caption{Applicazione di kernel su dati non linearmente separabili. Aumentando di una dimensione, i dati diventano separabili da un iperpiano.}
+	\label{fig:nonlinearsvm}
+\end{figure}
+
+\subsection{Trasformare i dati}
+il nostro desiderio, è quello di lavorare nei dati su uno spazio con più dimensioni rispetto all'originale. Una trasformazione esplicita del dataset $x \to \phi(x)$ in uno spazio più grande, presenta i seguenti rischi:
+
+\begin{itemize}
+	\item Vettori molto lunghi a causa delle troppe features ottenute
+	\item Costi in termini di calcoli e memoria molto alti
+\end{itemize}
+
+\subsection{Il \textit{Kernel Trick}}
+Ritorniamo sui nostri passi. La funzione di decisione di un SVM è
+$$
+\min_{\alpha} \quad
+\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
+y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
+- \sum_{i=1}^{N} \alpha_i 
+$$
+
+La formulazione in questione, valuta esclusivamente il prodotto scalare delle coppie di campioni $\langle x_i, x_j\rangle$, che ricordiamo essere indice di somiglianza tra i due campioni valutati. Detto ciò, l'idea è quella di \textbf{sostituire il prodotto scalare con un kernel}, ossia una funzione $K(x, z)$. Questa, matematicamente, si comporta come un prodotto scalare in uno spazio delle features più grande.
+
+$$K(x,z) = \langle \phi(x), \phi(z)\rangle$$
+
+Possiamo quindi evitare il calcolo esplicito di $\phi(x)$, e lavorare sostituendo il prodotto scalare con il kernel più opportuno.
+
+$$
+\min_{\alpha} \quad
+\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
+y_i y_j \alpha_i \alpha_j K(x_i,x_j)
+- \sum_{i=1}^{N} \alpha_i 
+$$
+
+Ottenendo lo stesso risultato. 
+
+\paragraph{Esempio di applicazione con kernel polinomiale di grado 2}
+
+Immaginiamo di avere due vettori, $x = (x_1, x_2)$ e $z = (z_1, z_2)$.
+Supponiamo di mappare $\phi(x)$ e $\phi(z)$, ottenendo
+$$\phi(x) =
+(
+x_1^2,
+\sqrt{2}x_1 x_2,
+x_2^2,
+\sqrt{2}x_1,
+\sqrt{2}x_2,
+1
+) \qquad \phi(z) =
+(
+z_1^2,
+\sqrt{2}z_1 z_2,
+z_2^2,
+\sqrt{2}z_1,
+\sqrt{2}z_2,
+1
+)$$
+
+\noindent
+Il prodotto scalare diventa
+
+$$\langle \phi(x), \phi(z)\rangle = x_1^2 z_1^2 + 2x_1 x_2 z_1 z_2 + x_2^2 z_2^2 + 2x_1 z_1 + 2x_2 z_2 + 1$$
+
+\noindent
+Ma lo stesso risultato è ottenibile applicando un kernel polinomiale di grado 2, ossia
+
+$$K(x,z) = (\langle x,z\rangle + 1)^2 = (x_1 z_1 + x_2 z_2 + 1)^2 = x_1^2 z_1^2 + 2x_1 x_2 z_1 z_2 + x_2^2 z_2^2 + 2x_1 z_1 + 2x_2 z_2 + 1$$
+
+Il risultato è il seguente: riusciamo a lavorare su spazi di features molto alti, ma senza mai costruirlo. 
+
+\newpage
 
 Parti del capitolo 12 di \cite{Deisenroth2020MML}.
