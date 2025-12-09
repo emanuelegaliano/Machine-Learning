@@ -1024,6 +1024,17 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
+INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
 INPUT out/Machine Learning.aux
 INPUT out/Machine Learning.aux
 INPUT out/Machine Learning.aux
@@ -1054,6 +1065,12 @@ INPUT out/capitolo8.aux
 INPUT out/capitolo9.aux
 INPUT out/capitolo9.aux
 INPUT out/capitolo9.aux
+INPUT out/seminario1.aux
+INPUT out/seminario1.aux
+INPUT out/seminario1.aux
+INPUT out/approfondimenti_teorici.aux
+INPUT out/approfondimenti_teorici.aux
+INPUT out/approfondimenti_teorici.aux
 OUTPUT out/Machine Learning.aux
 INPUT /usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg
@@ -1158,6 +1175,7 @@ INPUT /usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc
 INPUT out/Machine Learning.toc
 INPUT out/Machine Learning.toc
 INPUT out/Machine Learning.toc
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/rm-lmr10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmmi10.tfm
@@ -1165,7 +1183,10 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/lmsy10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmri10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbxi10.tfm
 OUTPUT out/Machine Learning.toc
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmr17.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT ./capitolo1.tex
 INPUT ./capitolo1.tex
 INPUT ./capitolo1.tex
@@ -1176,9 +1197,6 @@ INPUT ./capitolo1.tex
 INPUT capitolo1.tex
 INPUT ./capitolo1.tex
 INPUT capitolo1.tex
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmr17.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx12.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx12.tfm
 INPUT /usr/share/texlive/texmf-dist/tex/latex/lm/ts1lmr.fd
 INPUT /usr/share/texlive/texmf-dist/tex/latex/lm/ts1lmr.fd
@@ -1512,6 +1530,37 @@ INPUT ./images/svm_margin_distance.png
 INPUT images/svm_margin_distance.png
 INPUT ./images/svm_margin_distance.png
 INPUT ./images/svm_margin_distance.png
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx8.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbx6.tfm
+INPUT ./images/non_linear_SVM.png
+INPUT images/non_linear_SVM.png
+INPUT ./images/non_linear_SVM.png
+INPUT ./images/non_linear_SVM.png
+INPUT ./seminario1.tex
+INPUT ./seminario1.tex
+INPUT ./seminario1.tex
+OUTPUT out/seminario1.aux
+INPUT ./seminario1.tex
+INPUT ./seminario1.tex
+INPUT ./seminario1.tex
+INPUT seminario1.tex
+INPUT ./seminario1.tex
+INPUT seminario1.tex
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmbxi10.tfm
+INPUT ./images/risk-pyramid.png
+INPUT images/risk-pyramid.png
+INPUT ./images/risk-pyramid.png
+INPUT ./images/risk-pyramid.png
+INPUT ./approfondimenti_teorici.tex
+INPUT ./approfondimenti_teorici.tex
+INPUT ./approfondimenti_teorici.tex
+OUTPUT out/approfondimenti_teorici.aux
+INPUT ./approfondimenti_teorici.tex
+INPUT ./approfondimenti_teorici.tex
+INPUT ./approfondimenti_teorici.tex
+INPUT approfondimenti_teorici.tex
+INPUT ./approfondimenti_teorici.tex
+INPUT approfondimenti_teorici.tex
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/lm/ec-lmcsc10.tfm
 INPUT out/Machine Learning.aux
 INPUT out/capitolo1.aux
@@ -1541,6 +1590,12 @@ INPUT out/capitolo8.aux
 INPUT out/capitolo9.aux
 INPUT out/capitolo9.aux
 INPUT out/capitolo9.aux
+INPUT out/seminario1.aux
+INPUT out/seminario1.aux
+INPUT out/seminario1.aux
+INPUT out/approfondimenti_teorici.aux
+INPUT out/approfondimenti_teorici.aux
+INPUT out/approfondimenti_teorici.aux
 INPUT out/Machine Learning.out
 INPUT out/Machine Learning.out
 INPUT out/Machine Learning.run.xml
