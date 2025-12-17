@@ -561,12 +561,10 @@ In fase di training, questi vengono fissati, e \textbf{non influiscono sul train
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\textwidth]{images/cross_validation.png}
+	\includegraphics[width=0.8\textwidth]{images/cross_validation.png}
 	\caption{Procedura di cross-validation con $k=5$.}
 	\label{fig:featureExtraction}
 \end{figure}
-
-\newpage
 
 \section{Overfitting e underfitting}
 Sono tra i problemi più grandi che possono emergere con i propri algoritmi di machine learning, e riguardano spesso la \textbf{scelta del modello}. 
@@ -579,7 +577,14 @@ Sono tra i problemi più grandi che possono emergere con i propri algoritmi di m
 Bisogna quindi trovare lo \textit{sweetspot}, il compromesso, tra i modelli più complessi, e quelli più semplici. Il numero di parametri è un fattore da tenere sempre in considerazione. 
 
 \subsection{Bias e Variance}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/underoverfitting}
+	\caption{In blu i dati di training, in rosso quelli di testing. Nel caso dell'underfitting, vediamo una funzione troppo semplice (una funzione lineare) per approssimare una funzione più complessa. Nel caso dell'overfitting, il modello da output assurdi.}
+	\label{fig:underoverfitting}
+\end{figure}
 
+\noindent
 Osservando i risultati dei nostri modelli, sarà possibile individuare facilmente due tipologie di errori:
 
 \begin{description}
@@ -587,9 +592,9 @@ Osservando i risultati dei nostri modelli, sarà possibile individuare facilment
     \item[Variance Error.] Le previsioni del modello sono fortemente influenzate da piccole fluttuazioni nel training set. Ad esempio, se rimuoviamo un punto dati e riaddestriamo l'algoritmo, otteniamo previsioni molto diverse. Questo può essere dovuto al fatto che l'algoritmo sta cercando di modellare il rumore casuale presente nei dati di training, il che di solito porta a overfitting.
 \end{description}
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.6\textwidth]{images/underoverfitting}
-	\caption{In blu i dati di training, in rosso quelli di testing. Nel caso dell'underfitting, vediamo una funzione troppo semplice (una funzione lineare) per approssimare una funzione più complessa. Nel caso dell'overfitting, il modello da output assurdi.}
-	\label{fig:underoverfitting}
-\end{figure}
+\section*{Riferimenti}
+Il materiale visto in questo capitolo comprende:
+\begin{itemize}
+    \item Materiale visto a lezione.
+    \item Note scritte dal prof. Antonino Furnari.
+\end{itemize}

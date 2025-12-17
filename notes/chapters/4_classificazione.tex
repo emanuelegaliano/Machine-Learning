@@ -1,4 +1,4 @@
-\chapter{Classificazione}
+\chapter{Classificazione}\label{chap:classificazione}
 
 \section{Introduzione alla classificazione}
 La \textbf{classificazione} è un altro dei problemi tipici che può essere risolto tramite un algoritmo di Machine Learning. Riguarda lo \textbf{stabilire se un dato input appartiene ad una tra delle classi} prestabilite dal problema. Il\textbf{ target non sarà più un valore} $\in \mathbb{R}$, ma una tra $k$ classi.
@@ -386,7 +386,7 @@ E da questa, aggiorniamo i pesi \(\vartheta_j^{(c)}\) utilizzando la regola di a
 \vartheta_j^{(c)} \leftarrow \vartheta_j^{(c)} - \alpha \frac{\partial J(\vartheta)}{\partial \vartheta_j^{(c)}}, \qquad \forall j \in [0, n], \quad \forall c \in [0, K-1]
 \]
 
-\subsection{Proprietà del Softmax}
+\subsection{Proprietà del Softmax}\label{sec:proprieta_softmax}
 Il modello softmax è \textbf{overparametrizzato}: per ogni ipotesi che potrebbe essere fatta sui dati, esistono infinite combinazioni di parametri che a partire dal vettore di feature $X \in \mathbb{R}^n$ producono la stessa predizione nel vettore di probabilità $Y$.
 
 \noindent
@@ -410,57 +410,7 @@ h_{\vartheta}^{(c)}(x)
 \noindent
 Dove $\psi \in \mathbb{R}^n$ è un vettore arbitrario. Quindi, sottraendo lo stesso vettore $\psi$ da tutti i vettori di parametri $\vartheta^{(k)}$, otteniamo gli stessi valori di probabilità predetti dal modello, perciò esistono infinite combinazioni di parametri che producono la stessa predizione.
 
-\paragraph{Generalizzazione funzione di costo.}
-É facile vedere che, per $K=2$ (senza regolarizzazione) vale:
-\begin{align*}
-J(\vartheta)
-&= -\frac{1}{m}\sum_{i=1}^{m}\sum_{c=0}^{1}
-\mathbf{1}\{y^{(i)}=c\}\,\log\!\big(h_{\vartheta}^{(c)}(x^{(i)})\big)\\
-&= -\frac{1}{m}\sum_{i=1}^{m}
-\Big[\mathbf{1}\{y^{(i)}=0\}\log h_{\vartheta}^{(0)}(x^{(i)})
-     +\mathbf{1}\{y^{(i)}=1\}\log h_{\vartheta}^{(1)}(x^{(i)})\Big]\\
-&= -\frac{1}{m}\sum_{i=1}^{m}
-\Big[(1-y^{(i)})\log h_{\vartheta}^{(0)}(x^{(i)})
-     +y^{(i)}\log h_{\vartheta}^{(1)}(x^{(i)})\Big]\\
-&= -\frac{1}{m}\sum_{i=1}^{m}
-\Big[(1-y^{(i)})\log\!\big(1-h_{\vartheta}^{(1)}(x^{(i)})\big)
-     +y^{(i)}\log h_{\vartheta}^{(1)}(x^{(i)})\Big],
-\end{align*}
-
-dove si è usata la normalizzazione della softmax $h_{\vartheta}^{(0)}(x)+h_{\vartheta}^{(1)}(x)=1$.
-Questa è esattamente la loss della regressione logistica binaria: dunque la regressione logistica è un caso particolare della softmax.
-
-Si può ulteriormente dimostrare che il softmax è una generalizzazione della regressione logistica multiclasse usando una sua proprietà principale: l'\emph{overparametrizzazione}. Per $K=2$:
-\[
-h_{\vartheta}(x)=
-\begin{bmatrix}
-\dfrac{e^{\vartheta^{(0)\!\top}x}}{e^{\vartheta^{(0)\!\top}x}+e^{\vartheta^{(1)\!\top}x}}\\[6pt]
-\dfrac{e^{\vartheta^{(1)\!\top}x}}{e^{\vartheta^{(0)\!\top}x}+e^{\vartheta^{(1)\!\top}x}}
-\end{bmatrix}
-=
-\begin{bmatrix}
-\dfrac{e^{(\vartheta^{(0)}-\vartheta^{(1)})^\top x}}{e^{(\vartheta^{(0)}-\vartheta^{(1)})^\top x}+e^{\mathbf 0^\top x}}\\[6pt]
-\dfrac{e^{(\vartheta^{(1)}-\vartheta^{(1)})^\top x}}{e^{(\vartheta^{(0)}-\vartheta^{(1)})^\top x}+e^{\mathbf 0^\top x}}
-\end{bmatrix}
-=
-\begin{bmatrix}
-\dfrac{e^{\Delta^\top x}}{1+e^{\Delta^\top x}}\\[6pt]
-\dfrac{1}{1+e^{\Delta^\top x}}
-\end{bmatrix},
-\qquad \Delta=\vartheta^{(0)}-\vartheta^{(1)}.
-\]
-Ponendo \(\mathbf w=\vartheta^{(1)}-\vartheta^{(0)}=-\Delta\) e
-\(\sigma(z)=\dfrac{1}{1+e^{-z}}\) si ottiene
-\[
-h_{\vartheta}(x)=
-\begin{bmatrix}
-1-\sigma(\mathbf w^\top x)\\[4pt]
-\sigma(\mathbf w^\top x)
-\end{bmatrix}.
-\]
-
-\noindent
-Quindi, per $K=2$, il softmax riduce alla regressione logistica binaria.
+\paragraph{Nota.} Può essere trovato un approfondimento di questa parte nell'appendice \ref{chap:approfondimenti_teorici} alla sezione \ref{sec:softmax_generalizzazione_logistica}.
 
 \subsection{Rete neurale Softmax}
 Il softmax può essere visto come un particolare tipo di rete neurale:
@@ -480,3 +430,9 @@ La funzione di Loss usata nel softmax normalmente è una variante di \textbf{cro
 \text{Loss}(h_\vartheta(x), y) = \sum_{i \
 neq y} \max(0, h_\vartheta(x)_i - h_\vartheta(x)_y + \Delta)
 \]
+
+\section*{Riferimenti}
+Il materiale di questo capitolo comprende:
+\begin{itemize}
+	\item Materiale visto a lezione.
+\end{itemize}

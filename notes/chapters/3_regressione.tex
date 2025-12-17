@@ -79,7 +79,7 @@ Le statistiche \((\mu_j,\sigma_j,x_j^{\min},x_j^{\max})\) si calcolano solo sul 
 si riusano (senza ricalcolarle) su validation/test, per evitare data leakage.
 
 \section{Algoritmo di discesa del gradiente}
-L’obiettivo è scegliere \(\vartheta\) che minimizza \(J(\vartheta)\) funzione di loss. La \emph{discesa del gradiente}
+L'obiettivo è scegliere \(\vartheta\) che minimizza \(J(\vartheta)\) funzione di loss. La \emph{discesa del gradiente}
 è un metodo iterativo che aggiorna i parametri nella direzione di massima diminuzione di \(J\).
 Nel prossimo esempio a due parametri ($\vartheta_0, \vartheta_1$), supporremo l'intercetta $\vartheta_0 = 0$.
 
@@ -115,7 +115,7 @@ J(\vartheta)=\frac{1}{2m}\|X\vartheta-y\|_2^2,\qquad
   \vartheta_j \leftarrow \vartheta_j - \alpha\,\frac{\partial J(\vartheta)}{\partial \vartheta_j},
   \qquad j=0,\ldots,n.
   \]
-  \item \textbf{Ripeti} i passi 2–3 finché non è soddisfatto un criterio d’arresto
+  \item \textbf{Ripeti} i passi 2–3 finché non è soddisfatto un criterio d'arresto
   (iterazioni massime, \(\|\nabla J(\vartheta)\|\) sotto soglia, variazione di \(J\) piccola).
 \end{enumerate}
 In forma compatta: \(\;\vartheta \leftarrow \vartheta - \frac{\alpha}{m}X^\top(X\vartheta-y)\).
@@ -144,7 +144,7 @@ $$
 $$
 
 \section{Regolarizzazione}
-Per ridurre l’overfitting penalizziamo pesi grandi. In \textbf{Ridge} (L2) la loss è
+Per ridurre l'overfitting penalizziamo pesi grandi. In \textbf{Ridge} (L2) la loss è
 \[
 J_\lambda(\vartheta)=\frac{1}{2m}\|X\vartheta-y\|_2^2+\frac{\lambda}{2m} + \underbrace{\sum_{j=1}^{n}\vartheta_j^2}_{\text{Termine di regolarizzazione}},
 \]
@@ -171,7 +171,7 @@ R^2=1-\frac{\sum_i\big(y^{(i)}-\hat{y}^{(i)}\big)^2}{\sum_i\big(y^{(i)}-\bar{y}\
 \subsection{REC curve}
 Ordinando gli errori assoluti \(e_i=\lvert \hat y^{(i)}-y^{(i)}\rvert\) e
 tracciando, al variare di \(\varepsilon\), la frazione cumulativa di esempi con errore
-\(\le\varepsilon\), si ottiene una curva di facilissima lettura; un’area sotto la curva\footnote{AUC, area under the curve} maggiore indica in genere prestazioni migliori. Analogamente, un'area sopra la curva\footnote{AOC, area over the curve} maggiore indica maggiore errore atteso. Quanto più velocemente cresce la curva, tanto più il modello dovrebbe essere accurato.
+\(\le\varepsilon\), si ottiene una curva di facilissima lettura; un'area sotto la curva\footnote{AUC, area under the curve} maggiore indica in genere prestazioni migliori. Analogamente, un'area sopra la curva\footnote{AOC, area over the curve} maggiore indica maggiore errore atteso. Quanto più velocemente cresce la curva, tanto più il modello dovrebbe essere accurato.
 
 \begin{figure}[tbph]
 	\centering
@@ -179,3 +179,10 @@ tracciando, al variare di \(\varepsilon\), la frazione cumulativa di esempi con 
 	\caption{Esempio di curva REC.}
 	\label{fig:rec-curve}
 \end{figure}
+
+\section*{Riferimenti}
+Il materiale per questo capitolo comprende:
+\begin{itemize}
+  \item Materiale visto a lezione.
+  \item Note del prof. Antonino Furnari.
+\end{itemize}
