@@ -9,7 +9,6 @@
 \usepackage{tikz}\usetikzlibrary{arrows.meta,positioning,decorations.pathreplacing}
 
 \usepackage{listings}
-\usepackage[T1]{fontenc}
 \usepackage[scaled=0.9]{beramono} % facoltativo: font monospace più leggibile
 \lstdefinestyle{py}{
   language=Python,
@@ -31,7 +30,7 @@
 % ===== Impaginazione =====
 \usepackage{geometry}
 % Margini comodi per tablet/stampa: non stretti, ma senza sprecare spazio
-\geometry{a4paper, top=30mm, bottom=32mm, left=30mm, right=30mm}                                        
+\geometry{a4paper, top=30mm, bottom=32mm, left=30mm, right=30mm}
 
 \usepackage{setspace}
 % Interlinea: ben leggibile ma con buona densità di contenuto
@@ -55,14 +54,16 @@
 \setlength{\headheight}{15pt}
 \addtolength{\topmargin}{-2pt}
 
-% ===== Tabelle, grafica,    link =====
+% ===== Tabelle, grafica, link =====
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage[hidelinks]{hyperref}
 
+% ===== Bibliografia =====
 \usepackage{biblatex}
 \addbibresource{refs.bib}
 
+% ===== Algoritmi =====
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
@@ -74,23 +75,76 @@
 % description: rientro e allineamento gradevole; etichetta in grassetto
 \setlist[description]{font=\normalfont\bfseries, labelsep=0.6em, leftmargin=2em}
 
-% (Facoltativo) Se vuoi che gli elenchi siano più “a colonna” in certi punti:
-% \begin{description}[widest=Etichetta-più-lunga,leftmargin=!,labelsep=0.6em]
-%   \item[Etichetta] Testo...
-% \end{description}
-
 \usepackage{multicol}
 
-% ===== Metadati =====
-\title{\Huge \bfseries Machine Learning}
-\author{\Large Emanuele Galiano \\
-\Large Damiano Trovato}
-\date{Anno Accademico 2025/2026}
+% ===== Metadati (facoltativi: non usati dalla titlepage custom) =====
+% \title{\Huge \bfseries Machine Learning}
+% \author{\Large Emanuele Galiano \\
+% \Large Damiano Trovato}
+% \date{Anno Accademico 2025/2026}
 
 \begin{document}
 
 \frontmatter
-\maketitle
+
+% ================== TITLE PAGE CUSTOM ==================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+
+% --- Logo in alto ---
+\vspace*{1.5cm}
+\includegraphics[width=0.8\textwidth]{images/unict_logo.jpg}
+
+% --- Titolo ---
+\vspace{2.2cm}
+{\Huge \bfseries Machine Learning\par}
+
+% --- Spazio centrale (se vuoi sottotitolo o corso, lascia vuoto) ---
+\vspace{2.0cm}
+
+% --- Box in basso: autori + revisione professore ---
+\begin{minipage}{0.9\textwidth}
+\large
+
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\begin{flushleft}
+{\Large\bfseries Autori:}\\[2pt]
+{\Large Emanuele Galiano}\\
+{\Large Damiano Trovato}
+\end{flushleft}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{flushright}
+{\Large\bfseries Revisione:}\\[4pt]
+\begin{tabular}{@{}l l@{}}
+{\Large Prof.} & {\Large Giovanni M.} \\
+      & {\Large Farinella}
+\end{tabular}
+\end{flushright}
+\end{minipage}
+
+\end{minipage}
+% --- Riga piccola finale: anno e dipartimento ---
+\vfill
+\begin{center}
+{\small
+\setlength{\tabcolsep}{0pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{c}
+Anno Accademico 2025/2026\\
+Dipartimento di Matematica e Informatica\\
+Corso di Laurea Triennale in Informatica (L-31)
+\end{tabular}
+}
+\end{center}
+
+\end{center}
+\end{titlepage}
+% =======================================================
+
 \tableofcontents
 
 \part{Concetti preliminari}
