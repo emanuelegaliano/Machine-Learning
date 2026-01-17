@@ -78,10 +78,78 @@ VeryMildDemented   & 115 & 12  & 121 & 1998 \\
 \label{tab:confusion_matrix}
 \end{table}
 
-\subsection{Radnet-50}
-Pensando che il modello potesse essere migliorato, data la bassa accuracy\footnote{In campo medico.} ottenuta con feature extractor ResNet-18, abbiamo deciso di utilizzare un modello più complesso, una RadNet-50 addestrata sul nostro dataset. Questa particolare CNN è stata trovata online: \url{https://github.com/BMEII-AI/RadImageNet}. Anche in questo caso, le immagini sono state ridimensionate a $224 \times 224$ pixel. Per allenare è stato diviso il dataset in training, validation e test set, con una proporzione del 70\%-15\%-15\% allenando con una K-fold cross validation con $K=5$. DA FINIRE.
+\subsection{RadNet-50}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{images/radnet-heatmaps-merged.png}
+    \caption{Esempi di mappe di attivazione (Grad-CAM) ottenute dal modello RadNet-50 per le quattro classi considerate: \textit{NonDemented}, \textit{MildDemented}, \textit{ModerateDemented} e \textit{VeryMildDemented}. 
+    Per ciascun esempio sono mostrate l'immagine MRI originale (a sinistra) e la corrispondente heatmap sovrapposta (a destra), che evidenzia le regioni cerebrali maggiormente rilevanti per la decisione del modello. 
+    Le aree in rosso indicano le zone con maggiore contributo alla classificazione.}
+    \label{fig:radnet_gradcam}
+\end{figure}
 
-\newpage
+Per migliorare le prestazioni rispetto al feature extractor ResNet-18, abbiamo utilizzato una ResNet-50 pre-addestrata su \emph{RadImageNet} (di seguito \emph{RadNet-50}), un insieme di dati radiologici che rende il backbone più adatto a domini medicali rispetto al pre-training su ImageNet. Il modello è stato impiegato come \textbf{feature extractor} e successivamente le feature sono state date in input ad un classificatore \textbf{MLP con Softmax}.
+
+\paragraph{Pre-processing e data augmentation.}
+Le immagini MRI, originariamente in scala di grigi, sono state replicate su tre canali e normalizzate con le statistiche di ImageNet. L’input del modello è stato portato a $224\times224$. Durante l’addestramento sono state applicate trasformazioni di data augmentation leggere e compatibili con il dominio MRI, al fine di migliorare la capacità di generalizzazione del modello:
+\begin{itemize}
+    \item ridimensionamento a $256\times256$ e \texttt{crop} (casuale in training, centrale in validazione e test);
+    \item trasformazioni affini moderate (rotazioni, traslazioni e variazioni di scala);
+    \item normalizzazione con media e deviazione standard di ImageNet.
+\end{itemize}
+
+\paragraph{Ottimizzazione e iperparametri principali.}
+L’addestramento è stato condotto utilizzando l’ottimizzatore \textbf{AdamW} con \textbf{weight decay} pari a $10^{-4}$. Per stabilizzare il fine-tuning del modello sono stati adottati \textbf{learning rate differenziati} per le diverse parti della rete:
+\begin{itemize}
+    \item \textbf{head} (layer finale): $5\cdot10^{-5}$;
+    \item \textbf{layer4} del backbone: $10^{-5}$;
+    \item \textbf{layer3} del backbone: $5\cdot10^{-6}$.
+\end{itemize}
+Per ridurre l’overfitting e migliorare la stabilità dell’addestramento sono stati inoltre impiegati \textbf{dropout} (0.5) nella head, \textbf{label smoothing} (0.05), \textbf{gradient clipping} con norma massima pari a 1.0 e \textbf{mixed precision} (AMP), quando disponibile. Inoltre, per limitare la deriva del backbone durante il fine-tuning, sono stati congelati i parametri (e le statistiche delle BatchNorm) ad eccezione degli ultimi blocchi convoluzionali (\texttt{layer4} e, opzionalmente, \texttt{layer3}).
+
+\paragraph{Estrazione delle feature e classificatore MLP.}
+Una volta ottenuto il backbone ottimizzato, sono state estratte feature di dimensione 2048 (output della rete prima del layer fully connected) e usate come input di un \textbf{MLP con Softmax}. Il classificatore è stato addestrato per 50 epoche con \textbf{SGD} (learning rate 0.01, momentum 0.9) e \textbf{pesi di classe} nella loss per mitigare lo sbilanciamento del dataset.
+
+\paragraph{Risultati (MLP su feature RadNet-50).}
+Di seguito si riportano i risultati ottenuti dal classificatore MLP sulle feature estratte da RadNet-50.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\hline
+MildDemented        & 0.58 & 0.18 & 0.28 & 935  \\
+ModerateDemented   & 0.68 & 0.97 & 0.80 & 1306 \\
+NonDemented        & 0.71 & 0.59 & 0.65 & 2560 \\
+VeryMildDemented   & 0.49 & 0.60 & 0.54 & 2240 \\
+\hline
+\textbf{Accuracy}     &      &      & 0.61 & 7041 \\
+\textbf{Macro Avg}    & 0.61 & 0.58 & 0.56 & 7041 \\
+\textbf{Weighted Avg} & 0.62 & 0.61 & 0.59 & 7041 \\
+\hline
+\end{tabular}
+\caption{Classification report del classificatore MLP addestrato sulle feature estratte con RadNet-50.}
+\label{tab:radnet_mlp_best_report}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
+\hline
+MildDemented        & 169 & 135 & 43  & 588 \\
+ModerateDemented   & 9   & 1262 & 1   & 34  \\
+NonDemented        & 35  & 212 & 1521 & 792 \\
+VeryMildDemented   & 77  & 240 & 584 & 1339 \\
+\hline
+\end{tabular}
+\caption{Confusion matrix del classificatore MLP su feature RadNet-50.}
+\label{tab:radnet_mlp_best_cm}
+\end{table}
+
+L'approccio è stato in generale fallimentare, probabilmente a causa della natura specifica delle immagini MRI che richiedono un fine-tuning più approfondito del backbone. Tuttavia, l'analisi delle mappe di attivazione (Figura \ref{fig:radnet_gradcam}) mostra che il modello non è in grado di focalizzarsi sulle regioni cerebrali rilevanti, suggerendo la necessità di un addestramento più mirato.
 
 \subsection{Custom-CNN}
 \begin{figure}[htbp]
