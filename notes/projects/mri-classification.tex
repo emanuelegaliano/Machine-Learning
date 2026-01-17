@@ -1,0 +1,177 @@
+\chapter{Classificatore di Risonanze magnetiche}
+
+\section{Problema}
+La malattia di Alzheimer è una patologia neurodegenerativa progressiva che rappresenta una delle principali cause di demenza nella popolazione anziana. A causa dell’invecchiamento globale della popolazione, il numero di pazienti affetti è in costante aumento, rendendo fondamentale lo sviluppo di strumenti diagnostici affidabili e precoci.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{images/merged.png}
+    \caption{Esempi di immagini RM (MRI) cerebrali per la classificazione dell'Alzheimer: da sinistra a destra 
+    \textit{NonDemented} (assenza di demenza),
+    \textit{Mild Demented} (demenza lieve), 
+    \textit{Moderate Demented} (demenza moderata), 
+    \textit{Very Mild Demented} (demenza molto lieve).}
+    \label{fig:merged-alzheimer-mri}
+\end{figure}
+
+Il problema affrontato in questo lavoro consiste nella classificazione automatica di immagini MRI cerebrali in quattro classi, rappresentative di differenti stadi della malattia di Alzheimer (ad esempio: Non Demented, Very Mild Demented, Mild Demented, Moderate Demented). L’obiettivo è sviluppare un modello in grado di distinguere accuratamente tali classi, supportando il processo diagnostico e contribuendo a una possibile identificazione precoce della patologia.
+
+\section{Dataset}
+Il dataset utilizzato è costituito da immagini di risonanze magnetiche (MRI) celebrale ed è stato ottenuto dalla piattaforma \textbf{Kaggle}, dove è reso disponibile gratuitamente. L'acquisizione delle immagini non è resa nota nella descrizione sul sito di Kaggle. 
+
+Ogni cartella contiene esclusivamente le immagini appartenenti alla classe corrispondente. Il dataset comprende un totale di $35.202$ immagini. L'etichettatura dei dati è \textbf{già fornita} nel dataset originale e non è stata modificata. Le immagini sono suddivise in quattro classi cliniche, organizzate in cartelle separate, in base al livello di \emph{severità} della demenza (con a seguito il numero di esempi per classe): 
+\begin{enumerate}
+    \item \emph{Non Demented} $12.800$
+    \item \emph{Mild Demented} - $4.674$.
+    \item \emph{Moderate Demented} - $6.528$.
+    \item \emph{Very Mild Demented} - $11.200$.
+\end{enumerate}
+
+Le strategie utilizzate per la divisione in training set e test set variano in base al metodo impiegato per la classificazione. DA FINIRE.
+
+\section{Metodi}
+La prima parte del progetto è stata la feature extraction: abbiamo allenato diversi modelli per capire quale riusciva ad estrarre meglio le features.
+\subsection{Resnet-18}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{images/heatmaps-resnet18-merged.png}
+    \caption{Esempi di mappe di attivazione (Grad-CAM) ottenute dal modello ResNet-18 per le quattro classi considerate: \textit{NonDemented}, \textit{MildDemented}, \textit{ModerateDemented} e \textit{VeryMildDemented}. 
+    Per ciascun esempio sono mostrate l'immagine MRI originale (a sinistra) e la corrispondente heatmap sovrapposta (a destra), che evidenzia le regioni cerebrali maggiormente rilevanti per la decisione del modello. 
+    Le aree in rosso indicano le zone con maggiore contributo alla classificazione.}
+    \label{fig:resnet18_gradcam}
+\end{figure}
+Abbiamo utilizzato un modello ResNet-18 pre-addestrato su ImageNet come feature extractor. Le immagini sono state ridimensionate a $224 \times 224$ pixel per adattarsi all'input del modello. Abbamo diviso il dataset in training e test set con una proporzione dell'80\%-20\%. Dopo l'estrazione delle feature, abbiamo addestrato un classificatore Multi-Layer Perceptron (MLP) con due layer lineari e funzione di attivazione ReLU. Il modello è stato addestrato per 100 epoche con un learning rate di 0.001 e un momentum di 0.9.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\hline
+MildDemented        & 0.79 & 0.91 & 0.85 & 919  \\
+ModerateDemented   & 0.98 & 0.99 & 0.99 & 1317 \\
+NonDemented        & 0.93 & 0.83 & 0.88 & 2559 \\
+VeryMildDemented   & 0.84 & 0.89 & 0.86 & 2246 \\
+\hline
+\textbf{Accuracy}      &      &      & 0.89 & 7041 \\
+\textbf{Macro Avg}     & 0.89 & 0.91 & 0.89 & 7041 \\
+\textbf{Weighted Avg}  & 0.89 & 0.89 & 0.89 & 7041 \\
+\hline
+\end{tabular}
+\caption{Classification report del modello ResNet-18.}
+\label{tab:classification_report}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
+\hline
+MildDemented        & 835 & 6   & 32  & 46  \\
+ModerateDemented   & 6   & 1308 & 1   & 2   \\
+NonDemented        & 97  & 5   & 2129 & 328 \\
+VeryMildDemented   & 115 & 12  & 121 & 1998 \\
+\hline
+\end{tabular}
+\caption{Confusion matrix del modello}
+\label{tab:confusion_matrix}
+\end{table}
+
+\subsection{Radnet-50}
+Pensando che il modello potesse essere migliorato, data la bassa accuracy\footnote{In campo medico.} ottenuta con feature extractor ResNet-18, abbiamo deciso di utilizzare un modello più complesso, una RadNet-50 addestrata sul nostro dataset. Questa particolare CNN è stata trovata online: \url{https://github.com/BMEII-AI/RadImageNet}. Anche in questo caso, le immagini sono state ridimensionate a $224 \times 224$ pixel. Per allenare è stato diviso il dataset in training, validation e test set, con una proporzione del 70\%-15\%-15\% allenando con una K-fold cross validation con $K=5$. DA FINIRE.
+
+\newpage
+
+\subsection{Custom-CNN}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{images/custom-cnn-heatmaps.png}
+    \caption{Esempi di mappe di attivazione (Grad-CAM) ottenute dal modello Custom-CNN per le quattro classi considerate: \textit{NonDemented}, \textit{MildDemented}, \textit{ModerateDemented} e \textit{VeryMildDemented}. 
+    Per ciascun esempio sono mostrate l'immagine MRI originale (a sinistra) e la corrispondente heatmap sovrapposta (a destra), che evidenzia le regioni cerebrali maggiormente rilevanti per la decisione del modello. 
+    Le aree in rosso indicano le zone con maggiore contributo alla classificazione.}
+    \label{fig:custom_cnn_gradcam}
+\end{figure}
+
+Per migliorare ulteriormente le performance del classificatore, abbiamo progetto e implementato una CNN personalizzata. 
+
+\paragraph{Architettura.}
+L'architettura della rete è ispirata all'architettura della ResNet-18, in totale è composta da 14 layer ed è divisa da:
+\begin{itemize}
+    \item \textbf{Fase di inizializzazione}: Questda parte è composta da un layer convoluzione che serve per ridurre la dimensione dell'immagine di input di dimensione $1 \times 176 \times 208$ e lo converte in un tensore di dimensione $32 \times 88 \times 104$, seguito da un layer di batch normalization e una funzione di attivazione ReLU. Successivamente, un layer di max pooling che riduce la dimensione a $32 \times 44 \times 52$.
+    \item \textbf{Tre basic blocks}: ciascun blocco contiene due layer convoluzionali seguiti da operazioni di batch normalization e funzioni di attivazione ReLU. Alla fine c'è un layer chiamato \emph{shortcut} che serve nella fase di backpropagation per evitare il problema del vanishing gradient, per mezzo di un altro layer convoluzionale con kernel di dimensione $1 \times 1$ e un layer di batch normalization.
+    \item \textbf{Average Pooling}: un layer di average pooling che riduce ulteriormente la dimensione del tensore a $128 \times 1 \times 1$.
+    \item \textbf{Layer lineare}: un layer lineare che mappa le feature estratte alle quattro classi di output, con un dropout del 25\%.
+\end{itemize}
+
+L'estrazione di feature è stata effettuata utilizzando l'intera rete, addestrata da zero dividendo il dataset in training e test set con una proporzione dell'80\%-20\%. Per ottimizzare il modello è stato utilizzato ADAM (Adaptive Moment Estimation), è stato preferito perché è in grado di adattarsi avendo un learning rate dinamico durante l'addestramento e convergere più velocemente rispetto alla discesa del gradiente standard. Il modello è stato poi addestrato per 20 epoche con un learning rate di 0.001. Modificando l'ultimo layer trasformandolo in un MLP con Softmax, abbiamo ottenuto i seguenti risultati sul test set:
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\hline
+MildDemented        & 0.96 & 0.98 & 0.97 & 919  \\
+ModerateDemented   & 1.00 & 1.00 & 1.00 & 1317 \\
+NonDemented        & 0.96 & 0.95 & 0.95 & 2559 \\
+VeryMildDemented   & 0.95 & 0.95 & 0.95 & 2246 \\
+\hline
+\textbf{Accuracy}     &      &      & 0.96 & 7041 \\
+\textbf{Macro Avg}    & 0.97 & 0.97 & 0.97 & 7041 \\
+\textbf{Weighted Avg} & 0.96 & 0.96 & 0.96 & 7041 \\
+\hline
+\end{tabular}
+\caption{Classification report del modello finale}
+\label{tab:classification_report_final}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
+\hline
+MildDemented        & 904 & 0   & 5    & 10   \\
+ModerateDemented   & 0   & 1317 & 0    & 0    \\
+NonDemented        & 17  & 1   & 2428 & 113  \\
+VeryMildDemented   & 23  & 0   & 96   & 2127 \\
+\hline
+\end{tabular}
+\caption{Confusion matrix del modello finale}
+\label{tab:confusion_matrix_final}
+\end{table}
+
+\section{Valutazione}
+Per una valutazione a $K=4$ classi ($c \in \{1, 2, 3, 4\}$), sia $C$ la matrice di confusione $4 \times 4$, dove $C_{i, j}$ rappresenta il numero di campioni con classe $I$ che sono stati classificati come classe $j$. Definiamo:
+\begin{align*}
+&TP_k = C_{k,k} \\
+&FP_k = \sum_{i=1, i \neq k}^{4} C_{i,k} \\
+&FN_k = \sum_{i=1, i \neq k}^{4} C_{k,i} \\
+&TN_k = \sum_{i=1}^{4} \sum_{j=1}^{4} C_{i,j} - TP_k - FP_k - FN_k
+\end{align*}
+
+Le metriche utilizzate per valutare le performance del modello sono:
+\begin{itemize}
+    \item \textbf{Precision}: misura la proporzione dei veri positivi rispetto al totale dei positivi predetti dal modello.
+    \[
+    \text{precision}_k = \frac{TP_k}{TP_k + FP_k}
+    \]
+    \item \textbf{Recall}: misura la proporzione dei veri positivi rispetto al totale dei positivi effettivi nel dataset.
+    \[
+    \text{recall}_k = \frac{TP_k}{TP_k + FN_k}
+    \]
+    \item \textbf{F1-score}: è la media armonica tra precision e recall, fornendo una misura bilanciata delle performance del modello.
+    \[
+    \text{F1-score}_k = 2 \cdot \frac{\text{precision}_k \cdot \text{recall}_k}{\text{precision}_k + \text{recall}_k}
+    \]
+    \item \textbf{Support}: il numero di occorrenze di ogni classe nel dataset di test.
+    \[
+    \text{support}_k = \sum_{i=1}^{4} C_{k,i}
+    \]
+\end{itemize}
+
+\section{Demo}
+
+\section{Codice}
+
+\section{Conclusioni}
