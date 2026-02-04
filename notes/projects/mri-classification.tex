@@ -1,5 +1,19 @@
 \chapter{Classificatore di Risonanze magnetiche}
 
+\section*{Partecipanti al progetto}
+Questo progetto, assegnato durante il corso di Machine Learning, è stato realizzato da:
+\begin{itemize}
+    \item Diego Martinez - \url{https://github.com/Diego54523}
+    \item Andrea Tirenti - \url{https://github.com/Dr-Faxzty}
+    \item Emanuele Galiano - \url{https://github.com/emanuelegaliano}
+\end{itemize}
+
+\noindent
+Si può trovare il codice completo del progetto al link della repository GitHub: 
+\begin{center}
+\url{https://github.com/Diego54523/unict-ml-year-2025-group-5-ReLU-tanti}
+\end{center}
+
 \section*{Abstract}
 Questo lavoro affronta il problema della classificazione di immagini di risonanza magnetica (MRI) cerebrale a supporto della diagnosi della malattia di Alzheimer, considerando quattro stadi clinici: Non Demented, Very Mild Demented, Mild Demented e Moderate Demented. Lo studio è condotto su un ampio dataset pubblico di 35.202 immagini MRI, caratterizzato da una distribuzione sbilanciata delle classi. In una prima fase, sono stati valutati approcci di transfer learning basati su reti convoluzionali pre-addestrate (ResNet-18 e ResNet-50 su ImageNet e RadImageNet), impiegate come feature extractor in combinazione con modelli di classificazione. I risultati hanno evidenziato limiti significativi nella capacità discriminativa, in particolare nella distinzione tra stadi adiacenti e precoci della patologia, attribuibili al domain shift e al texture bias tipico delle CNN addestrate su immagini naturali. Per superare tali criticità, è stata progettata una CNN personalizzata, ottimizzata per il dominio MRI monocanale e addestrata end-to-end con tecniche di data augmentation, regolarizzazione e bilanciamento delle classi. Le feature apprese sono state successivamente validate mediante classificatori MLP e SVM, ottenendo prestazioni elevate e stabili, con un’accuratezza fino al 98\%. L’analisi di interpretabilità tramite Grad-CAM conferma che il modello apprende rappresentazioni semanticamente e clinicamente rilevanti. I risultati evidenziano l’importanza di una feature extraction domain-specific per applicazioni di diagnostica medica.
 
