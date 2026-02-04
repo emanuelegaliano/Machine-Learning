@@ -1,5 +1,8 @@
 \chapter{Classificatore di Risonanze magnetiche}
 
+\section*{Abstract}
+Questo lavoro affronta il problema della classificazione di immagini di risonanza magnetica (MRI) cerebrale a supporto della diagnosi della malattia di Alzheimer, considerando quattro stadi clinici: Non Demented, Very Mild Demented, Mild Demented e Moderate Demented. Lo studio è condotto su un ampio dataset pubblico di 35.202 immagini MRI, caratterizzato da una distribuzione sbilanciata delle classi. In una prima fase, sono stati valutati approcci di transfer learning basati su reti convoluzionali pre-addestrate (ResNet-18 e ResNet-50 su ImageNet e RadImageNet), impiegate come feature extractor in combinazione con modelli di classificazione. I risultati hanno evidenziato limiti significativi nella capacità discriminativa, in particolare nella distinzione tra stadi adiacenti e precoci della patologia, attribuibili al domain shift e al texture bias tipico delle CNN addestrate su immagini naturali. Per superare tali criticità, è stata progettata una CNN personalizzata, ottimizzata per il dominio MRI monocanale e addestrata end-to-end con tecniche di data augmentation, regolarizzazione e bilanciamento delle classi. Le feature apprese sono state successivamente validate mediante classificatori MLP e SVM, ottenendo prestazioni elevate e stabili, con un’accuratezza fino al 98\%. L’analisi di interpretabilità tramite Grad-CAM conferma che il modello apprende rappresentazioni semanticamente e clinicamente rilevanti. I risultati evidenziano l’importanza di una feature extraction domain-specific per applicazioni di diagnostica medica.
+
 \section{Problema}
 La malattia di Alzheimer è una patologia neurodegenerativa progressiva che rappresenta una delle principali cause di demenza nella popolazione anziana. A causa dell’invecchiamento globale della popolazione, il numero di pazienti affetti è in costante aumento, rendendo fondamentale lo sviluppo di strumenti diagnostici affidabili e precoci.
 
@@ -27,11 +30,15 @@ Ogni cartella contiene esclusivamente le immagini appartenenti alla classe corri
     \item \emph{Very Mild Demented} - $11.200$.
 \end{enumerate}
 
-Le strategie utilizzate per la divisione in training set e test set variano in base al metodo impiegato per la classificazione. DA FINIRE.
+Questa distribuzione evidenzia una parziale \textbf{sbilanciatura tra le classi}.
+
+\(\newline\)
+La suddivisione dei dati in \textbf{training set} e \textbf{test set} non avviene tramite una separazione fisica delle immagini in cartelle distinte. Al contrario, l’intero dataset viene inizialmente caricato e la divisione tra dati di training e di test viene effettuata a \textbf{livello di codice}.
+Le modalità di split (percentuale: 80/20) variano in base all’approccio di classificazione adottato (ad esempio utilizzo diretto delle immagini o classificazione basata su feature estratte).
 
 \section{Metodi}
 La prima parte del progetto è stata la feature extraction: abbiamo allenato diversi modelli per capire quale riusciva ad estrarre meglio le features.
-\subsection{Resnet-18}
+\subsection{ResNet-18}
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{images/heatmaps-resnet18-merged.png}
@@ -40,10 +47,77 @@ La prima parte del progetto è stata la feature extraction: abbiamo allenato div
     Le aree in rosso indicano le zone con maggiore contributo alla classificazione.}
     \label{fig:resnet18_gradcam}
 \end{figure}
-Abbiamo utilizzato un modello ResNet-18 pre-addestrato su ImageNet come feature extractor. Le immagini sono state ridimensionate a $224 \times 224$ pixel per adattarsi all'input del modello. Abbamo diviso il dataset in training e test set con una proporzione dell'80\%-20\%. Dopo l'estrazione delle feature, abbiamo addestrato un classificatore Multi-Layer Perceptron (MLP) con due layer lineari e funzione di attivazione ReLU. Il modello è stato addestrato per 100 epoche con un learning rate di 0.001 e un momentum di 0.9.
+
+In questa fase sperimentale è stato utilizzato un modello \textit{ResNet-18}
+pre-addestrato sul dataset ImageNet come feature extractor.
+Le immagini MRI sono state ridimensionate a $224 \times 224$ pixel,
+al fine di risultare compatibili con l’input del modello.
+Il dataset è stato suddiviso in training set e test set secondo una
+proporzione pari all’80\% e 20\%, rispettivamente.
+
+Per una prima valutazione delle capacità del modello, sono state estratte
+le feature mediante ResNet-18 e successivamente utilizzate come input
+di un classificatore \textit{Multi-Layer Perceptron} (MLP) con ultimo strato lineare.
+Il modello è stato addestrato per un totale di 20 epoche, usando un learning rate pari a \(10^{-3}\) e momentum pari a \(9\cdot10^{-1}\).
+I risultati ottenuti sono riportati nelle seguenti tabelle.
 
 \begin{table}[h!]
 \centering
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\hline
+MildDemented        & 0.90 & 0.31 & 0.47 & 919  \\
+ModerateDemented   & 0.99 & 0.97 & 0.98 & 1317 \\
+NonDemented        & 0.85 & 0.64 & 0.73 & 2559 \\
+VeryMildDemented   & 0.57 & 0.89 & 0.70 & 2246 \\
+\hline
+Accuracy            &      &      & 0.74 & 7041 \\
+Macro Avg           & 0.83 & 0.70 & 0.72 & 7041 \\
+Weighted Avg        & 0.79 & 0.74 & 0.73 & 7041 \\
+\hline
+\end{tabular}
+}
+\caption{Classification report del modello.}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe reale / Predetta} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{VeryMild} \\
+\hline
+MildDemented        & 289 & 9    & 55   & 566  \\
+ModerateDemented   & 1   & 1283 & 2    & 31   \\
+NonDemented        & 21  & 6    & 1649 & 883  \\
+VeryMildDemented   & 10  & 4    & 243  & 1989 \\
+\hline
+\end{tabular}
+}
+\caption{Confusion matrix del modello.}
+\end{minipage}
+
+\end{table}
+
+Il report sopracitato evidenzia limitazioni intrinseche all'utilizzo dell'architettura ResNet-18 come mero feature extractor statico ("frozen") in ambito medico. Le criticità emerse, in particolare la bassa Recall per la classe MildDemented (0.31) e l'elevata confusione tra NonDemented e VeryMildDemented, trovano riscontro nella letteratura scientifica relativa al transfer learning e al domain shift.
+
+\paragraph{Analisi del modello.}
+Come dimostrato da Raghu et al. \cite{raghu2019transfusion}, le feature apprese su dataset di immagini naturali (ImageNet) privilegiano caratteristiche visive ad alto contrasto e texture specifiche che non si trasferiscono efficacemente alle immagini MRI, dove l'informazione diagnostica risiede in sottili variazioni strutturali e di scala di grigi. Questo fenomeno è aggravato dal cosiddetto texture bias delle CNN, descritto da Geirhos et al. \cite{geirhos2018imagenet}: la rete tende a classificare basandosi sulla texture locale piuttosto che sulla forma globale. Nel contesto dell'Alzheimer, dove la distinzione tra un cervello sano (NonDemented) e uno stadio prodromale (VeryMildDemented) dipende da minime alterazioni morfologiche (e.g., atrofia dell'ippocampo) piuttosto che tessiturali, le feature estratte risultano insufficientemente discriminanti, portando il classificatore a confondere massicciamente queste due classi, come confermato anche dagli studi specifici di Wen et al. \cite{wen2020convolutional}.
+
+Alla luce di tali osservazioni, si è deciso di ridurre lo svantaggio dato dallo sbilanciamento delle classi introducendo dei pesi, assegnati a ogni classe, ai fini di regolare l'importanza, che il modello dà, agli errori commessi, in base alla classe di riferimento. Sulla base di quanto riportato, è stato effettuato un secondo training del Multi-Layer Perceptron con nuovo numero di epoche
+di addestramento da 20 variato da 100, mantenendo invariata la struttura del classificatore.
+
+\begin{table}[H]
+\centering
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \hline
 \textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
@@ -58,25 +132,94 @@ VeryMildDemented   & 0.84 & 0.89 & 0.86 & 2246 \\
 \textbf{Weighted Avg}  & 0.89 & 0.89 & 0.89 & 7041 \\
 \hline
 \end{tabular}
-\caption{Classification report del modello ResNet-18.}
-\label{tab:classification_report}
-\end{table}
-
-\begin{table}[h!]
+}
+\caption{Classification report del modello.}
+\label{tab:classification_report_resnet18}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
 \centering
+\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \hline
 \textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
 \hline
-MildDemented        & 835 & 6   & 32  & 46  \\
-ModerateDemented   & 6   & 1308 & 1   & 2   \\
-NonDemented        & 97  & 5   & 2129 & 328 \\
-VeryMildDemented   & 115 & 12  & 121 & 1998 \\
+MildDemented        & 835 & 6   & 32   & 46   \\
+ModerateDemented   & 6   & 1308 & 1    & 2    \\
+NonDemented        & 97  & 5   & 2129 & 328  \\
+VeryMildDemented   & 115 & 12  & 121  & 1998 \\
 \hline
 \end{tabular}
-\caption{Confusion matrix del modello}
-\label{tab:confusion_matrix}
+}
+\caption{Confusion matrix del modello.}
+\label{tab:confusion_matrix_resnet18}
+\end{minipage}
+
 \end{table}
+
+L’aumento del numero di epoche ha determinato un miglioramento significativo
+delle prestazioni complessive del modello, come evidenziato dall’incremento
+dell’accuracy totale e delle metriche di precision, recall e F1-score
+per tutte le classi considerate. 
+Questi risultati evidenziano l'efficacia data dai pesi assegnati alle varie classi, basti prendere come esempio la classe minoritaria, \textit{MildDemented}, la quale adesso presenta una recall drasticamente migliorata, deducibile anche dalla confusion matrix.
+
+Successivamente, è stata valutata una diversa configurazione del classificatore, impiegando un MLP con funzione di attivazione \textit{Softmax} nello strato finale.
+Il modello è stato addestrato per 100 epoche, utilizzando un learning rate pari
+a $10^{-3}$ e un momentum pari a $9\cdot10^-1$.
+
+\begin{table}[h!]
+\centering
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\hline
+MildDemented        & 0.73 & 0.90 & 0.81 & 919  \\
+ModerateDemented   & 0.99 & 0.99 & 0.99 & 1317 \\
+NonDemented        & 0.94 & 0.76 & 0.84 & 2559 \\
+VeryMildDemented   & 0.78 & 0.87 & 0.82 & 2246 \\
+\hline
+\textbf{Accuracy}      &      &      & 0.86 & 7041 \\
+\textbf{Macro Avg}     & 0.86 & 0.88 & 0.87 & 7041 \\
+\textbf{Weighted Avg}  & 0.87 & 0.86 & 0.86 & 7041 \\
+\hline
+\end{tabular}
+}
+\caption{Classification report del modello finale con MLP.}
+\label{tab:classification_report_modelX}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\hline
+\textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
+\hline
+MildDemented        & 831 & 2   & 20   & 66   \\
+ModerateDemented   & 3   & 1308 & 0    & 6    \\
+NonDemented        & 129 & 7   & 1942 & 481  \\
+VeryMildDemented   & 169 & 8   & 114  & 1955 \\
+\hline
+\end{tabular}
+}
+\caption{Confusion matrix del modello.}
+\label{tab:confusion_matrix_modelX}
+\end{minipage}
+
+\end{table}
+
+Nonostante l’incremento delle prestazioni complessive, questa configurazione
+non è risultata pienamente soddisfacente.
+In particolare, dall’analisi della matrice di confusione
+(Tabella~\ref{tab:confusion_matrix_modelX}) emerge una capacità limitata del
+modello di discriminare correttamente la classe \textit{VeryMildDemented},
+caratterizzata da un numero significativo di campioni erroneamente classificati.
+Tale osservazione ha motivato la ricerca di soluzioni alternative in grado di
+garantire prestazioni più bilanciate tra le diverse classi.
 
 \subsection{RadNet-50}
 \begin{figure}[htbp]
@@ -88,10 +231,10 @@ VeryMildDemented   & 115 & 12  & 121 & 1998 \\
     \label{fig:radnet_gradcam}
 \end{figure}
 
-Per migliorare le prestazioni rispetto al feature extractor ResNet-18, abbiamo utilizzato una ResNet-50 pre-addestrata su \emph{RadImageNet} (di seguito \emph{RadNet-50}), un insieme di dati radiologici che rende il backbone più adatto a domini medicali rispetto al pre-training su ImageNet. Il modello è stato impiegato come \textbf{feature extractor} e successivamente le feature sono state date in input ad un classificatore \textbf{MLP con Softmax}.
+Per migliorare le prestazioni rispetto al feature extractor ResNet-18, abbiamo utilizzato una ResNet-50 pre-addestrata su \emph{RadImageNet}, dall'articolo \cite{radimagnet} (di seguito \emph{RadNet-50}), un insieme di dati radiologici che rende il backbone più adatto a domini medicali rispetto al pre-training su ImageNet. Il modello è stato impiegato come \textbf{feature extractor} e successivamente le feature sono state date in input ad un classificatore \textbf{MLP con Softmax}.
 
-\paragraph{Pre-processing e data augmentation.}
-Le immagini MRI, originariamente in scala di grigi, sono state replicate su tre canali e normalizzate con le statistiche di ImageNet. L’input del modello è stato portato a $224\times224$. Durante l’addestramento sono state applicate trasformazioni di data augmentation leggere e compatibili con il dominio MRI, al fine di migliorare la capacità di generalizzazione del modello:
+\paragraph{Pre-processing.}
+Le immagini MRI, originariamente in scala di grigi, sono state replicate su tre canali e normalizzate con le statistiche di ImageNet. L’input del modello è stato portato a $224\times 224$. Durante l’addestramento sono state applicate trasformazioni di data augmentation leggere e compatibili con il dominio MRI, al fine di migliorare la capacità di generalizzazione del modello:
 \begin{itemize}
     \item ridimensionamento a $256\times256$ e \texttt{crop} (casuale in training, centrale in validazione e test);
     \item trasformazioni affini moderate (rotazioni, traslazioni e variazioni di scala);
@@ -99,7 +242,7 @@ Le immagini MRI, originariamente in scala di grigi, sono state replicate su tre 
 \end{itemize}
 
 \paragraph{Ottimizzazione e iperparametri principali.}
-L’addestramento è stato condotto utilizzando l’ottimizzatore \textbf{AdamW} con \textbf{weight decay} pari a $10^{-4}$. Per stabilizzare il fine-tuning del modello sono stati adottati \textbf{learning rate differenziati} per le diverse parti della rete:
+L’addestramento è stato condotto utilizzando l’ottimizzatore \textbf{AdamW} con \textbf{weight decay} pari a $10^{-4}$ e una $K$-Fold a 5 fold. Per stabilizzare il fine-tuning del modello sono stati adottati \textbf{learning rate differenziati} per le diverse parti della rete:
 \begin{itemize}
     \item \textbf{head} (layer finale): $5\cdot10^{-5}$;
     \item \textbf{layer4} del backbone: $10^{-5}$;
@@ -107,7 +250,7 @@ L’addestramento è stato condotto utilizzando l’ottimizzatore \textbf{AdamW}
 \end{itemize}
 Per ridurre l’overfitting e migliorare la stabilità dell’addestramento sono stati inoltre impiegati \textbf{dropout} (0.5) nella head, \textbf{label smoothing} (0.05), \textbf{gradient clipping} con norma massima pari a 1.0 e \textbf{mixed precision} (AMP), quando disponibile. Inoltre, per limitare la deriva del backbone durante il fine-tuning, sono stati congelati i parametri (e le statistiche delle BatchNorm) ad eccezione degli ultimi blocchi convoluzionali (\texttt{layer4} e, opzionalmente, \texttt{layer3}).
 
-\paragraph{Estrazione delle feature e classificatore MLP.}
+\paragraph{Estrazione delle feature e del classificatore MLP.}
 Una volta ottenuto il backbone ottimizzato, sono state estratte feature di dimensione 2048 (output della rete prima del layer fully connected) e usate come input di un \textbf{MLP con Softmax}. Il classificatore è stato addestrato per 50 epoche con \textbf{SGD} (learning rate 0.01, momentum 0.9) e \textbf{pesi di classe} nella loss per mitigare lo sbilanciamento del dataset.
 
 \paragraph{Risultati (MLP su feature RadNet-50).}
@@ -115,6 +258,10 @@ Di seguito si riportano i risultati ottenuti dal classificatore MLP sulle featur
 
 \begin{table}[h!]
 \centering
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \hline
 \textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
@@ -129,27 +276,38 @@ VeryMildDemented   & 0.49 & 0.60 & 0.54 & 2240 \\
 \textbf{Weighted Avg} & 0.62 & 0.61 & 0.59 & 7041 \\
 \hline
 \end{tabular}
-\caption{Classification report del classificatore MLP addestrato sulle feature estratte con RadNet-50.}
+}
+\caption{Classification report del classificatore MLP addestrato su feature RadNet-50.}
 \label{tab:radnet_mlp_best_report}
-\end{table}
-
-\begin{table}[h!]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
 \centering
+\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \hline
 \textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
 \hline
-MildDemented        & 169 & 135 & 43  & 588 \\
-ModerateDemented   & 9   & 1262 & 1   & 34  \\
-NonDemented        & 35  & 212 & 1521 & 792 \\
-VeryMildDemented   & 77  & 240 & 584 & 1339 \\
+MildDemented        & 169 & 135 & 43   & 588  \\
+ModerateDemented   & 9   & 1262 & 1    & 34   \\
+NonDemented        & 35  & 212 & 1521 & 792  \\
+VeryMildDemented   & 77  & 240 & 584  & 1339 \\
 \hline
 \end{tabular}
+}
 \caption{Confusion matrix del classificatore MLP su feature RadNet-50.}
 \label{tab:radnet_mlp_best_cm}
+\end{minipage}
+
 \end{table}
 
+\paragraph{Conclusioni.}
 L'approccio è stato in generale fallimentare, probabilmente a causa della natura specifica delle immagini MRI che richiedono un fine-tuning più approfondito del backbone. Tuttavia, l'analisi delle mappe di attivazione (Figura \ref{fig:radnet_gradcam}) mostra che il modello non è in grado di focalizzarsi sulle regioni cerebrali rilevanti, suggerendo la necessità di un addestramento più mirato.
+
+L’articolo di Raghu et al. \cite{raghu2019transfusion}, a nostro avviso, fornisce una chiave di lettura convincente per interpretare il comportamento osservato, in parte sovrapponibile a quanto già emerso con ResNet-18. Nonostante il pre-training su un dominio radiologico (RadImageNet), RadNet-50 tende verosimilmente a fare affidamento su indizi a bassa scala, come variazioni locali di intensità e pattern di texture, che risultano poco stabili e solo debolmente informativi nel contesto delle MRI cerebrali. In queste immagini, infatti, l’informazione diagnostica legata agli stadi iniziali dell’Alzheimer è spesso associata a cambiamenti strutturali sottili e globali (es. variazioni morfometriche e atrofie localizzate) piuttosto che a differenze ``tessiturali'' marcate.
+
+Inoltre, la natura monocanale delle MRI (immagini in scala di grigi) riduce ulteriormente la varietà di segnali utilizzabili dalla rete rispetto a quanto avviene nelle immagini naturali RGB: l’assenza di componenti cromatiche limita la diversità delle feature a cui un backbone pre-addestrato può agganciarsi, aumentando il rischio che l’estrazione delle rappresentazioni si concentri su correlazioni spurie o dettagli non realmente discriminanti. In questo scenario, un modello di tipo discriminativo, ottimizzato per separare classi a partire dalle feature disponibili, può quindi incontrare difficoltà nel catturare le differenze clinicamente rilevanti tra classi adiacenti (in particolare \textit{NonDemented} vs \textit{VeryMildDemented}), producendo rappresentazioni non sufficientemente separabili per un classificatore a valle come l’MLP. Di conseguenza, i risultati ottenuti suggeriscono la necessità di un fine-tuning più profondo e/o di una pipeline maggiormente ``MRI-aware'', capace di enfatizzare segnali morfologici e pattern anatomici su scala più ampia rispetto a semplici variazioni locali di texture.
+
 
 \subsection{Custom-CNN}
 \begin{figure}[htbp]
@@ -161,20 +319,91 @@ L'approccio è stato in generale fallimentare, probabilmente a causa della natur
     \label{fig:custom_cnn_gradcam}
 \end{figure}
 
-Per migliorare ulteriormente le performance del classificatore, abbiamo progetto e implementato una CNN personalizzata. 
+Per migliorare ulteriormente le performance del classificatore, abbiamo progettato e implementato una CNN personalizzata. 
 
 \paragraph{Architettura.}
-L'architettura della rete è ispirata all'architettura della ResNet-18, in totale è composta da 14 layer ed è divisa da:
+La Custom-CNN implementata è una rete convoluzionale progettata ad hoc per il dataset MRI. L’architettura, ispirata a ResNet, è composta da un totale di 14 layer ed è strutturata nei seguenti componenti:
+
 \begin{itemize}
-    \item \textbf{Fase di inizializzazione}: Questda parte è composta da un layer convoluzione che serve per ridurre la dimensione dell'immagine di input di dimensione $1 \times 176 \times 208$ e lo converte in un tensore di dimensione $32 \times 88 \times 104$, seguito da un layer di batch normalization e una funzione di attivazione ReLU. Successivamente, un layer di max pooling che riduce la dimensione a $32 \times 44 \times 52$.
-    \item \textbf{Tre basic blocks}: ciascun blocco contiene due layer convoluzionali seguiti da operazioni di batch normalization e funzioni di attivazione ReLU. Alla fine c'è un layer chiamato \emph{shortcut} che serve nella fase di backpropagation per evitare il problema del vanishing gradient, per mezzo di un altro layer convoluzionale con kernel di dimensione $1 \times 1$ e un layer di batch normalization.
-    \item \textbf{Average Pooling}: un layer di average pooling che riduce ulteriormente la dimensione del tensore a $128 \times 1 \times 1$.
-    \item \textbf{Layer lineare}: un layer lineare che mappa le feature estratte alle quattro classi di output, con un dropout del 25\%.
+    \item \textbf{Layer di ingresso e preprocessing}: un layer convoluzionale iniziale che riceve input monodimensionali ($1 \times 176 \times 208$) e produce un tensore con 32 canali. A questo seguono le operazioni di batch normalization e la funzione di attivazione ReLU, per stabilizzare l’addestramento e introdurre non linearità. Un layer di max pooling riduce ulteriormente la risoluzione spaziale a $32 \times 44 \times 52$.
+
+    \item \textbf{Blocchi residuali (basic blocks)}: tre blocchi residuali, ciascuno formato da due layer convoluzionali sequenziali con batch normalization e attivazione ReLU. Le connessioni residuali (\emph{shortcut}) combinano direttamente l’input del blocco con la sua uscita tramite una convoluzione $1\times 1$ e batch normalization, facilitando l’apprendimento di identità e mitigando il degrado delle prestazioni in reti profonde (problema del vanishing gradient).
+
+    \item \textbf{Pooling globale}: un layer di average pooling riduce il tensore di feature a una rappresentazione di dimensione $128\times 1\times 1$, condensando l’informazione spaziale.
+
+    \item \textbf{Classificatore fully-connected}: un layer lineare finale mappa le feature a quattro classi target, con l’applicazione di dropout al 25\% per regolarizzare la fase di training e ridurre l’overfitting.
 \end{itemize}
 
-L'estrazione di feature è stata effettuata utilizzando l'intera rete, addestrata da zero dividendo il dataset in training e test set con una proporzione dell'80\%-20\%. Per ottimizzare il modello è stato utilizzato ADAM (Adaptive Moment Estimation), è stato preferito perché è in grado di adattarsi avendo un learning rate dinamico durante l'addestramento e convergere più velocemente rispetto alla discesa del gradiente standard. Il modello è stato poi addestrato per 20 epoche con un learning rate di 0.001. Modificando l'ultimo layer trasformandolo in un MLP con Softmax, abbiamo ottenuto i seguenti risultati sul test set:
+
+\paragraph{Addestramento e ottimizzazione.}
+La rete è stata addestrata utilizzando una suddivisione del dataset in training set e test set con proporzione 80\%--20\%. 
+Prima dell'addestramento vero e proprio, è stata eseguita una fase di \textbf{standardizzazione degli input}: sono state calcolate la media ($\mu \approx 0.2954$) e la deviazione standard ($\sigma \approx 0.3207$) sul training set. Questi valori sono stati utilizzati per normalizzare i dati affinché avessero media nulla e deviazione standard unitaria, facilitando la stabilità numerica del modello.
+
+
 \begin{table}[h!]
 \centering
+\begin{tabular}{lc}
+\hline
+\textbf{Statistica} & \textbf{Valore} \\
+\hline
+Media ($\mu$) & 0.2954 \\
+Deviazione Standard ($\sigma$) & 0.3207 \\
+\hline
+\end{tabular}
+\caption{Parametri di normalizzazione calcolati sul training set}
+\label{tab:normalization_stats}
+\end{table}
+
+
+L’ottimizzazione è stata affidata all’algoritmo \textbf{Adam} (Adaptive Moment Estimation), preferito al classico Stochastic Gradient Descent (SGD) per la sua capacità di ridurre i tempi di convergenza adattando dinamicamente il learning rate. Il modello è stato addestrato per un totale di 20 epoche con un learning rate iniziale fissato a $lr = 10^{-3}$.
+
+L’elevata capacità di generalizzazione osservata è attribuibile a diversi fattori: l’utilizzo di immagini MRI monocanale (intrinsecamente meno complesse rispetto a immagini naturali RGB), la profondità contenuta dell’architettura che limita l’overfitting, e l’impiego combinato di tecniche di regolarizzazione quali dropout e data augmentation, oltre che all'impiego della tecnica di bilanciamento di classe, ovvero il campionamento pesato (WeightedRandomSampler). Tali scelte progettuali hanno permesso al modello di apprendere feature discriminanti specifiche per il dominio clinico considerato.
+
+\paragraph{Risultati.}
+I risultati ottenuti sul test set mostrano un miglioramento significativo rispetto agli approcci basati su feature extractor applicati. In particolare, il modello Custom-CNN raggiunge un’accuratezza complessiva pari al 96\% e valori elevati di precision, recall e F1-score per tutte le classi considerate. La corrispondente matrice di confusione evidenzia un numero estremamente ridotto di errori di classificazione, indicando una separazione efficace tra i diversi stadi della patologia.
+
+L’analisi delle mappe di attivazione (Grad-CAM), riportata in Figura~1.4, conferma ulteriormente le capacità del modello: le regioni di attivazione risultano più localizzate e coerenti con le aree cerebrali rilevanti, suggerendo che la rete abbia appreso rappresentazioni semantiche significative e clinicamente plausibili.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\hline
+MildDemented      & 0.96 & 0.98 & 0.97 & 919  \\
+ModerateDemented  & 1.00 & 1.00 & 1.00 & 1317 \\
+NonDemented       & 0.91 & 0.98 & 0.94 & 2559 \\
+VeryMildDemented  & 0.97 & 0.88 & 0.93 & 2246 \\
+\hline
+\textbf{Accuracy}     &      &      & 0.95 & 7041 \\
+\textbf{Macro Avg}    & 0.96 & 0.96 & 0.96 & 7041 \\
+\textbf{Weighted Avg} & 0.95 & 0.95 & 0.95 & 7041 \\
+\hline
+\end{tabular}
+\caption{Classification report del modello sul test set (Accuracy: 95.19\%)}
+\label{tab:classification_report_validation}
+\end{table}
+
+\paragraph{Estrazione delle Feature.}
+La rete convoluzionale, caricata con i pesi ottimali ottenuti nella fase precedente, è stata modificata strutturalmente rimuovendo l'ultimo layer completamente connesso (il livello di classificazione originario). Tale operazione è stata implementata sostituendo il layer lineare finale con una mappatura identità ($f(x) = x$).
+In questa configurazione, il modello non produce più una distribuzione di probabilità sulle classi, bensì un vettore di feature latenti $\mathbf{z} \in \mathbb{R}^d$ (corrispondente all'output del penultimo layer) per ogni immagine di input normalizzata. Tali vettori costituiscono una rappresentazione compatta e ad alto contenuto semantico dei dati MRI.
+
+\paragraph{Classificazione con MLP.}
+Le feature estratte sono state utilizzate come input per addestrare un classificatore dedicato, basato su un Multilayer Perceptron (MLP). L'architettura del classificatore consiste in:
+\begin{itemize}
+    \item Un \textbf{layer di input} dimensionato sulla grandezza del vettore di feature estratto dalla CNN;
+    \item Un \textbf{hidden layer} composto da 64 unità (neuroni), volto a proiettare le feature in uno spazio decisionale ottimizzato;
+    \item Un \textbf{output layer} finale con funzione di attivazione \textbf{Softmax}, che restituisce la probabilità di appartenenza alle quattro classi target.
+\end{itemize}
+
+Per mitigare l'effetto dello sbilanciamento delle classi presente nel dataset, l'addestramento dell'MLP ha integrato l'uso di pesi correttivi (\textit{class weights}) all'interno della funzione di costo, calcolati in modo inversamente proporzionale alla frequenza di ciascuna classe nel training set.
+
+\begin{table}[H]
+\centering
+
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \hline
 \textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
@@ -189,25 +418,96 @@ VeryMildDemented   & 0.95 & 0.95 & 0.95 & 2246 \\
 \textbf{Weighted Avg} & 0.96 & 0.96 & 0.96 & 7041 \\
 \hline
 \end{tabular}
-\caption{Classification report del modello finale}
+}
+\caption{Classification report del modello finale (Accuracy: 96.24\%).}
 \label{tab:classification_report_final}
-\end{table}
-
-\begin{table}[h!]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
 \centering
+\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \hline
 \textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
 \hline
-MildDemented        & 904 & 0   & 5    & 10   \\
+MildDemented        & 904 & 0    & 5    & 10   \\
 ModerateDemented   & 0   & 1317 & 0    & 0    \\
-NonDemented        & 17  & 1   & 2428 & 113  \\
-VeryMildDemented   & 23  & 0   & 96   & 2127 \\
+NonDemented        & 17  & 1    & 2428 & 113  \\
+VeryMildDemented   & 23  & 0    & 96   & 2127 \\
 \hline
 \end{tabular}
-\caption{Confusion matrix del modello finale}
+}
+\caption{Confusion matrix del modello finale.}
 \label{tab:confusion_matrix_final}
+\end{minipage}
+
 \end{table}
+
+\paragraph{Classificazione con SVM.}
+Al fine di validare ulteriormente la qualità delle rappresentazioni apprese dalla Custom-CNN e massimizzare l'esplorazione dello spazio delle feature, è stato implementato un classificatore basato su Support Vector Machine (SVM). L'obiettivo di questo esperimento era verificare se un approccio a margine massimo potesse offrire una generalizzazione superiore o confermare la robustezza delle feature estratte, indipendentemente dal classificatore utilizzato.
+
+Il workflow sperimentale ha previsto i seguenti step:
+\begin{itemize}
+    \item \textbf{Preprocessing}: I vettori delle feature ($d=128$), estratti dal penultimo layer della Custom-CNN, sono stati sottoposti a \textit{Standard Scaling} per ottenere media nulla e varianza unitaria. Questo passaggio è critico per le SVM, in quanto l'algoritmo è sensibile alla scala delle distanze nello spazio delle feature.
+    \item \textbf{Ottimizzazione}: È stata condotta una \textit{Grid Search} con \textit{5-fold Cross-Validation} per individuare la combinazione ottimale di iperparametri. Lo spazio di ricerca ha esplorato diversi valori per il fattore di regolarizzazione $C$, il coefficiente del kernel $\gamma$ e la tipologia di kernel (Lineare, Polinomiale, RBF).
+    \item \textbf{Gestione dello sbilanciamento}: Per contrastare la disparità numerica tra le classi, i pesi della funzione di costo sono stati bilanciati automaticamente in modo inversamente proporzionale alla frequenza delle classi nel training set (\texttt{class\_weight='balanced'}).
+\end{itemize}
+
+La configurazione ottimale individuata è risultata essere un kernel a base radiale (\textbf{RBF}) con $C=500$ e $\gamma=10^{-2}$. L'alto valore di $C$ suggerisce che il modello penalizza fortemente gli errori di classificazione sul training set, affidandosi alla buona separabilità delle feature.
+
+\begin{table}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\hline
+\textbf{Classe} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\hline
+MildDemented       & 0.98 & 0.99 & 0.98 & 919  \\
+ModerateDemented   & 1.00 & 1.00 & 1.00 & 1317 \\
+NonDemented        & 0.98 & 0.97 & 0.98 & 2559 \\
+VeryMildDemented   & 0.96 & 0.97 & 0.97 & 2246 \\
+\hline
+\textbf{Accuracy}      &       &       & 0.98 & 7041 \\
+\textbf{Macro Avg}     & 0.98 & 0.98 & 0.98 & 7041 \\
+\textbf{Weighted Avg}  & 0.98 & 0.98 & 0.98 & 7041 \\
+\hline
+\end{tabular}
+}
+\caption{Classification report SVM (Accuracy: 97.95\%).}
+\label{tab:svm_report}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\hline
+\textbf{True / Pred} & \textbf{Mild} & \textbf{Moderate} & \textbf{Non} & \textbf{Very Mild} \\
+\hline
+MildDemented       & 906 & 0    & 2    & 11   \\
+ModerateDemented   & 0   & 1317 & 0    & 0    \\
+NonDemented        & 6   & 0    & 2484 & 69   \\
+VeryMildDemented   & 10  & 0    & 47   & 2189 \\
+\hline
+\end{tabular}
+}
+\caption{Confusion matrix SVM.}
+\label{tab:svm_cm}
+\end{minipage}
+\end{table}
+
+I risultati ottenuti sul test set (Accuracy $\approx$ 98\%) sono comparabili, se non leggermente superiori, a quelli ottenuti con l'MLP. Questo raggiungimento di un "plateau" nelle prestazioni suggerisce che il collo di bottiglia non risiede più nella capacità del classificatore, bensì nella qualità intrinseca delle feature estratte dalla Custom-CNN, che si confermano essere altamente discriminanti e rappresentative per il task di diagnosi dell'Alzheimer.
+
+Inoltre, la visualizzazione tramite PCA del confine di decisione (Figura \ref{fig:svm_boundary}) mostra come il kernel RBF riesca a definire regioni di separazione non lineari complesse, gestendo efficacemente le aree di sovrapposizione tra le classi \textit{NonDemented} e \textit{VeryMildDemented}.
+
+\begin{figure}[H]
+    \centering\includegraphics[width=0.6\textwidth]{images/31.png} 
+    \caption{Proiezione 2D tramite PCA del decision boundary appreso dalla SVM. Si noti la capacità del modello di separare i cluster delle classi nonostante la riduzione dimensionale.}
+    \label{fig:svm_boundary}
+\end{figure}
+
 
 \section{Valutazione}
 Per una valutazione a $K=4$ classi ($c \in \{1, 2, 3, 4\}$), sia $C$ la matrice di confusione $4 \times 4$, dove $C_{i, j}$ rappresenta il numero di campioni con classe $I$ che sono stati classificati come classe $j$. Definiamo:
@@ -239,7 +539,111 @@ Le metriche utilizzate per valutare le performance del modello sono:
 \end{itemize}
 
 \section{Demo}
+\subsection{Obiettivo della demo}
+La demo è stata realizzata con l’obiettivo di fornire una dimostrazione interattiva del funzionamento degli algoritmi di classificazione sviluppati.
+Essa consente di verificare visivamente la capacità del sistema di prendere in input immagini MRI, processarle tramite modelli addestrati e restituire una predizione coerente, eventualmente accompagnata da informazioni di interpretabilità.
+
+\subsection{Tecnologie utilizzate}
+La demo è stata sviluppata utilizzando Streamlit, framework Python per la realizzazione rapida di interfacce web interattive.
+L’inferenza viene eseguita tramite modelli PyTorch precedentemente addestrati e salvati durante la fase di training.
+
+\subsection{Funzionalità principali}
+La demo offre le seguenti funzionalità:
+\begin{itemize}
+\item caricamento di immagini MRI tramite interfaccia grafica;
+\item visualizzazione dell’immagine di input;
+\item inferenza tramite modelli di classificazione addestrati;
+\item visualizzazione dell’etichetta predetta dal modello;
+\item visualizzazione dell’etichetta di ground truth (quando disponibile);
+\item generazione opzionale di una heatmap di attivazione per l’analisi delle regioni rilevanti dell’immagine.
+\end{itemize}
+
+\subsection{Modalità di utilizzo}
+
+La demo interattiva può essere avviata dalla root del progetto tramite il seguente comando:
+
+\begin{verbatim}
+streamlit run src/demo/demo.py
+\end{verbatim}
+
+La demo supporta due modalità operative principali.
+
+\paragraph{Dataset mode}
+In questa modalità l’utente può selezionare immagini MRI provenienti da un dataset organizzato in formato \texttt{ImageFolder}.  
+
+\paragraph{Single image mode}
+In questa modalità è possibile caricare manualmente una singola immagine MRI tramite file system. 
+
+\paragraph{Immagini Interfaccia}
+Di seguito, riportiamo delle immagini rappresentative della demo.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/demo_1.png}
+        \caption{Schermata iniziale} 
+    \end{subfigure}
+    \hfill 
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/demo_2.png}
+        \caption{Caricamento singola immagine}
+    \end{subfigure}
+    
+    \vspace{1em} 
+    
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/demo_3.png}
+        \caption{Modello Custom\_CNN}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/demo_4.png}
+        \caption{Heatmap relativa alla Custom\_CNN}
+    \end{subfigure}
+    
+    \vspace{1em} 
+
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/demo_5.png}
+        \caption{Modello SVM con visualizzazione del decision boundary}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/demo_6.png}
+        \caption{Visualizzazione Heatmap con intensità dei colori aumentata}
+    \end{subfigure}
+    
+    \caption{Panoramica delle funzionalità dell'interfaccia della Demo.}
+    \label{fig:demo_screenshots}
+\end{figure}
 
 \section{Codice}
+Il codice è organizzato in modo modulare per separare le diverse fasi del workflow di machine learning. La directory \textbf{src/} contiene i moduli principali per il preprocessing dei dati, l’estrazione delle feature, l’addestramento dei modelli e la valutazione delle prestazioni. I notebook presenti nella cartella \textbf{notebooks/} sono utilizzati per l’analisi esplorativa dei dati e per l’esecuzione controllata degli esperimenti. I risultati degli esperimenti, incluse le feature estratte, i grafici e altri artefatti, sono salvati nella directory \textbf{results/}. La documentazione del progetto, infine, è salvata nella directory \textbf{docs/}.
+
+\(\newline\)
+Per eseguire il codice è sufficiente clonare la repository, installare le dipendenze indicate e lanciare gli script. Tutti i dettagli aggiornati su struttura del progetto, requisiti software ed esecuzione sono disponibili nella repository GitHub del progetto.
 
 \section{Conclusioni}
+In questo lavoro è stato affrontato il problema della classificazione di immagini di risonanza magnetica cerebrale per la distinzione tra diversi livelli di severità della demenza. Sono stati analizzati e confrontati differenti approcci di classificazione, basati sia sull’utilizzo diretto delle immagini sia sull’estrazione di feature, valutando le prestazioni dei modelli su dati non visti.
+
+\(\newline\)
+Le principali lezioni apprese riguardano l'utilizzo di modelli per la feature extraction. Modelli troppo complessi o addestrati su dati eccessivamente granulari possono faticare a generalizzare. Inoltre, l’importanza della qualità del preprocessing e della rappresentazione dei dati influisce in modo significativo le prestazioni dei modelli di classificazione.
+
+\(\newline\)
+Dati i risultati validi ottenuti tramite il feature extractor\textbf{ Custom\_CNN}(da noi implementato), riteniamo che una delle principali sfide, una feature extraction adeguata al tipo di dati, affrontate in questo progetto, sia stata risolta.
+
+\(\newline\)
+Ai fini di migliorare ulteriormente il progetto si potrebbe:
+\begin{description}
+    \item[Fare un controllo del Leakage.] - Una preoccupazione importante in progetti di diagnostica medica è assicurarsi che il modello non stia usando dati ridondanti tra training set e test set, sfruttando informazioni spurie. Nel dataset usato è possibile che ci siano più immagini della stessa persona o comunque immagini correlate. Il codice attuale effettua uno split casuale per immagini; questo implica che diverse scansioni dello stesso paziente potrebbero finire una nel train e una nel test (se ci dovessero essere ripetizioni). In tal caso, il modello potrebbe semplicemente memorizzare caratteristiche individuali (es. conformazione cranica, artefatti di scansione) e riconoscere un paziente nel test set perché già “visto” in training, ottenendo performance sovrastimate senza realmente generalizzare a nuovi pazienti. 
+    \item[Aggiungere interpretabilità.] - Essendo un modello medico, la prima preoccupazione è capire "come i dati vengono classificati". In questo momento nessuno dei modelli provati riesce a spiegare come ha classificato un'immagine, essendo modelli black-box. Una strada potrebbe essere quella di utilizzare delle Grad-CAM++ (come citato in \cite{chattopadhyay2017gradcampp}) o altri metodi con un eventuale esperto di dominio.
+    \item[Test su nuovi dati.] - Si potrebbe pensare di testare il modello su dati mai visti, che sono fuori dal dominio di quelli utilizzati per il training. Questo è utile per affermare la correttezza del modello su dati mai visti.
+\end{description}

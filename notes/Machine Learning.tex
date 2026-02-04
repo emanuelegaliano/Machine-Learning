@@ -1,15 +1,44 @@
 \documentclass[a4paper,11pt]{book}
 
-% ===== Pacchetti essenziali =====
-\usepackage[utf8]{inputenc}     % codifica sorgente (se usi pdfLaTeX)
-\usepackage[T1]{fontenc}        % output font con accenti corretti
-\usepackage[italian]{babel}     % sillabazione e testi automatici in italiano
-\usepackage{lmodern}            % font Latin Modern
-\usepackage{microtype}          % migliore giustificazione del testo
-\usepackage{tikz}\usetikzlibrary{arrows.meta,positioning,decorations.pathreplacing}
+% =====================================================
+% LANGUAGE AND ENCODING
+% =====================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
 
+% =====================================================
+% TYPOGRAPHY
+% =====================================================
+\usepackage{libertinus}                 % serif + math
+\usepackage[scale=0.95]{sourcesanspro}  % sans for metadata
+\usepackage{microtype}
+\usepackage{xcolor}
+
+% =====================================================
+% COLOR PALETTE
+% =====================================================
+\definecolor{Accent}{HTML}{0B3A3E}
+\definecolor{TextGray}{gray}{0.25}
+\definecolor{RuleGray}{gray}{0.75}
+
+% =====================================================
+% GRAPHICS
+% =====================================================
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,decorations.pathreplacing,calc}
+
+% =====================================================
+% SUBFIGURES (FIX ERRORE)
+% =====================================================
+\usepackage{subcaption}
+
+% =====================================================
+% CODE LISTINGS
+% =====================================================
 \usepackage{listings}
-\usepackage[scaled=0.9]{beramono} % facoltativo: font monospace più leggibile
+\usepackage[scaled=0.9]{beramono}
 \lstdefinestyle{py}{
   language=Python,
   basicstyle=\ttfamily\small,
@@ -23,137 +52,195 @@
   captionpos=b
 }
 
-% ===== Matematica =====
+% =====================================================
+% MATHEMATICS
+% =====================================================
 \usepackage{amsmath,amssymb,amsthm}
 \numberwithin{equation}{chapter}
 
-% ===== Impaginazione =====
+% =====================================================
+% PAGE LAYOUT
+% =====================================================
 \usepackage{geometry}
-% Margini comodi per tablet/stampa: non stretti, ma senza sprecare spazio
-\geometry{a4paper, top=30mm, bottom=32mm, left=30mm, right=30mm}
+\geometry{a4paper, top=28mm, bottom=30mm, left=30mm, right=30mm}
 
 \usepackage{setspace}
-% Interlinea: ben leggibile ma con buona densità di contenuto
-\setstretch{1.15}
+\setstretch{1.12}
 
-% Evita vedove/orfani (migliora la lettura su pagina singola)
 \clubpenalty=10000
 \widowpenalty=10000
 
-% Profondità di numerazione / indice (come nello screenshot: 1.1.1)
-\setcounter{secnumdepth}{3} % numerazione fino a \subsubsection
-\setcounter{tocdepth}{2}    % TOC fino a \subsection (metti 3 se vuoi anche le subsubsection)
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
 
-% ===== Intestazioni e piè di pagina =====
+% =====================================================
+% HEADERS AND FOOTERS
+% =====================================================
 \usepackage{fancyhdr}
 \pagestyle{fancy}
-\fancyhf{} % pulisci
+\fancyhf{}
 \fancyhead[LE,RO]{\thepage}
 \fancyhead[LO]{\nouppercase{\rightmark}}
 \fancyhead[RE]{\nouppercase{\leftmark}}
 \setlength{\headheight}{15pt}
-\addtolength{\topmargin}{-2pt}
+\renewcommand{\headrulewidth}{0.4pt}
 
-% ===== Tabelle, grafica, link =====
+% =====================================================
+% TABLES
+% =====================================================
 \usepackage{booktabs}
-\usepackage{graphicx}
-\usepackage[hidelinks]{hyperref}
 
-% ===== Bibliografia =====
-\usepackage{biblatex}
-\addbibresource{refs.bib}
+% =====================================================
+% LISTS
+% =====================================================
+\usepackage{enumitem}
+\setlist[itemize]{topsep=4pt, itemsep=3pt}
+\setlist[enumerate]{topsep=4pt, itemsep=3pt}
+\setlist[description]{font=\normalfont\bfseries, labelsep=0.6em, leftmargin=2em}
 
-% ===== Algoritmi =====
+% =====================================================
+% MULTICOLUMN
+% =====================================================
+\usepackage{multicol}
+
+% =====================================================
+% ALGORITHMS
+% =====================================================
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
-% ===== Liste: leggibili, non compattate eccessivamente =====
-\usepackage{enumitem}
-% itemize / enumerate: spazi moderati per mantenere i dettagli visivi
-\setlist[itemize]{topsep=4pt, partopsep=0pt, itemsep=3pt, parsep=2pt}
-\setlist[enumerate]{topsep=4pt, partopsep=0pt, itemsep=3pt, parsep=2pt}
-% description: rientro e allineamento gradevole; etichetta in grassetto
-\setlist[description]{font=\normalfont\bfseries, labelsep=0.6em, leftmargin=2em}
+% =====================================================
+% LINKS
+% =====================================================
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
 
-\usepackage{multicol}
+% =====================================================
+% BIBLIOGRAPHY
+% =====================================================
+\usepackage{biblatex}
+\addbibresource{refs.bib}
 
-% ===== Metadati (facoltativi: non usati dalla titlepage custom) =====
-% \title{\Huge \bfseries Machine Learning}
-% \author{\Large Emanuele Galiano \\
-% \Large Damiano Trovato}
-% \date{Anno Accademico 2025/2026}
+% =====================================================
+% COVER BACKGROUND PATTERN
+% =====================================================
+\newcommand{\DataPattern}{
+  \begin{tikzpicture}[remember picture,overlay]
+    \foreach \x in {0.12,0.22,...,0.88} {
+      \foreach \y in {0.10,0.20,...,0.90} {
+        \fill[Accent!7] ($(current page.south west) + (\x\paperwidth,\y\paperheight)$)
+          circle[radius=0.55pt];
+      }
+    }
+    \draw[Accent!10,line width=0.6pt]
+      ($(current page.south west)+(0.06\paperwidth,0.30\paperheight)$)
+      .. controls ($(current page.south west)+(0.35\paperwidth,0.55\paperheight)$)
+      and ($(current page.south west)+(0.55\paperwidth,0.20\paperheight)$)
+      .. ($(current page.south west)+(0.92\paperwidth,0.48\paperheight)$);
+  \end{tikzpicture}
+}
 
+% =====================================================
+% METADATA
+% =====================================================
+\newcommand{\BookTitle}{Machine Learning}
+\newcommand{\BookSubtitle}{Note di corso, Progetti e Casi Studio}
+\newcommand{\BookAuthor}{Emanuele Galiano \\ Damiano Trovato}
+\newcommand{\BookUni}{Università degli Studi di Catania}
+\newcommand{\BookDept}{Dipartimento di Matematica e Informatica}
+\newcommand{\BookAY}{Anno Accademico 2025/2026}
+\newcommand{\BookLogoPath}{images/unict_logo.jpg}
+
+% =====================================================
+% DOCUMENT
+% =====================================================
 \begin{document}
 
 \frontmatter
 
-% ================== TITLE PAGE CUSTOM ==================
+% =====================================================
+% TITLE PAGE
+% =====================================================
 \begin{titlepage}
 \thispagestyle{empty}
+\DataPattern
+
 \begin{center}
+\vspace*{18mm}
 
-% --- Logo in alto ---
-\vspace*{1.5cm}
-\includegraphics[width=0.8\textwidth]{images/unict_logo.jpg}
+{\fontsize{28}{34}\selectfont\bfseries\color{Accent} \BookTitle\par}
 
-% --- Titolo ---
-\vspace{2.2cm}
-{\Huge \bfseries Machine Learning\par}
+\vspace{7mm}
+{\color{Accent}\rule{0.66\textwidth}{1.1pt}}
 
-% --- Spazio centrale (se vuoi sottotitolo o corso, lascia vuoto) ---
-\vspace{2.0cm}
+\vspace{10mm}
+{\Large\sffamily\color{TextGray}\BookSubtitle\par}
 
-% --- Box in basso: autori + revisione professore ---
-\begin{minipage}{0.9\textwidth}
-\large
+\vspace{20mm}
+\includegraphics[height=16mm]{\BookLogoPath}
 
-\noindent
+\vspace{12mm}
+{\sffamily\color{TextGray}
+\BookUni\\[1mm]
+\BookDept\\[1mm]
+Corso di Laurea Triennale in Informatica (L-31)
+\par}
+
+\vfill
+
+\begin{minipage}{0.92\textwidth}
+\sffamily\small\color{TextGray}
+
+% --- Autori (sinistra) / Revisione (destra) ---
 \begin{minipage}[t]{0.48\textwidth}
 \begin{flushleft}
-{\Large\bfseries Autori:}\\[2pt]
-{\Large Emanuele Galiano}\\
-{\Large Damiano Trovato}
+\textbf{\color{Accent}Autori}\\
+\BookAuthor
 \end{flushleft}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.48\textwidth}
 \begin{flushright}
-{\Large\bfseries Revisione:}\\[4pt]
-\begin{tabular}{@{}l l@{}}
-% TODO: {\Large Prof.} & {\Large Giovanni M.} \\
-% TODO:      & {\Large Farinella}
-\end{tabular}
+\textbf{\color{Accent}Revisione}\\
+coming soon
 \end{flushright}
 \end{minipage}
 
-\end{minipage}
-% --- Riga piccola finale: anno e dipartimento ---
-\vfill
-\begin{center}
-{\small
-\setlength{\tabcolsep}{0pt}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{c}
-Anno Accademico 2025/2026\\
-Dipartimento di Matematica e Informatica\\
-Corso di Laurea Triennale in Informatica (L-31)
-\end{tabular}
-}
-\end{center}
+\vspace{4mm}
+{\color{RuleGray}\rule{\textwidth}{0.4pt}}
 
+% --- Anno accademico + Versione (sotto la linea) ---
+\vspace{4mm}
+\begin{flushleft}
+\textbf{\color{Accent}Anno accademico}\\
+\BookAY
+
+\vspace{2mm}
+\footnotesize
+Versione: \today
+\end{flushleft}
+
+\end{minipage}
+
+\vspace*{6mm}
 \end{center}
 \end{titlepage}
-% =======================================================
 
+% =====================================================
+% TOC
+% =====================================================
 \tableofcontents
+\cleardoublepage
 
-\part{Concetti preliminari}
-Da definire.
-
+% =====================================================
+% MAIN CONTENT
+% =====================================================
 \mainmatter
 
-\part{Teoria, algoritmi e modelli di Machine Learning}
+\part{Concetti preliminari}
 \input{chapters/1_introduzione}
+
+\part{Teoria, algoritmi e modelli di Machine Learning}
 \input{chapters/2_primi_modelli}
 \input{chapters/3_regressione}
 \input{chapters/4_classificazione}
@@ -164,13 +251,21 @@ Da definire.
 \input{chapters/9_svm}
 \input{chapters/10_ensemble_learning}
 
+% =====================================================
+% APPENDICES
+% =====================================================
 \appendix
+\part{Esempi di progetti}
+\input{projects/mri-classification}
+
 \part{Materiale aggiuntivo}
 \input{chapters/A_approfondimenti_teorici}
-\input{projects/mri-classification}
 \input{chapters/B_seminario1}
 \input{chapters/C_seminario2}
 
+% =====================================================
+% BIBLIOGRAPHY
+% =====================================================
 \backmatter
 \printbibliography
 
