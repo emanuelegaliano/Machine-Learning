@@ -66,14 +66,31 @@ Rappresenta il problema che deve essere risolto. Nell'esempio di determinare se 
 
 \subsection{Definizione di Esperienza}
 
-Rappresentano i dati, ovvero i valori assunti dalle \textbf{random variables}, nell'esempio $X$ è il contenuto della mail ed $Y$ l'etichetta. La coppia di valori:
+\begin{quote}
+L'esperienza si definisce come l’insieme di informazioni a cui il modello è esposto durante il processo di apprendimento e a partire dalle quali aggiorna (ossia modifica) i propri parametri interni.
+\end{quote}
+
+Nel caso del \textbf{Supervised Learning}, l’esperienza coincide con i valori assunti dalle \textbf{random variables}\footnote{In questo contesto, le random variables rappresentano le variabili casuali che descrivono i dati osservati.}. Riprendendo l’esempio precedente, $X$ rappresenta il contenuto della mail e $Y$ l’etichetta associata. La collezione di coppie:
 
 $$
-  {\{(X=x_i, Y=y_i)\}}_{i=1}^N
+  {\{(X = x_i, Y = y_i)\}}_{i=1}^N
 $$
 
 \noindent
-Rappresenta l'esperienza. Generalmente vista come una collezione di elementi chiamati \textbf{esempi}.
+rappresenta l’esperienza. In questo contesto essa è generalmente vista come una collezione di elementi chiamati \textbf{esempi}. Si tratta tuttavia di un caso particolare, in cui l’interazione del modello è confinata al dataset e le due componenti (input e output) sono fornite simultaneamente.
+
+Se consideriamo invece il caso del \textbf{Reinforcement Learning}, l’esperienza assume una forma più generale: essa coincide con qualunque interazione che il modello ha con l’ambiente. Ad esempio, se il modello sta cercando di uscire da un labirinto, la sua esperienza al tempo $t$ può essere rappresentata dalla tupla:
+
+$$
+E_t = (S_t, A_t, R_t, S_{t+1})
+$$
+
+\noindent
+dove $S_t$ corrisponde allo stato attuale in cui si trova il modello, $A_t$ all’azione intrapresa dato lo stato corrente, $R_t$ alla ricompensa ricevuta a seguito dell’azione e $S_{t+1}$ allo stato successivo.
+
+\medskip
+
+\textit{Ne segue che la definizione formalizzata di esperienza è: l’informazione (storico dei dati oppure interazioni con l’ambiente) a cui il modello è esposto e da cui impara (ossia modifica i suoi parametri interni).}
 
 \subsection{Definizione di Performance}
 
