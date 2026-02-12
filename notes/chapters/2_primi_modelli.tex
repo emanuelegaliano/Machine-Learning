@@ -58,41 +58,40 @@ Le componenti sono:
 \end{itemize}
 
 \noindent
-Il comportamento del percettrone sarà il seguente:
-
-$$
-f(x_1, \dots, x_d) = 
+Il comportamento del percettrone è il seguente:
+\[
+f(x_1,\dots,x_d)=
 \begin{cases}
-	1 \qquad \displaystyle\sum_{j=1} x_j v_j \geq \vartheta_0\\
-	0 \qquad \text{altrimenti}
+1 & se \displaystyle\sum_{j=1}^d \vartheta_j x_j \ge \vartheta_0\\
+0 & \text{altrimenti.}
 \end{cases}
-$$
+\]
 
-Per semplificare la computazione, verrà aggiunta una feature $x_0 = 1$ con peso $\vartheta_0$, uguale alla threshold. Questo ci aiuterà a scrivere la funzione con la seguente notazione:
-$$
-f(x_1, \dots, x_d) = 
-\begin{cases}
-	1 \qquad \displaystyle\sum_{j=1} x_j v_j \geq 0\\
-	0 \qquad \text{altrimenti}
-\end{cases}
-$$
+Per semplificare la notazione, introduciamo una feature \emph{dummy} $x_0=1$ e definiamo il vettore di input esteso
+\[
+\tilde{x}=(x_0,x_1,\dots,x_d)^\top,
+\]
+in modo da poter riscrivere la regola di decisione come una singola disuguaglianza. Per farlo, incorporiamo la soglia nella somma definendo un vettore di pesi esteso
+\[
+\vartheta=(\vartheta_0,\vartheta_1,\dots,\vartheta_d)^\top
+\qquad\text{con}\qquad
+\vartheta_0 = -\,\vartheta_0^{(\text{soglia})}.
+\]
+In questo modo otteniamo:
+\[
+f(x)=\mathbf{1}\{\vartheta^\top \tilde{x} \ge 0\},
+\]
+dove $\mathbf{1}\{\cdot\}$ vale $1$ se la condizione è vera e $0$ altrimenti.
 
 \noindent
-E poi come prodotto matriciale:
-$$
-f(x) = [\vartheta^T \overline{x} > 0]
-$$
-
-\noindent
-dove $\vartheta^T$ è il vettore dei pesi. Supponiamo ora di avere 2 parametri, andremo a ottenere:
-$$
-\vartheta_0 + x_1\vartheta_1 + x_2\vartheta_2 \geq 0
-$$
-
-e con dei semplici passaggi, possiamo tracciare una retta nello spazio, chiamata \textbf{decision boundary}, che dividerà lo spazio in due parti, quella per cui $f(x_1, \dots, x_d) = 1$, e quella per cui $f(x_1, \dots, x_d) = 0$
-$$
-x_2 = x_1\frac{\vartheta_1}{\vartheta_2} + \frac{\vartheta_0}{\vartheta_2}
-$$
+Supponiamo ora di avere $d=2$. Il decision boundary\footnote{Il decision boundary è il luogo geometrico dei punti in cui la funzione di decisione cambia valore, quindi è indecisa tra i due valori 0 e 1.} è definita da
+\[
+\vartheta_0 + \vartheta_1 x_1 + \vartheta_2 x_2 = 0,
+\]
+ossia, risolvendo rispetto\footnote{Si risolve rispetto a $x_2$ perché così si ha una forma simile a una retta $y = mx + q$.} a $x_2$ (con $\vartheta_2 \neq 0$)
+\[
+x_2 = -\frac{\vartheta_1}{\vartheta_2}x_1 - \frac{\vartheta_0}{\vartheta_2}.
+\]
 
 \begin{figure}[htbp]
 	\centering
@@ -199,24 +198,22 @@ Il problema XOR non è linearmente separabile (immagine \ref{fig:xor-schema}): i
 	\label{fig:xor-schema}
 \end{figure}
 
-\paragraph{Dimostrazione della non-linearità dello XOR.} Assumendo la tabella di verità dello XOR e un percettrone con pesi \(v_1,v_2\) e soglia \(v_0\), le condizioni di attivazione diventano
+\paragraph{Dimostrazione della non-linearità dello XOR.} Assumendo la tabella di verità dello XOR e un percettrone con pesi \(\vartheta_1,\vartheta_2\) e soglia \(\vartheta_0\), le condizioni di attivazione diventano
 
 \[
 \begin{aligned}
-	&1\cdot v_1 + 0\cdot v_2 > v_0,\\
-	&1\cdot v_1 + 1\cdot v_2 < v_0,\\
-	&0\cdot v_1 + 1\cdot v_2 > v_0,\\
-	&0\cdot v_1 + 0\cdot v_2 < v_0.
+	&1\cdot \vartheta_1 + 0\cdot \vartheta_2 > \vartheta_0,\\
+	&1\cdot \vartheta_1 + 1\cdot \vartheta_2 < \vartheta_0,\\
+	&0\cdot \vartheta_1 + 1\cdot \vartheta_2 > \vartheta_0,\\
+	&0\cdot \vartheta_1 + 0\cdot \vartheta_2 < \vartheta_0.
 \end{aligned}
 \]
 
 Da cui si ottiene
 \[
-2\,v_0 < v_1 + v_2 < v_0,
+2\,\vartheta_0 < \vartheta_1 + \vartheta_2 < \vartheta_0,
 \]
 ovvero una contraddizione: non esiste configurazione dei parametri di un singolo percettrone che risolva XOR.
-
-
 
 
 \paragraph{Rete di percettroni.} La soluzione consiste nell'usare una \emph{rete di percettroni} (uno strato nascosto) che trasformi lo spazio in modo da rendere il problema linearmente separabile all'uscita. 
