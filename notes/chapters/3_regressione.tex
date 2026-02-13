@@ -115,12 +115,12 @@ J(\vartheta)=\frac{1}{2m}\|X\vartheta-y\|_2^2,\qquad
   \vartheta_j \leftarrow \vartheta_j - \alpha\,\frac{\partial J(\vartheta)}{\partial \vartheta_j},
   \qquad j=0,\ldots,n.
   \]
-  \item \textbf{Ripeti} i passi 2–3 finché non è soddisfatto un criterio d'arresto
+  \item \textbf{Ripeti} i passi 2-3 finché non è soddisfatto un criterio d'arresto
   (iterazioni massime, \(\|\nabla J(\vartheta)\|\) sotto soglia, variazione di \(J\) piccola).
 \end{enumerate}
 In forma compatta: \(\;\vartheta \leftarrow \vartheta - \frac{\alpha}{m}X^\top(X\vartheta-y)\).
 
-\newpage
+Il termine $X\vartheta - y$ è il vettore dei residui, ossia le differenze tra predizioni e target. Da qui moltiplicare per $X^T$ "riporta" questi errori nello spazio dei parametri, ritornando una somma pesata degli errori per ogni parametro. Il passo di aggiornamento \(\alpha\) controlla la velocità di apprendimento: se è troppo grande, si rischia di divergere; se è troppo piccolo, l'algoritmo potrebbe impiegare troppo tempo per convergere.
 
 \section{Regressione polinomiale e feature mapping}
 Parlando della rete di percettroni per computare lo $XOR$, abbiamo già anticipato l'utilizzo di trasformazioni per semplificare spazi di partenza non linearmente separabili, col fine ultimo di renderli compatibili a modelli con parametri di tipo lineare. Indichiamo la trasformazione con $\Phi(x) \to (x')$. Il nostro modello lavorerà su $h_\vartheta(\Phi(x))$. Prendiamo come esempio la seguente trasformazione, che ci fa passare da uno spazio a 2 dimensioni, ad uno a 5 dimensioni.
@@ -138,7 +138,7 @@ $$
 \end{pmatrix}
 $$
 
-Ottenendo un polinomio non lineare rispetto alle features, ma lineare rispetto ai parametri.
+Ottenendo un polinomio non lineare rispetto alle features, ma lineare rispetto ai parametri (ovvero che è lineare nella combinazione lineare dei parametri $\vartheta$).
 $$
 \vartheta_0 + \vartheta_{1}x_1 + \vartheta_{2}x_2 + \vartheta_{3}x^2 + \vartheta_{4}x_2^2 + v_5x_1x_2
 $$
@@ -146,13 +146,21 @@ $$
 \section{Regolarizzazione}
 Per ridurre l'overfitting penalizziamo pesi grandi. In \textbf{Ridge} (L2) la loss è
 \[
-J_\lambda(\vartheta)=\frac{1}{2m}\|X\vartheta-y\|_2^2+\frac{\lambda}{2m} + \underbrace{\sum_{j=1}^{n}\vartheta_j^2}_{\text{Termine di regolarizzazione}},
+J_\lambda(\vartheta)=\frac{1}{2m}\|X\vartheta-y\|_2^2 + \underbrace{\frac{\lambda}{2m} \sum_{j=1}^{n}\vartheta_j^2}_{\text{Termine di regolarizzazione}},
 \]
 dove tipicamente \(\vartheta_0\) non si penalizza. Aggiornamenti:
 \[
 \vartheta_0\leftarrow \vartheta_0-\alpha\,\frac{1}{m}\sum_{i=1}^m(\hat y^{(i)}-y^{(i)}),\qquad
 \vartheta_j\leftarrow \vartheta_j-\alpha\left[\frac{1}{m}\sum_{i=1}^m(\hat y^{(i)}-y^{(i)})\tilde x^{(i)}_j+\frac{\lambda}{m}\vartheta_j\right]\ (j\ge 1).
 \]
+
+In questa regolarizzazione il quadrato rende ogni contributo non negativo ed enfatizza errori grandi, mentre il fattore \(\lambda\) controlla l'intensità della penalizzazione. In generale, un \(\lambda\) più grande porta a modelli più semplici (con pesi più piccoli), ma se è troppo grande si rischia di sottostimare i dati (underfitting).
+
+Questa regolarizzazione non annulla i pesi, ma li spinge verso zero. Esiste un altro tipo di regolarizzazione, chiamata \textbf{Lasso} (L1), che invece utilizza il valore assoluto dei pesi:
+\[
+J_\lambda(\vartheta)=\frac{1}{2m}\|X\vartheta-y\|_2^2 + \underbrace{\frac{\lambda}{m} \sum_{j=1}^{n}\lvert\vartheta_j\rvert}_{\text{Termine di regolarizzazione}},
+\]
+che ha l'effetto di annullare completamente alcuni pesi, portando a modelli più semplici e interpretabili, ma anche a una maggiore difficoltà di ottimizzazione (a causa della non differenziabilità del termine di regolarizzazione).
 
 
 \section{Valutazione}
