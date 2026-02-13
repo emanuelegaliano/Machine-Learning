@@ -18,7 +18,7 @@ Identifichiamo due tipi di task di classificazione:
 	\item \textbf{Classificazione binaria.}\\
 	Le etichette $y \in \{ 0,1\}$. Va associata ad $x$ una delle due etichette, o le probabilità relativa a ciascuna delle due.
 	\item \textbf{Classificazione di classe.}\\
-	Le etichette $y \in \{ 0,1, \dots, k-1\}$. Va associata ad $x$ una delle etichette, o la probabilità relativa a ciascuna di esse.
+	Le etichette $y \in \{ 0,1, \dots, k-1\}$. Va associata ad $x$ una delle etichette, o la probabilità relativa a ciascuna di esse. In realtà $\hat{y}$ (la predizione) è un vettore di $k$ elementi, in cui ogni elemento rappresenta la probabilità che $x$ appartenga alla classe associata a quell'elemento.
 \end{itemize}
 
 È fondamentale sottolineare l'importanza che gli output di questi algoritmi siano sempre $\in[0,1]$, in quanto da interpretare come \textbf{probabilità}.
@@ -37,9 +37,8 @@ $h_\vartheta(x) \leq 0.5 \to 0, \quad h_\vartheta(x) \geq 0.5 \to 1$.
 \begin{figure}[tbph]
 	\centering
 	\includegraphics[width=0.7\linewidth]{images/regression-for-classification.png}
+	\caption{Utilizzo della regressione lineare per classificazione binaria: viene stimata una retta $y = \vartheta^T x$ sui dati e si introduce una soglia (ad esempio $0.5$) per distinguere le due classi. I punti sotto la soglia vengono classificati come $0$ (tumore benigno), mentre quelli sopra come $1$ (tumore maligno).}
 \end{figure}
-
-
 
 Ci sono \textbf{due criticità} relative all'utilizzo della regressione. La prima, riguarda la versatilità del modello: il fitting della retta non è opportuno, in  quanto la regressione lineare dipende fortemente dalla distribuzione dei dati.
 
@@ -47,30 +46,37 @@ Ci sono \textbf{due criticità} relative all'utilizzo della regressione. La prim
 \begin{figure}[tbph]
 	\centering
 	\includegraphics[width=0.7\linewidth]{images/regression-for-classification2}
+	\caption{Sensibilità della regressione lineare alla distribuzione dei dati: l'aggiunta o lo spostamento di alcuni esempi modifica significativamente la retta stimata, causando errori di classificazione rispetto alla soglia fissata. Questo evidenzia una delle principali criticità dell'uso della regressione lineare per compiti di classificazione.}
 \end{figure}
-\newpage
+
 La seconda criticità riguarda invece la $y$, non sempre limitata tra 0 e 1, come ci aspettiamo in un modello di classificazione binaria. Come ci comportiamo con valori più grandi di 1? E con valori minori di 0? Possiamo risolvere il problema introducendo delle funzioni, dette funzioni \textbf{di linking}. Queste ci permettono di \textbf{adattare i nostri valori }a modelli di regressione che altrimenti non sarebbero opportuni per la classificazione. Vediamo un esempio relativo alla regressione logistica usando la funzione \textbf{sigmoide}.
 
 \section{Regressione logistica - Sigmoide}
 Se la regressione lineare restituisce una $y$ non limitata tra 0 e 1, la \textbf{regressione logistica} risolve il problema con una funzione, detta \textbf{sigmoide}, applicata sul risultato $z = \vartheta^TX$ del modello di regressione. La \textbf{sigmoide} una funzione del tipo
 
 $$
-\overline{\sigma}(z) = \frac{1}{1 + e^{-z}} = \frac{1}{1 + e^{-\vartheta^TX}}
+\sigma(z) = \frac{1}{1 + e^{-z}} = \frac{1}{1 + e^{-\vartheta^TX}}
 $$
 \noindent
-con $z = \vartheta_0 + \vartheta_1 x_1 + \dots + \vartheta_i x_i$. Questa funzione ha un'interpretazione probabilistica molto banale, opportuna per \textbf{adattare i modelli di regressione lineare su problemi di classificazione}\footnote{Non si può pretendere di usare un modello di regressione lineare su task di classificazione, senza fare alcun tipo di modifica, come quelle che introduciamo con la sigmoide.}. Osserviamo che:
+con $z = \vartheta^T X$. Questa funzione ha un'interpretazione probabilistica molto banale, opportuna per \textbf{adattare i modelli di regressione lineare su problemi di classificazione}\footnote{Non si può pretendere di usare un modello di regressione lineare su task di classificazione, senza fare alcun tipo di modifica, come quelle che introduciamo con la sigmoide.}. Osserviamo che:
 
 \begin{itemize}
-	\item $1-\overline{\sigma} = \sigma(z)$
-	\item $\displaystyle\frac{\partial \overline{\sigma}(z)}{\partial t} =\overline{\sigma}(z)(1-\overline{\sigma}(z)) = \overline{\sigma}(z)\overline{\sigma}(-z)$
-	\item È inoltre dimostrabile che $\displaystyle\overline{\sigma} = \frac{1}{2} + \frac{1}{2}\tanh\left(\frac{z}{2}\right)$. Questo ci apre le porte a implementazioni molto più semplici.
+	\item $1-\sigma = \sigma(-z)$
+	\item $\displaystyle\frac{\partial \sigma(z)}{\partial z} =\sigma(z)(1-\sigma(z)) = \sigma(z)\sigma(-z)$
+	\item È inoltre dimostrabile che $\displaystyle\sigma = \frac{1}{2} + \frac{1}{2}\tanh\left(\frac{z}{2}\right)$. Questo ci apre le porte a implementazioni molto più semplici.
 \end{itemize}
 
-Concludiamo che la regressione logistica, è ottimale per trovare opportuni parametri di $\vartheta^T$, che moltiplicati a $x$, ci permetteranno di stabilire il \textbf{decision boundary}, nella ben nota forma:
+Da qui il modello di regressione logistica è definito come:
+\[
+h_\vartheta (x) = \sigma(\vartheta^T x) = \frac{1}{1 + e^{-\vartheta^T x}}
+\]
 
-$$
-\vartheta_0x_0 + \vartheta_1x_1 + \vartheta_2x_2 + \dots \vartheta_dx_d  
-$$
+\paragraph{Decision boundaries.}
+Il modello di regressione logistica, come quello di regressione lineare, è un classificatore lineare. La decision boundary è definita come l'insieme dei punti per cui il classificatore è incerto, ovvero quando le probabilità restituite sono uguali per entrambe le classi (nel caso binario, quando $P(y=1|x) = P(y=0|x)$). Nella regressione logistica questo avviene quando
+\[
+\sigma(\vartheta^T x) = 0.5 \quad \Rightarrow \quad \vartheta^T x = 0
+\]
+il che porta a un decision boundary lineare definito dall'iperpiano $\vartheta^T x = 0$. I punti su questa linea rappresentano la soglia di decisione del classificatore, dove è incerto se assegnare l'etichetta $0$ o $1$.
 
 \begin{figure}[tbph]
 	\centering
@@ -87,43 +93,71 @@ $$
 \end{itemize}
 
 \section{Funzione di Loss}
-Avere una funzione di Loss associata al modello è fondamentale per capire come effettuare il training, e quali sono i migliori parametri di $\vartheta^T$ per la classificazione. 
-Per modellare questa funzione (da minimizzare secondo l'algoritmo di discesa del gradiente), utilizzeremo due funzioni logaritmiche. La funzione di Loss sarà definita in funzione dell'etichetta $\hat{y}$.
+
+Avere una funzione di Loss associata al modello è fondamentale per definire il criterio di apprendimento e determinare i parametri $\vartheta$ ottimali per il problema di classificazione. 
+
+Nel caso della regressione logistica, la funzione di Loss è definita in funzione della \textbf{vera etichetta} $y \in \{0,1\}$ e della predizione del modello $h_\vartheta(x)$.
+
+Per un singolo esempio $(x,y)$, definiamo la loss come:
+
 $$
-\text{Loss}(h_\vartheta(x), y) = \begin{cases}
-	- \log (h_\vartheta(x)) \qquad\qquad\text{se } \hat{y} = 1\\
-	- \log (1-h_\vartheta(x)) \qquad\text{ se } \hat{y} = 0\\
+\text{Loss}(h_\vartheta(x), y) =
+\begin{cases}
+- \log(h_\vartheta(x)) & \text{se } y = 1 \\[6pt]
+- \log(1 - h_\vartheta(x)) & \text{se } y = 0
 \end{cases}
 $$
 
-Questo, perché l'errore deve essere 1 quando $\hat{y} = 0$ e $y = 1$, o quando $\hat{y} = 1$ e $y = 0$.
+Questa definizione penalizza fortemente le predizioni errate:
+\begin{itemize}
+    \item se $y = 1$ e $h_\vartheta(x)$ è vicino a 0, la loss diverge;
+    \item se $y = 0$ e $h_\vartheta(x)$ è vicino a 1, la loss diverge.
+\end{itemize}
 
-\begin{center}
-	\textit{Ai fini della semplicità e univocità della spiegazione, useremo $y$ per indicare ciò che fino ad ora abbiamo indicato con $\hat{y}$.}
-\end{center}
-
-
-\begin{figure}[tbph]
-	\centering
-	\includegraphics[width=0.50\linewidth]{images/loss-logistic-regression}
-\end{figure}
-\noindent
-Possiamo esprimere la funzione di Loss anche in questo modo, rendendo unica la definizione della funzione.
-$$
-\text{Loss}(h_\vartheta(x), y) = -[y\log (h_\vartheta(x)) + (1-y)\log (1 - h_\vartheta(x))]
-$$
-\noindent
-Definita la funzione di Loss, andremo a definire la funzione di costo
+Possiamo riscrivere la funzione in forma compatta, sfruttando il fatto che $y$ è binaria:
 
 $$
-J(\vartheta) = - \frac{1}{m} \sum_{i=1}^{m}(y^{(i)}\log (h_\vartheta(x)) + (1-y^{(i)})\log (1 - h_\vartheta(x)))
+\text{Loss}(h_\vartheta(x), y)
+=
+- \left[
+y \log(h_\vartheta(x)) 
++ 
+(1-y)\log(1 - h_\vartheta(x))
+\right]
 $$
 
-\noindent
-su cui sarà possibile applicare l'algoritmo di discesa del gradiente, fino alla convergenza del modello.
+Questa espressione è equivalente alla definizione precedente ma consente una trattazione analitica più semplice, in particolare nel calcolo del gradiente.
+
+\bigskip
+
+Definita la loss per un singolo esempio, possiamo introdurre la \textbf{funzione di costo} (cost function), che rappresenta la media della loss su tutti i $m$ esempi del training set:
+
 $$
-\vartheta_j^{\text{new}} = \vartheta_j^{\text{old}} -\alpha\frac{\partial J(\vartheta)}{\partial \vartheta_j} \qquad \forall j
+J(\vartheta)
+=
+-\frac{1}{m}
+\sum_{i=1}^{m}
+\left[
+y^{(i)} \log(h_\vartheta(x^{(i)}))
++
+(1-y^{(i)}) \log(1 - h_\vartheta(x^{(i)}))
+\right]
 $$
+
+La funzione di costo viene minimizzata tramite l'algoritmo di discesa del gradiente:
+
+$$
+\vartheta_j^{\text{new}}
+=
+\vartheta_j^{\text{old}}
+-
+\alpha
+\frac{\partial J(\vartheta)}{\partial \vartheta_j}
+\qquad \forall j
+$$
+
+dove $\alpha$ è il learning rate, iperparametro che controlla l'ampiezza del passo di aggiornamento.
+
 
 \subsection{Derivata parziale della funzione di costo}
 
@@ -131,38 +165,42 @@ Necessaria per applicare la discesa del gradiente.
 $$
 \frac{\partial J(\vartheta)}{\partial \vartheta_j} = \frac{1}{m} \sum_{i=1}^{m} (\underbrace{h_\vartheta(x^{(i)})}_{(*)}- y^{(i)}))x_j^{(i)}) \qquad \forall j = 0, \dots, d
 $$
-(*) Questo membro nasconde la funzione sigmoide $\overline{\sigma}(\vartheta^TX^{(i)})$.
+(*) Questo membro nasconde la funzione sigmoide $\sigma(\vartheta^TX^{(i)})$.
 
 \subsection{Entropia dell'informazione}
 
-La loss function di questo modello presenta un'interpretazione probabilistica basata sul concetto di \textbf{entropia} dell'informazione. Parleremo quindi \textbf{Binary Cross Entropy Loss}. La seguente, è la formula dell'entropia:
+La funzione di loss usata nella regressione logistica (Binary Cross Entropy) ha una chiara interpretazione informativa: misura quanto la distribuzione di probabilità predetta dal modello si discosta dalla distribuzione ``vera'' delle etichette. Per introdurre questa idea, partiamo dal concetto di \textbf{entropia} di una variabile discreta, che quantifica il grado di incertezza associato a una distribuzione di probabilità.
 
-$$
-H(X) = -\sum_{k=1}^{K} p_k\log_2(p_k)
-$$
-
-con $p_k$ probabilità di essere di classe $k$.  La distribuzione di probabilità (e quindi l'entropia). Queste distribuzioni informazioni su:
+Sia \(X\) una variabile aleatoria discreta che può assumere \(K\) valori con probabilità \(p_1,\dots,p_K\). L'entropia è definita come:
+\[
+H(X) = -\sum_{k=1}^{K} p_k \log_2(p_k).
+\]
+\noindent
+Intuitivamente, l'entropia è:
 \begin{itemize}
-	\item Incertezza.
-	\item Misura del disordine dalle classi.
-	\item Quanto la probabilità è concentrata su una classe.
-	\item Informazione (la distribuzione è molto informativa se è capace di distinguere in maniera opportuna).
+	\item \textbf{alta} quando la distribuzione è ``uniforme'' (massima incertezza);
+	\item \textbf{bassa} quando la distribuzione è concentrata su pochi valori (bassa incertezza).
 \end{itemize}
-Un esempio su $k=2$ è la funzione 
-$$
-H(X) = - p_1\log_2(p_1) - p_2\log_2(p_2) = -[p_1\log_2(p_1) + p_2\log_2(p_2) ]
-$$
+
+\noindent
+Nel caso binario (\(K=2\)), con probabilità \(p_1\) e \(p_2=1-p_1\), otteniamo:
+\[
+H(X) = - p_1\log_2(p_1) - p_2\log_2(p_2).
+\]
 
 \begin{figure}[tbph]
 	\centering
 	\includegraphics[width=1\linewidth]{images/entropy_sketch}
 \end{figure}
 
+\textit{NB} Il termine \(\log_2(0)\) non è definito, ma nel calcolo dell'entropia (e della cross-entropy) si usa il limite:
+\[
+\lim_{p\to 0^+} p\log(p)=0,
+\]
+per cui assegnare probabilità esattamente nulle non crea problemi teorici. In pratica, per evitare instabilità numeriche, le implementazioni ``clippano'' le probabilità in \((\varepsilon, 1-\varepsilon)\) con \(\varepsilon\) molto piccolo. Inoltre, predizioni estremamente confidenti (\(p \approx 0\) o \(p \approx 1\)) non implicano di per sé overfitting: l'overfitting riguarda la \emph{generalizzazione} (prestazioni su dati non visti), non il valore di una singola probabilità stimata.
 
-\textit{$\log_2(0)$ è indefinito. Quando facciamo calcoli relativi alla cross-entropy, consideriamo valori piccoli, mai nulli. In questo esempio e nel prossimo esercizio, quando utilizziamo 0, stiamo approssimando un valore molto piccolo, ma mai effettivamente nullo. Inoltre, in un modello reale, avere una $p_k = 0$ o $p_k = 1$ significa probabile overfitting del modello.}
-\newpage
 
-\subsubsection{Esercizio sull'entropia}
+\paragraph{Esercizio sull'entropia.}
 Riordina le seguenti distribuzioni in ordine crescente di entropia.
 
 \begin{figure}[tbph]
@@ -199,9 +237,6 @@ Dove (a) è la distribuzione vera della classificazione, detta \textbf{ground tr
 	\centering
 	\includegraphics[width=0.8\linewidth]{images/coss-entropy2}
 \end{figure}
-
-
-\newpage
 
 \section{Overfitting nella classificazione}
 Rischiamo di cadere in overfitting nell'utilizzo di classificatori polinomiali. Basterà usare i termini di regolarizzazione per diminuire o annullare l'impatto di alcuni termini di grado eccessivamente alto, ottenendo così:
@@ -425,11 +460,14 @@ Il softmax può essere visto come un particolare tipo di rete neurale:
 \end{figure}
 
 \subsection{Funzione di Loss}
-La funzione di Loss usata nel softmax normalmente è una variante di \textbf{cross entropy loss} (molto simile alla funzione di costo). Si possono usare alternative, in particolare la \textbf{Hinge Loss} trasforma la classificazione multiclasse in un problema di massimizzazione del margine tra le classi, come nelle SVM. La Hinge Loss è definita come:
+La funzione di Loss usata nel softmax normalmente è una variante di \textbf{cross entropy loss}. Il softmax, infatti, restituisce un vettore di probabilità, e la cross entropy loss misura la distanza tra questa distribuzione di probabilità e la distribuzione di probabilità reale (ground truth).
+
+Si possono usare alternative, in particolare la \textbf{Hinge Loss} trasforma la classificazione multiclasse in un problema di massimizzazione del margine tra le classi, come nelle SVM. La Hinge Loss è definita come:
 \[
-\text{Loss}(h_\vartheta(x), y) = \sum_{i \
-neq y} \max(0, h_\vartheta(x)_i - h_\vartheta(x)_y + \Delta)
+\text{Loss}(h_\vartheta(x), y) = \sum_{i \neq y} \max(0, h_\vartheta(x)_i - h_\vartheta(x)_y + \Delta)
 \]
+
+In questo contesto massimizzare il margine significa cercare di rendere la probabilità della classe corretta $h_\vartheta(x)_y$ significativamente maggiore rispetto alle probabilità delle classi errate $h_\vartheta(x)_i$, con un margine di sicurezza $\Delta$.
 
 \section*{Riferimenti}
 Il materiale di questo capitolo comprende:
