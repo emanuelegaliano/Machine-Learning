@@ -62,7 +62,7 @@ Il comportamento del percettrone è il seguente:
 \[
 f(x_1,\dots,x_d)=
 \begin{cases}
-1 & se \displaystyle\sum_{j=1}^d \vartheta_j x_j \ge \vartheta_0\\
+1 & se \displaystyle\sum_{j=0}^d \vartheta_j x_j \ge \vartheta_0\\
 0 & \text{altrimenti.}
 \end{cases}
 \]
@@ -79,7 +79,7 @@ in modo da poter riscrivere la regola di decisione come una singola disuguaglian
 \]
 In questo modo otteniamo:
 \[
-f(x)=\mathbf{1}\{\vartheta^\top \tilde{x} \ge 0\},
+f(x)=\mathbf{1}\{\vartheta^\top \tilde{x} \ge 0\} = \operatorname{sign}(\vartheta^\top x),
 \]
 dove $\mathbf{1}\{\cdot\}$ vale $1$ se la condizione è vera e $0$ altrimenti.
 
@@ -216,13 +216,8 @@ Da cui si ottiene
 ovvero una contraddizione: non esiste configurazione dei parametri di un singolo percettrone che risolva XOR.
 
 
-\paragraph{Rete di percettroni.} La soluzione consiste nell'usare una \emph{rete di percettroni} (uno strato nascosto) che trasformi lo spazio in modo da rendere il problema linearmente separabile all'uscita. 
-
-\begin{figure}[tbph]
-	\centering
-	\includegraphics[width=0.7\linewidth]{images/neural-net-xor}
-	\caption{Rete di percettroni per computare lo $XOR$}
-\end{figure}
+\subsection{Rete di percettroni} 
+La soluzione consiste nell'usare una \emph{rete di percettroni} (uno strato nascosto) che trasformi lo spazio in modo da rendere il problema linearmente separabile all'uscita. 
 
 Un esempio minimale è:
 \[
@@ -235,6 +230,47 @@ Un esempio minimale è:
 dove \([\cdot]\) indica una funzione soglia (vale \(1\) se la condizione è vera, \(0\) altrimenti). Le funzioni \(f_1\) e \(f_2\) realizzano una trasformazione non lineare degli input; nello spazio così trasformato l'uscita \(f_3\) è ottenuta tramite una semplice soglia lineare.
 
 Infine, sebbene reti di percettroni possano risolvere $XOR$, l'algoritmo di apprendimento del singolo percettrone non è direttamente applicabile a reti multistrato; storicamente ciò contribuì al primo \emph{AI winter} e la situazione migliorò con la formalizzazione della \emph{retropropagazione} (\emph{backpropagation}). 
+
+\paragraph{Caso studio.}
+Consideriamo ora la rete mostrata in figura \ref{fig:nn-xor}, con pesi esplicitamente indicati. I nodi $a_1$ e $a_2$ costituiscono lo strato nascosto, mentre $a_3$ rappresenta il neurone di uscita. Il nodo costante $1$ implementa il bias (termine di soglia) tramite pesi negativi.
+
+\begin{figure}[tbph]
+	\centering
+	\includegraphics[width=0.7\linewidth]{images/neural-net-xor}
+	\caption{Rete di percettroni per computare lo $XOR$}
+	\label{fig:nn-xor}
+\end{figure}
+
+I neuroni nascosti sono definiti da:
+\[
+a_1 = \mathbf{1}\{-10\cdot 1 + 20x_1 + 20x_2 \ge 0\},
+\]
+\[
+a_2 = \mathbf{1}\{30\cdot 1 -20x_1 -20x_2 \ge 0\}.
+\]
+
+Il neurone di uscita è:
+\[
+a_3 = \mathbf{1}\{-30\cdot 1 + 20a_1 + 20a_2 \ge 0\}.
+\]
+
+Verifichiamo ora i quattro casi possibili di $(x_1,x_2)$:
+
+\begin{itemize}
+\item $(0,0)$:  
+$a_1=0$, $a_2=1$ $\Rightarrow$ $a_3=0$.
+\item $(0,1)$:  
+$a_1=1$, $a_2=0$ $\Rightarrow$ $a_3=1$.
+\item $(1,0)$:  
+$a_1=1$, $a_2=0$ $\Rightarrow$ $a_3=1$.
+\item $(1,1)$:  
+$a_1=0$, $a_2=0$ $\Rightarrow$ $a_3=0$.
+\end{itemize}
+
+Si ottiene quindi esattamente la tabella di verità dello XOR. 
+
+Questo esempio mostra in modo concreto come uno strato nascosto realizzi una trasformazione non lineare dello spazio di input: i neuroni $a_1$ e $a_2$ costruiscono due regioni linearmente separabili, che il neurone finale combina linearmente per ottenere una frontiera di decisione non lineare nello spazio originale.
+
 
 \section*{Riferimenti}
 Il materiale visto per questo capitolo comprende:
