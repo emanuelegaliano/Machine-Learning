@@ -4,19 +4,26 @@ Le reti neurali, grazie alla loro capacità di gestire dati non lineari e molto 
 
 
 \section{Definizione di rete neurale}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\linewidth]{images/NeuralNet1pdf}
+	\caption{Un multilayer perceptron, ossia una particolare rete neurale.}
+\end{figure}
+
 Una rete neurale è una funzione matematica \textit{annidata} del tipo:
 
 $$
 f_n(f_{n-1}(\dots (f_1(x))))
 $$
 
-dove $n$ coincide col numero di strati, o \textit{layer}. Questa rete neurale ritorna uno scalare $y$.  Una rete neurale è quindi ottenuta da una \textbf{composizione di funzioni derivabili}. Le funzioni sono dette \textbf{funzioni di attivazione}, e andremo a vederne presto alcuni esempi.
+dove $n$ coincide col numero di strati, o \textit{layer}. Questa rete neurale ritorna uno scalare $y$.  Una rete neurale è quindi ottenuta da una \textbf{composizione di funzioni derivabili}. Le funzioni sono dette \textbf{funzioni di attivazione}, e andremo a vederne presto alcuni esempi. Ogni funzione $f_i$ è detta \textbf{layer} che è composto da un certo numero di \textbf{neuroni}, o unità, che sono a loro volta composti da:
+\begin{itemize}
+	\item Una trasformazione lineare $z = W x + b$, in cui $W$ è la matrice dei pesi, $b$ è il bias, e $x$ è l'input del layer. Il numero di neuroni di un layer determina il numero di righe della matrice dei pesi $W$.
+	\item Una funzione di attivazione $a = \sigma(z)$, che introduce non linearità nella rete. La funzione di attivazione viene applicata elemento per elemento al vettore $z$.
+\end{itemize}
 
-\begin{figure}[tbph]
-	\centering
-	\includegraphics[width=0.8\linewidth]{images/NeuralNet1pdf}
-	\caption{Un multilayer perceptron, ossia una particolare rete neurale.}
-\end{figure}
+I neuroni di un layer sono connessi a quelli del layer successivo tramite i pesi $W$ e i bias $b$. La rete neurale è quindi una struttura a strati, in cui ogni strato trasforma l'input ricevuto dal precedente e lo passa al successivo, fino a raggiungere l'output finale.
 
 Gli strati si suddividono in:
 
@@ -31,13 +38,14 @@ Gli strati si suddividono in:
 
 Nelle reti neurali, individuiamo due parti fondamentali:
 
-\begin{figure}[tbph]
+\begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.75\linewidth]{images/NeuralNet2pdf}
 	\caption{Un multilayer perceptron}
+	\label{fig:nn_parts}
 \end{figure}
 
-Nella rete neurale fornita, individuiamo due parti.
+Nella rete neurale fornita in figura \ref{fig:nn_parts}, individuiamo due parti.
 
 \begin{itemize}
 	\item La parte in viola della rete è dedicata alla \textbf{trasformazione degli input grezzi} in qualcosa di utile per il task. La trasformazione viene appresa in fase di training grazie alle etichette note dell'apprendimento supervisionato. In questo caso, permette di trasformare $x \to a^{(2)}$.
@@ -130,13 +138,43 @@ Le funzioni di attivazione devono essere derivabili per consentire il training d
 
 Riportiamo alcuni dei plotting delle funzioni di attivazione e le loro derivate. 
 
-\begin{figure}[tbph]
+\begin{figure}[htp]
 	\centering
-	\includegraphics[width=1\linewidth]{images/activation-functions}
+	\includegraphics[width=0.8\linewidth]{images/activation-functions}
 \end{figure}
 
-\subsection{Il teorema di approssimazione universale - \textit{Universal Approximation Theorem}}
-Il teorema di approssimazione universale afferma che una rete neurale con un singolo strato nascosto può approssimare qualsiasi funzione continua con un livello di precisione arbitrario. Il layer potrebbe tuttavia essere estremamente numeroso e potrebbe soffrire di overfitting.
+\section{Il teorema di approssimazione universale per le reti neurali}\label{sec:teorema_approssimazione_universale}
+
+\begin{quote}
+	Il \textit{Teorema di Approssimazione Universale} afferma che una rete neurale feed-forward\footnote{Per feed-forward si intende una rete neurale in cui ogni layer riceve input esclusivamente dal layer precedente e lo trasmette a quello successivo, senza cicli o connessioni ricorrenti.} con un solo \emph{hidden layer}, dotata di un numero finito ma sufficientemente grande di neuroni e di una funzione di attivazione non lineare (ad esempio sigmoide o tangente iperbolica), è in grado di approssimare qualunque funzione continua definita su un insieme compatto $K \subset \mathbb{R}^n$, con errore arbitrariamente piccolo.
+\end{quote}
+
+\noindent
+Più formalmente, data una funzione continua
+\[
+f : K \subset \mathbb{R}^n \to \mathbb{R}
+\]
+e fissato un qualunque $\varepsilon > 0$, esiste una rete neurale con un solo strato nascosto tale che
+\[
+\sup_{x \in K} | f(x) - \hat{f}(x) | < \varepsilon,
+\]
+dove $\hat{f}(x)$ rappresenta la funzione implementata dalla rete neurale.
+
+\paragraph{Interpretazione.}
+Il risultato implica che una rete neurale con un solo hidden layer possiede una capacità espressiva teoricamente universale: non è limitata, in linea di principio, nel tipo di funzione che può rappresentare. La limitazione non è dunque strutturale, ma riguarda piuttosto il processo di apprendimento dei parametri e la quantità di neuroni necessari per ottenere una buona approssimazione.
+
+\paragraph{Esempio.}
+Consideriamo la funzione
+\[
+f(x) = \sin(x), \qquad x \in [0, 2\pi].
+\]
+Una rete neurale con attivazioni sigmoidi può combinare molte sigmoidi traslate e scalate per costruire una curva che approssima la sinusoide con errore arbitrariamente piccolo. Aumentando il numero di neuroni nello strato nascosto, la rete riesce a rappresentare dettagli sempre più fini dell’andamento della funzione.
+
+\paragraph{Limiti del teorema.}
+È importante sottolineare che il teorema non fornisce un metodo costruttivo per determinare i parametri della rete, né garantisce che un algoritmo di ottimizzazione (come la discesa del gradiente) riesca effettivamente a trovare la configurazione che realizza l’approssimazione desiderata. Inoltre, il teorema non dice nulla sulla capacità di generalizzazione del modello né fornisce un limite superiore sul numero di neuroni necessari, che potrebbe essere molto elevato. In pratica, una rete con un solo hidden layer potrebbe richiedere un numero enorme di neuroni per rappresentare funzioni complesse, risultando inefficiente e potenzialmente soggetta a overfitting.
+
+Questo risultato teorico fornisce quindi una motivazione concettuale all’uso delle reti \emph{deep}: l’introduzione di più strati nascosti consente spesso di rappresentare le stesse funzioni in modo più compatto ed efficiente.
+
 
 
 \section{Training e inferenza di una rete neurale}
@@ -183,8 +221,11 @@ $$
 
 
 \subsection{Inizializzazione dei parametri}
-L'inizializzazione dei parametri avviene con numeri casuali molto piccoli $\in [-\varepsilon, +\varepsilon]$. I parametri dei nodi che dipendono dallo stesso nodo, devono essere diversi tra loro, effettuando quella che è nota come \textbf{simmetry breaking}. Valori uguali sui nodi, porteranno i nodi a comportarsi in maniera simile, rendendo inutile avere modelli più complessi.
+L'inizializzazione dei parametri avviene con numeri casuali molto piccoli $\in [-\varepsilon, +\varepsilon]$. I parametri dei nodi che dipendono dallo stesso nodo, devono essere diversi tra loro, effettuando quella che è nota come \textbf{symmetry breaking}.
 
+In pratica, si assegna a neuroni dello stesso layer inizializzazioni diverse, così che non producano le stesse attivazioni e non ricevano gradienti identici. 
+
+\paragraph{Perché è importante?} Senza symmetry breaking, tutti i neuroni apprenderebbero la stessa funzione attraverso gli stessi gradienti durante la backpropagation, rendendo inefficace l'avere più neuroni nello stesso layer. Questo annullerebbe i benefici della profondità e della larghezza della rete, poiché ogni neurone comporterebbe solo una moltiplicazione ridondante dei pesi identici.
 
 \subsection{Reti neurali per regressione}
 Usiamo come Loss function l'errore quadratico medio (MSE). Ogni output sarà un regressore lineare, e la Loss function valuterà gli output di tutti i regressori.
@@ -197,6 +238,11 @@ Usiamo come Loss function l'errore quadratico medio (MSE). Ogni output sarà un 
 \section{Overfitting e Underfitting nelle reti neurali}
 \paragraph{Underfitting.} Le reti neurali più piccole, su dati molto complessi, sono soggette ad underfitting. I pochi parametri non permettono di descrivere (o separare) i pattern complessi dei dati. Si riscontrano alti errori già in fase di training. Reti più semplici sono però più veloci da allenare.
 
-\paragraph{Overfitting.} Le reti neurali più complesse, con tanti parametri, imparano meglio i dati in fase di training, minimizzando o addirittura azzerando la loss function. Il rischio è opposto: il modello diventa troppo specifico, e non riesce a generalizzare sui dati di testing, cascando in overfitting. Diventa quindi necessario introdurre termini di regolarizzazione ($\lambda$) o cambiare modello. Modelli più vasti richiedono inoltre risorse computazionali più importanti.
+\paragraph{Overfitting.} Le reti neurali più complesse, con tanti parametri, imparano meglio i dati in fase di training, minimizzando o addirittura azzerando la loss function. Il rischio è opposto: il modello diventa troppo specifico, e non riesce a generalizzare sui dati di testing, cadendo in overfitting. Diventa quindi necessario introdurre termini di regolarizzazione ($\lambda$) o cambiare modello. Modelli più vasti richiedono inoltre risorse computazionali più importanti.
 
-
+\section*{Riferimenti}
+I riferimenti per questo capitolo includono:
+\begin{itemize}
+	\item Materiale visto a lezione.
+	\item Teorema di approssimazione universale per le reti neurali \ref{sec:teorema_approssimazione_universale} dal libro \citetitle{Goodfellow-et-al-2016} \cite{Goodfellow-et-al-2016}, sezione 6.4.1
+\end{itemize}
