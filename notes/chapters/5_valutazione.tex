@@ -110,6 +110,9 @@ Per valutare le prestazioni di un modello possiamo usare i valori del bias e del
 
 \paragraph{Varianza.} La varianza rappresenta la sensibilità del modello alle variazioni nei dati di training. Un modello con alta varianza tende a sovradattarsi ai dati di training, catturando il rumore invece della vera relazione tra le variabili. Questo porta a errori bassi sul training set ma elevati sul test set, fenomeno noto come \textbf{overfitting}. 
 
+Nella figura \ref{fig:ovfit_underfit_rightfit}, il grafico a destra mostra un esempio di overfitting, dove il modello polinomiale è troppo complesso e si adatta troppo strettamente ai dati di training, risultando in prestazioni scadenti sui dati di test\footnote{Si noti che basterebbe rimuovere un punto del training set per far cambiare completamente il modello, in quanto altamente sensibile ai dati di input.}.
+Come si vede dall'immagine al centro della figura \ref{fig:ovfit_underfit_rightfit}, un modello con capacità adeguata riesce a bilanciare bias e varianza, ottenendo buone prestazioni sia sul training set che sul test set. Per valutare e risolvere i problemi sul modello, possiamo andare a controllare come Bias e Varianza variano al variare dei parametri del modello\footnote{In quella che molti chiamano \textbf{bias-variance trade-off}.} e notiamo che si può costruire una correlazione tra l'errore commesso dal modello (quindi o in $J_{\text{TEST}}$ o in $J_{\text{VAL}}$) e la complessità del polinomio (il grado):
+
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.75\textwidth]{images/bias_variance_tradeoff.png}
@@ -117,13 +120,17 @@ Per valutare le prestazioni di un modello possiamo usare i valori del bias e del
 	\label{fig:bias_variance_tradeoff}
 \end{figure}
  
-Nella figura \ref{fig:ovfit_underfit_rightfit}, il grafico a destra mostra un esempio di overfitting, dove il modello polinomiale è troppo complesso e si adatta troppo strettamente ai dati di training, risultando in prestazioni scadenti sui dati di test\footnote{Si noti che basterebbe rimuovere un punto del training set per far cambiare completamente il modello, in quanto altamente sensibile ai dati di input.}.
-Come si vede dall'immagine al centro della figura \ref{fig:ovfit_underfit_rightfit}, un modello con capacità adeguata riesce a bilanciare bias e varianza, ottenendo buone prestazioni sia sul training set che sul test set. Per valutare e risolvere i problemi sul modello, possiamo andare a controllare come Bias e Varianza variano al variare dei parametri del modello\footnote{In quella che molti chiamano \textbf{bias-variance trade-off}.} e notiamo che si può costruire una correlazione tra l'errore commesso dal modello (quindi o in $J_{\text{TEST}}$ o in $J_{\text{VAL}}$) e la complessità del polinomio (il grado):
+\paragraph{Uso del momentum.} Per risolvere questi problemi, o comunque limitarli, si potrebbe utilizzare la discesa del gradiente con momento, che aiuta a stabilizzare la convergenza e a ridurre l'effetto del rumore nei dati di training. Inoltre, è possibile utilizzare tecniche di regolarizzazione per penalizzare i modelli troppo complessi e prevenire l'overfitting.
 
+\subsection{Parametri di regolarizzazione}
 
-\paragraph{Parametro di regolarizzazione.}
+Anche i parametri di regolarizzazione, esattamente come il modello (i suoi parametri), devono essere stabiliti sperimentalmente. Il valore di $\lambda$ influenza molto la regolarizzazione del modello:
+\begin{itemize}
+	\item Un valore alto di $\lambda$ penalizza maggiormente i pesi del modello, riducendo il rischio di overfitting, ma potrebbe portare a un modello troppo semplice (high bias).
+	\item Un valore basso di $\lambda$ consente al modello di adattarsi meglio ai dati di training, ma aumenta il rischio di overfitting (high variance).
+\end{itemize} 
 
-Anche i parametri di regolarizzazione, esattamente come il modello (i suoi parametri), devono essere stabiliti sperimentalmente. Si parte da $\lambda^0 = 0$, testando valori di $\lambda^{(1)}, \lambda^{(2)} \ldots \lambda^{(k)}$ sempre più grandi, verificando come cambia $J_{\text{VAL}}(\vartheta^i)$ in funzione di $\lambda^i$:
+Si parte da $\lambda^0 = 0$, testando valori di $\lambda^{(1)}, \lambda^{(2)} \ldots \lambda^{(k)}$ sempre più grandi, verificando come cambia $J_{\text{VAL}}(\vartheta^i)$ in funzione di $\lambda^i$:
 \[
 \left[
 \begin{array}{c}
@@ -161,18 +168,13 @@ J_{\text{VAL}}(\vartheta^{(k)})
 J_{\text{TEST}}\!\big(\vartheta^{\text{BEST}}\big)
 \]
 
+\paragraph{Interpretazione della procedura.}  
+Per ogni valore candidato di $\lambda$, si ottiene un modello diverso (poiché la funzione di costo include il termine di regolarizzazione). Ciascun modello viene valutato sul validation set tramite $J_{\text{VAL}}$, che fornisce una stima della capacità di generalizzazione. Si seleziona quindi il valore di $\lambda$ che minimizza l'errore di validazione. 
 
 In questo modo si riesce a trovare il miglior parametro di regolarizzazione che minimizza l'errore sul validation set, e si può usare questo parametro per valutare il modello sul test set.
 
-\paragraph{Altre curve.}
+\subsection{Altre curve di valutazione}
 Un'altra curva potrebbe essere quella che mostra l'\textbf{errore} su \emph{train set} e \emph{validation set} in funzione del numero di campioni di training (figura \ref{fig:error_vs_training_size}). In questo modo si può capire se il modello soffre di overfitting o underfitting:
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.7\textwidth]{images/learning_curve_train_validation.png}
-	\caption{Learning curves: errore su training \(J_{\mathrm{TRAIN}}\) e su validation \(J_{\mathrm{VAL}}\) in funzione del numero di esempi \(m\). \(J_{\mathrm{VAL}}\) decresce, \(J_{\mathrm{TRAIN}}\) cresce leggermente e il \emph{generalization gap} (freccia) si riduce; le curve si avvicinano all'errore irreducibile.}
-	\label{fig:error_vs_training_size}
-\end{figure}
 
 La figura conferma il fatto che esiste il trade-off bias-varianza, in quanto:
 \begin{itemize}
@@ -180,9 +182,16 @@ La figura conferma il fatto che esiste il trade-off bias-varianza, in quanto:
 	\item Se siamo in presenza di \emph{high variance}, quindi un grande gap tra l'errore commesso tra il training set e il validation set, aumentare il numero di dati di training potrebbe aiutare a migliorare i risultati (non sempre).
 \end{itemize}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/learning_curve_train_validation.png}
+	\caption{Learning curves: errore su training \(J_{\mathrm{TRAIN}}\) e su validation \(J_{\mathrm{VAL}}\) in funzione del numero di esempi \(m\). \(J_{\mathrm{VAL}}\) decresce, \(J_{\mathrm{TRAIN}}\) cresce leggermente e il \emph{generalization gap} (freccia) si riduce; le curve si avvicinano all'errore irreducibile.}
+	\label{fig:error_vs_training_size}
+\end{figure}
+
 \section*{Riferimenti}
-Il materiale di questa lezione comprende:
+Il materiale di questo capitolo comprende:
 \begin{itemize}
 	\item Materiale visto a lezione.
-	\item Presentazione del prof. Giovanni Farinella.
+	\item Presentazione del prof. Giovanni M. Farinella.
 \end{itemize}
