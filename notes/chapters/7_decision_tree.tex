@@ -54,6 +54,50 @@ H(m) = - \sum_{i} p_m^i \log_2(p_m^i)
 \]
 L'entropia misura l'incertezza associata alla distribuzione delle classi nel nodo. Un nodo puro ha \emph{entropia zero}, mentre un nodo con una distribuzione uniforme delle classi ha \emph{entropia massima}.
 
+\subsection{Algoritmo di costruzione dell'albero}
+\subsubsection*{Procedura ricorsiva}
+
+\begin{algorithm}[H]
+\caption{\textsc{GenerateTree}($\mathcal{X}$)}
+\begin{algorithmic}[1]
+\If{\textsc{NodeEntropy}($\mathcal{X}$) $< \theta_I$} \Comment{eq. (9.3)}
+    \State \textbf{return} leaf labelled with majority class in $\mathcal{X}$
+\EndIf
+\State $i \gets$ \textsc{SplitAttribute}($\mathcal{X}$)
+\For{each branch of attribute $x_i$}
+    \State find $\mathcal{X}_\ell$ falling in branch $\ell$
+    \State \textsc{GenerateTree}($\mathcal{X}_\ell$)
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection*{Scelta dell'attributo ottimale di split}
+\begin{algorithm}[H]
+\caption{\textsc{SplitAttribute}($\mathcal{X}$)}
+\begin{algorithmic}[1]
+\State $\text{MinEnt} \gets +\infty$
+\For{$i = 1,\dots,d$}
+    \If{$x_i$ is discrete with $n$ values}
+        \State split $\mathcal{X}$ into $\mathcal{X}_1,\dots,\mathcal{X}_n$ by $x_i$
+        \State $e \gets$ \textsc{SplitEntropy}($\mathcal{X}_1,\dots,\mathcal{X}_n$) \Comment{eq. (9.8)}
+        \If{$e < \text{MinEnt}$}
+            \State $\text{MinEnt} \gets e$;\;\; $\text{bestf} \gets i$
+        \EndIf
+    \Else \Comment{$x_i$ numeric}
+        \For{all possible splits $t$ of $x_i$}
+            \State split $\mathcal{X}$ into $\mathcal{X}_1,\mathcal{X}_2$ using threshold $t$
+            \State $e \gets$ \textsc{SplitEntropy}($\mathcal{X}_1,\mathcal{X}_2$)
+            \If{$e < \text{MinEnt}$}
+                \State $\text{MinEnt} \gets e$;\;\; $\text{bestf} \gets i$
+            \EndIf
+        \EndFor
+    \EndIf
+\EndFor
+\State \textbf{return} $\text{bestf}$
+\end{algorithmic}
+\end{algorithm}
+
+
 Per trovare la miglior combinazione dei nodi eseguiamo la seguente procedura ricorsiva:
 \begin{itemize}
     \item Se il nodo è \emph{puro}, creiamo una foglia con la classe corrispondente.
@@ -116,12 +160,16 @@ E^j_m = \frac{1}{N_m} \sum_{t} \sum_{j} (y^t - \hat{y}_{mj})^2 \, b_{mj}(x^t)
 dove la somma esterna è calcolata su tutte le tuple $t$ che raggiungono il nodo $m$ e la somma interna è calcolata su tutti i figli $j$ del nodo $m$. Ipotizziamo di avere un nodo m, con Xm che rappresenta l'insieme X delle tuple che raggiungono il nodo m. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in X$ e $x$ raggiunge il nodo $m$.
 
 \section{Pruning: riduzione dell'albero}
-Il pruning è una tecnica utilizzata per ridurre la complessità di un albero decisionale (di classificazione) o di regressione, al fine di migliorare la sua capacità di generalizzazione sui dati non visti. Durante la costruzione dell'albero, è possibile che si creino nodi che si adattano troppo strettamente ai dati di addestramento, portando ad \emph{overftting}. Il pruning mira a rimuovere questi nodi superflui, semplificando l'albero e migliorando le prestazioni sui dati di test.
+Il pruning è una tecnica utilizzata per ridurre la complessità di un albero decisionale (di classificazione) o di regressione, al fine di migliorare la sua capacità di generalizzazione sui dati non visti. Durante la costruzione dell'albero, è possibile che si creino nodi che si adattano troppo strettamente ai dati di addestramento, portando ad \emph{overfitting}. Il pruning mira a rimuovere questi nodi superflui, semplificando l'albero e migliorando le prestazioni sui dati di test.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=.9\textwidth]{images/regression_tree_thresholds.png}
-    \caption{Esempio di albero di regressione in cui si mostra l'effetto del parametro di complessità $\theta_r$ sulla funzione stimata: al diminuire di $\theta_r$ l'albero produce più suddivisioni e una funzione a gradini più irregolare e aderente ai dati.}
+    \includegraphics[width=.7\textwidth]{images/regression_tree_thresholds.png}
+    \caption{Effetto della soglia di arresto $\theta_r$ nella costruzione di un albero di regressione. 
+    Ogni grafico mostra la funzione stimata (a gradini) ottenuta con diversi valori del parametro di complessità. 
+    Con $\theta_r = 0.5$ (in alto) l'albero si arresta precocemente, producendo poche suddivisioni e una funzione più regolare ma meno aderente ai dati (underfitting). 
+    Riducendo la soglia a $\theta_r = 0.2$ (centro) aumentano gli split e la funzione segue più fedelmente l'andamento dei punti. 
+    Con $\theta_r = 0.05$ (in basso) l'albero continua a suddividere i nodi fino a ottenere una funzione molto frammentata, che interpola quasi perfettamente i dati di training ma rischia overfitting.}
     \label{fig:regression_tree_theta}
 \end{figure}
 
@@ -159,18 +207,22 @@ Mentre gli alberi decisionali suddividono i dati in modo gerarchico, le regole d
 \subsection{Copertura delle regole}
 Si dice che una regole \textbf{copre} una tupla $t$ se le condizioni della regola sono soddisfatte dalla tupla $t$. L'insieme delle tuple coperte da una regola è chiamato \textbf{coverage} (copertura) della regola. La copertura aiuta a \textbf{valutare} l'efficiacia di una regola: una regola con una copertura elevata è generalmente considerata più utile, poiché si applica a un numero maggiore di tuple nel dataset.
 
-\paragraph{Ripper.}
-Un esempio può essere Ripper (Repeated Incremental Pruning to Produce Error Reduction), un algoritmo di apprendimento delle regole che utilizza una strategia di copertura sequenziale per generare un insieme di regole a partire dai dati di addestramento. Ripper:
-\begin{enumerate}
-  \item Inizia con un insieme vuoto di regole $\mathcal{R} = \emptyset$.
-  \item Ripete fino a quando tutte le tuple positive sono coperte:
-  \begin{enumerate}
-    \item Crea una nuova regola $R$ iniziando con una condizione vuota.
-    \item Aggiunge condizioni a $R$ finché la regola non soddisfa un criterio di arresto (ad esempio, copre un numero sufficiente di tuple positive senza coprire troppe tuple negative).
-    \item Aggiunge la regola $R$ all'insieme delle regole $\mathcal{R}$.
-    \item Rimuove le tuple coperte da $R$ dal dataset.
-  \end{enumerate}
-\end{enumerate}
+\subsection{Algoritmo RIPPER}
+
+RIPPER (Repeated Incremental Pruning to Produce Error Reduction) è un algoritmo di \emph{rule induction} basato sulla strategia di \textbf{sequential covering}. Costruisce iterativamente un insieme di regole che coprono le istanze positive  e successivamente ottimizza l'insieme tramite un criterio di descrizione minima (MDL).
+
+\begin{algorithm}[H]
+\caption{\textsc{RIPPER}($Pos, Neg, k$)}
+\begin{algorithmic}[1]
+\State $RuleSet \gets$ \textsc{LearnRuleSet}($Pos, Neg$)
+\For{$t = 1$ to $k$}
+    \State $RuleSet \gets$ \textsc{OptimizeRuleSet}($RuleSet, Pos, Neg$)
+\EndFor
+\State \textbf{return} $RuleSet$
+\end{algorithmic}
+\end{algorithm}
+
+\textit{Nota: \textsc{LearnRuleSet} e \textsc{OptimizeRuleSet} sono funzioni che implementano rispettivamente la fase di apprendimento delle regole e la fase di ottimizzazione del set di regole. Non sono dettagliate qui, ma si basano su tecniche di pruning e valutazione delle regole per migliorare la generalizzazione del modello.}
 
 \section{Alberi decisionali multivariati}
 Nel caso di alberi decisionali univariati, ogni nodo interno effettua un testo su un singolo attributo alla volta. Si conisdera quindi una funzione del tipo:
