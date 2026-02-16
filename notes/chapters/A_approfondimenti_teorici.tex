@@ -49,6 +49,8 @@ Intuitivamente: se il numero di campioni cresce molto a parità di dimensione $d
 \section{Generalizzazione funzione di costo del softmax}\label{sec:softmax_generalizzazione_logistica}
 \textit{Questa parte è tratta dal capitolo \ref{chap:classificazione} nella sezione \ref{sec:proprieta_softmax}.}
 
+\bigskip
+\noindent
 Il modello softmax è una generalizzazione della regressione logistica multiclasse, si può infatti dimostrare che la funzione di costo del softmax riduce a quella della regressione logistica binaria per $K=2$ classi.
 Ricordiamo che la funzione di costo del softmax è:
 \[
@@ -108,3 +110,233 @@ h_{\vartheta}(x)=
 
 \noindent
 Quindi, per $K=2$, il softmax riduce alla regressione logistica binaria.
+
+\section{Dimostrazione del teorema del margine a 1}\label{sec:teorema_margine_1}
+\textit{Questa parte è tratta dal capitolo \ref{chap:svm} nella sezione \ref{sec:svm_margin} quando si parla di margine.}
+
+\bigskip
+\noindent
+Imponiamo $\|w\| = 1$. Questo può essere scritto come $ \displaystyle w = \frac{w'}{\|w'\|}$, dove $w'$ è un vettore di parametri qualsiasi non normalizzato. Sostituendo nella formulazione iniziale, otteniamo
+
+$$
+y \left(\Big\langle \frac{w'}{\|w'\|}, x\Big\rangle + b\right) \geq r
+$$
+
+Noto che $r \geq 0$ in quanto una distanza euclidea, possiamo andare a dividere l'intero vincolo per $r$. Otteniamo:
+
+$$
+y \left(\Big\langle \frac{w'}{\|w'\|r}, x\Big\rangle + \underbrace{\frac{b}{r}}_{b''} \right) \geq 1
+$$
+
+Bene, adesso definiamo $\displaystyle \|w''\|
+= \left\|\frac{w'}{\|w'\| r}\right\|
+= \frac{1}{r}\,\frac{\|w'\|}{\|w'\|}
+= \frac{1}{r}, \Rightarrow r = \frac{1}{\| w''\|}$. \\
+Per facilitare la dimostrazione, imponiamo di dover massimizzare $r^2$, ossia  $\displaystyle\frac{1}{\|w''\|^2}$. Tuttavia, massimizzare questo valore, significa minimizzare  $\|w''\|^2$, o, per semplificare il lavorare con le derivate, equivale a minimizzare $\displaystyle\frac{1}{2} \|w''\|^2$.
+
+
+$$
+\min_{w'',b''} \frac12\|w\|^2 \qquad y (\langle w'', x\rangle + b'') \geq 1
+$$
+Data questa totale equivalenza, abbiamo dimostriamo il teorema.
+
+
+\section{Dual SVM}\label{sec:dual_svm_approfondimento}
+
+\textit{Questa parte è tratta dal capitolo \ref{chap:svm} nella sezione \ref{sec:dual_svm}.}
+
+\bigskip
+\noindent
+La formulazione di SVM descritta in precedenza, è nota come primal SVM. Ha variabili $w$ e $b$, e $w$ è di dimensione pari a $x \in \mathbb{R}^D$, con $D$ features. Ne consegue che il problema di ottimizzazione cresce linearmente all'aumentare del numero di features. La seguente formulazione, crescerà invece col numero di esempi del dataset, non dipendendo più dal numero di features. Sarà inoltre semplice applicarne dei kernel, per separare meglio dati non linearmente separabili. Chiarememo questa formulazione \textbf{Dual SVM}, e si presenterà così:
+
+$$
+\begin{aligned}
+	&\min_{\alpha} && 
+	\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} 
+	y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
+	- \sum_{i=1}^{N} \alpha_i \\
+	&\text{soggetto a} && 
+	\sum_{i=1}^{N} y_i \alpha_i = 0, \\
+	& && 0 \le \alpha_i \le C \quad \text{per } i = 1,\dots, N .
+\end{aligned}
+$$
+
+\paragraph{Prerequisito matematico: Lagrangiani}
+Data una funzione $f$ da ottimizzare, e un insieme di condizioni $g_1, \dots, g_n$, un \textbf{Lagrangiano} è una funzione $\mathcal{L}(f,g_1, \dots, g_n, \alpha_1, \dots, \alpha_n)$ che incorpora le condizioni del problema di ottimizzazione:
+
+$$
+\mathcal{L}(f,\alpha_1,\ldots,\alpha_n)
+= f(x_1,\ldots,x_k) - \sum_{i=1}^{n} \alpha_i\, g_i(x_1,\ldots,x_k)
+$$
+
+Ad esempio, se $f(w) = \displaystyle\frac{w^2}{2}$ e $\displaystyle g_1(w,x) : wx-1 \geq 0$, allora
+
+$$
+\mathcal{L}(w,\alpha) = \frac{w^2}{2} - \alpha(wx-1), \quad \alpha \geq 0
+$$
+
+Si calcolano le derivate parziali del Lagrangiano rispetto alle variabili
+del problema, in questo esempio $w$ e $\alpha$, e si impongono nulle.
+Si ottiene così un sistema di equazioni le cui soluzioni soddisfano
+le condizioni di ottimalità (condizioni di stazionarietà).
+
+Il Lagrangiano del problema è
+
+$$
+\mathcal{L}(w,\alpha)
+=
+\frac{1}{2} w^{2}
+-
+\alpha (wx - 1),
+\qquad
+\alpha \ge 0.
+$$
+
+Calcoliamo le derivate parziali.
+
+Derivando rispetto a $w$:
+
+$$
+\frac{\partial \mathcal{L}}{\partial w}
+=
+w - \alpha x.
+$$
+
+Imponendo la condizione di stazionarietà otteniamo
+
+$$
+w - \alpha x = 0
+\quad \Rightarrow \quad
+w = \alpha x.
+$$
+
+Derivando rispetto a $\alpha$:
+
+$$
+\frac{\partial \mathcal{L}}{\partial \alpha}
+=
+-(wx - 1).
+$$
+
+Imponendo la derivata nulla:
+
+$$
+wx - 1 = 0.
+$$
+
+\subsection{Convex duality con Moltiplicatori di Lagrange}
+
+Riprendiamo le variabili della formulazione primale: $w, b, \xi$.
+Introduciamo i moltiplicatori di Lagrange $\alpha_n \ge 0$
+associati ai vincoli
+
+\[
+y_n(\langle w,x_n\rangle + b) \ge 1 - \xi_n,
+\]
+
+e i moltiplicatori $\gamma_n \ge 0$ associati ai vincoli
+$\xi_n \ge 0$.
+
+Il Lagrangiano è
+
+\[
+\begin{aligned}
+\mathcal{L}(w,b,\xi,\alpha,\gamma)
+&=
+\frac{1}{2}\|w\|^2
++ C \sum_{n=1}^{N} \xi_n
+\\
+&\quad
+- \sum_{n=1}^{N}
+\alpha_n
+\big(
+y_n(\langle w,x_n\rangle + b) - 1 + \xi_n
+\big)
+- \sum_{n=1}^{N} \gamma_n \xi_n .
+\end{aligned}
+\]
+
+Deriviamo rispetto alle variabili primali.
+
+\[
+\frac{\partial \mathcal{L}}{\partial w}
+=
+w - \sum_{n=1}^{N} \alpha_n y_n x_n,
+\]
+
+\[
+\frac{\partial \mathcal{L}}{\partial b}
+=
+- \sum_{n=1}^{N} \alpha_n y_n,
+\]
+
+\[
+\frac{\partial \mathcal{L}}{\partial \xi_n}
+=
+C - \alpha_n - \gamma_n.
+\]
+
+Imponendo le condizioni di stazionarietà otteniamo
+
+\[
+w = \sum_{n=1}^{N} \alpha_n y_n x_n,
+\]
+
+\[
+\sum_{n=1}^{N} \alpha_n y_n = 0,
+\]
+
+\[
+C - \alpha_n - \gamma_n = 0.
+\]
+
+Dalla terza equazione segue che
+
+\[
+0 \le \alpha_n \le C.
+\]
+
+Sostituendo l'espressione di $w$ nel Lagrangiano
+ed eliminando $\xi_n$ e $\gamma_n$ tramite le condizioni
+di stazionarietà, otteniamo il problema duale.
+
+Il duale consiste nel massimizzare rispetto agli $\alpha_n$:
+
+\[
+\begin{aligned}
+\max_{\alpha} \quad
+& \sum_{n=1}^{N} \alpha_n
+-
+\frac{1}{2}
+\sum_{i=1}^{N}\sum_{j=1}^{N}
+\alpha_i \alpha_j y_i y_j
+\langle x_i,x_j\rangle
+\\
+\text{soggetto a} \quad
+& \sum_{n=1}^{N} \alpha_n y_n = 0, \\
+& 0 \le \alpha_n \le C.
+\end{aligned}
+\]
+
+\paragraph{Box Constraints} Indichiamo con questo nome l'insieme di disuguaglianze $0 \le \alpha_i \le C \quad\text{per } i=1,\dots,N$. Questi, limitano il vettore dei moltiplicatori di Lagrange $\alpha = [\alpha_1, \dots, \alpha_N]^\top\in \mathbb{R}^N$ in una "scatola" definita tra 0 e $C$ per ogni asse.
+
+\paragraph{Dal Duale al Primale} Una volta trovati i parametri $\alpha$, possiamo ottenere i parametri $w$ usando il \textbf{representer theorem}.
+
+$$
+w = \sum_{n=1}^{N} \alpha_n y_n x_n
+$$
+
+e indicheremo il suo valore ottimale con $w^*$. 
+Per determinare $b^*$, utilizziamo la condizione di margine
+valida per i support vector tali che $0 < \alpha_n < C$.
+Per questi punti vale infatti
+
+\[
+y_n(\langle w^*, x_n\rangle + b^*) = 1.
+\]
+
+Da cui possiamo ricavare
+
+\[
+b^* = y_n - \langle w^*, x_n\rangle.
+\]

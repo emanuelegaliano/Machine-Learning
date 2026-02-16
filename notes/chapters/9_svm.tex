@@ -1,11 +1,14 @@
-\chapter{SVM: Support Vector Machines}
+\chapter{SVM: Support Vector Machines}\label{chap:svm}
+
 Le SVM sono modelli di machine learning supervisionato che possono essere utilizzati sia per problemi di classificazione che di regressione.  L'idea alla base delle SVM è trovare un iperpiano che separi i dati di diverse classi con il massimo margine possibile: sono quindi una delle soluzioni più eleganti e semplici da visualizzare per quando riguarda la classificazione. L'iperpiano scelto non solo separa le classi, ma lo fa in modo tale da \textbf{massimizzare la distanza tra l'iperpiano e i punti} più vicini di ciascuna classe, noti come vettori di supporto. 
 
 \section{Iperpiani di separazione}
-Dati i vettori $x_i$ e $x_j$, un modo di di definirne la similarità è il prodotto scalare tra i due\footnote{In generale, il prodotto scalare tra due vettori $a$ e $b$ è definito come $a^T b$, dove $a^T$ è la trasposizione di $a$.} :
+Dati i vettori $x_i$ e $x_j$, un modo di definirne la similarità è il prodotto scalare tra i due\footnote{In generale, il prodotto scalare tra due vettori $a$ e $b$ è definito come $a^T b = \|a\| \, \|b\| \cos \theta$.} :
 \[
-\langle x_i, x_j \rangle = x_i^T x_j
+\langle x_i, x_j \rangle = x_i^T x_j = \|x_i\| \, \|x_j\| \cos\theta
 \]
+dove $\|x_i\|$ e $\|x_j\|$ sono le norme dei vettori $x_i$ e $x_j$, e $\theta$ è l'angolo tra i due vettori. Da questo si evince che la similarità tra i due vettori è massima quando sono paralleli (ovvero quando $\theta = 0$), e minima quando sono ortogonali (ovvero quando $\theta = 90^\circ$).
+
 Il valore di questo prodotto dipende dalla norma\footnote{La norma di un vettore è una misura della sua lunghezza o grandezza, come il modulo di un vettore in uno spazio euclideo.} dei due vettori. Questo permette di definire un iperpiano di separazione come l'insieme dei punti $x$ che soddisfano l'equazione:
 \[
 \langle w, x \rangle + b = 0
@@ -33,10 +36,17 @@ dove $w \in \mathbb{R}^d$ e $b \in \mathbb{R}$ sono rispettivamente il vettore d
 \subsection{Interpretazione geometrica}
 Come si vede in figura \ref{fig:svm_hyperplane}, il vettore $w$ è normale\footnote{Un vettore è normale a un iperpiano se è perpendicolare a ogni vettore che giace sull'iperpiano.} all'iperpiano e ne determina l'orientamento, mentre il termine $b$ ne stabilisce la posizione rispetto all'origine, separando i punti delle due classi sul lato positivo e su quello negativo. Questo è anche possibile dimostrarlo prendendo in considerazione due esempi $x_a, x_b$ giacenti sull'iperpiano:
 \begin{align*}
-	&f(x_a) = f(x_b) \\
-	\Rightarrow & f(x_a) - f(x_b) = 0 \\
-	\Rightarrow & \langle w, x_a \rangle + b - (\langle w, x_b \rangle + b) = 0 \\
-	\Rightarrow & \langle w, x_a - x_b \rangle = 0
+    &f(x_a) = f(x_b) \\
+    \Rightarrow \quad
+    &f(x_a) - f(x_b) = 0 \\
+    \Rightarrow \quad
+    &(\langle w, x_a \rangle + b) - (\langle w, x_b \rangle + b) = 0 \\
+    \Rightarrow \quad
+    &\langle w, x_a \rangle - \langle w, x_b \rangle = 0 
+    &(\text{poiché } b-b=0) \\
+    \Rightarrow \quad
+    &\langle w, x_a - x_b \rangle = 0 
+    &(\text{per linearità del prodotto scalare})
 \end{align*}
 
 Utilizzando l'equazione dell'iperpiano \eqref{eq:svm_hyperplane}, possiamo, per un certo esempio $x$ capire se si tratta di una classe positiva o negativa a seconda della regione in cui si trova rispetto all'iperpiano:
@@ -47,91 +57,145 @@ y =
 	-1 & \text{se } f(x) < 0
 \end{cases}
 \]
-dove $y$ è l'etichetta di classe associata all'esempio $x$ e $f(x)$ è l'equazione dell'iperpiano. Questo si può rappresentare in una singola equazione come:
+dove $y$ è l'etichetta di classe associata all'esempio $x$ e $f(x)$ è l'equazione dell'iperpiano. Questo si può rappresentare tramite la quantità chiamata \textbf{margine funzionale}:
+\begin{equation}
+\gamma(x) = y \, (\langle w, x \rangle + b).
+\label{eq:svm_functional_margin}
+\end{equation}
+Un esempio è correttamente classificato se
 \[
-y \cdot (\langle w, x \rangle + b) \geq 0
+y \, (\langle w, x \rangle + b) \ge 0.
 \]
-
 
 \section{Primal SVM}
 Questa formulazione delle SVM ha l'obiettivo di trovare quell'iperpiano che massimizza il margine tra le due classi. Ipotizziamo un dataset $\{(x_1, y_1), \ldots, (x_n, y_n)\}$ linearmente separabile, dove $x_i \in \mathbb{R}^d$ sono gli esempi e $y_i \in \{-1, +1\}$ sono le etichette di classe. Esistono infiniti iperpiani che possono separare le due classi, ma possiamo dire che un iperpiano è migliore di un altro se performa meglio sui dati di test. Formuliamo quindi un vero e proprio \textbf{problema di ottimizzazione}, cui risoluzione ci offrirà i valori ottimali di $w$ e $b$.
 
-\subsection{Concetto di margine}
-Per ottenere questo iperpiano, dobbiamo trovare quello che massimizza il margine: è la distanza che separa l'iperpiano dai punti dati \textbf{più vicini} di ciascuna classe. 
+\subsection{Concetto di margine}\label{sec:svm_margin}
 
-\paragraph{Scala dei dati.}
-Un problema di trovare le distanze minime è che non tutte le feature potrebbero avere la stessa scala di valori. Questo si può anche dimostrare matematicamente, dicendo che la scala dell'iperpiano dipende da $w$ e $b$. Infatti, se moltiplichiamo entrambi per una costante positiva $\alpha > 0$, otteniamo lo stesso iperpiano:
+Per ottenere questo iperpiano, dobbiamo trovare quello che massimizza
+il \textbf{margine}, ossia la distanza tra l'iperpiano di separazione
+e i punti del dataset più vicini ad esso.
+
+\paragraph{Invarianza di scala.}
+
+Un aspetto fondamentale è che l'iperpiano di separazione è invariante
+rispetto alla moltiplicazione dei parametri $w$ e $b$ per una costante
+positiva. Infatti, per ogni $\alpha > 0$,
+
 \[
 \langle \alpha w, x \rangle + \alpha b = 0
 \]
 
-Per risolere questo, si fissa una scala non sui dati ma direttamente sui parametri del modello. In particolare, preso un punto $x_a$ e la sua proiezione corrispondente sull'iperpiano $x_a'$ si può calcolare la distanza $r$ tra i due (ovvero tra il punto e l'iperpiano):
-\[
-r = \frac{1}{||w||}
-\]
-dove $||w||$ è la norma del vettore $w$. Questo valore $r$ è esattamente il \emph{margine}, o scala, che vogliamo fissare. Una volta trovato $R$ possiamo lavorare sulla distanza assoluta tra $x_a$ e $x_a'$:
-\[
-x_a = x_a' + r \frac{w}{||w||} = x_a' + r \hat{w}
-\]
-dove $\hat{w} = \frac{w}{||w||}$ è il versore nella direzione di $w$. Un altro modo di pensare $r$ è come la coordinata di $x_a$ nella direazione del sottospazio generato da $w/||w||$. 
+definisce lo stesso iperpiano dell'equazione
 
-
-Ricordando che vogliamo che gli esempi positivi siano al di sopra dell'iperpiano e quelli negativi al di sotto, possiamo scrivere la seguente condizione per ogni esempio $x_i$:
 \[
-y_i (\langle w, x_i \rangle + b) \geq r
+\langle w, x \rangle + b = 0.
 \]
 
-\begin{figure}
+Di conseguenza, anche la quantità
+\[
+y_i(\langle w, x_i \rangle + b)
+\]
+può essere scalata arbitrariamente senza modificare la frontiera
+di decisione. Per questo motivo, il margine funzionale non rappresenta
+una distanza geometrica intrinseca finché non si fissa una convenzione di scala.
+
+\paragraph{Margine geometrico.}
+
+Consideriamo ora un punto $x_a$ e la sua proiezione ortogonale
+$x'_a$ sull'iperpiano (Figura~\ref{fig:svm_margin}).
+
+Il vettore $w$ è normale all'iperpiano e determina la direzione
+perpendicolare ad esso. Il segmento che unisce $x'_a$ a $x_a$
+è parallelo a $w$ e può essere scritto come
+
+\[
+x_a = x'_a + r \frac{w}{\|w\|},
+\]
+
+dove $\frac{w}{\|w\|}$ è il versore nella direzione normale
+e $r$ è la distanza euclidea tra il punto e l'iperpiano.
+
+Poiché $x'_a$ appartiene all'iperpiano, vale
+
+\[
+\langle w, x'_a \rangle + b = 0.
+\]
+
+Sostituendo l'espressione di $x_a$ nell'equazione
+$\langle w,x_a\rangle + b$, otteniamo
+
+\[
+\langle w, x_a \rangle + b
+=
+\left\langle w, x'_a + r \frac{w}{\|w\|} \right\rangle + b
+=
+r \|w\|.
+\]
+
+Ne segue che la distanza $r$ può essere espressa come
+
+\[
+r = \frac{\langle w, x_a \rangle + b}{\|w\|}.
+\]
+
+Tenendo conto dell'etichetta $y_a \in \{-1,+1\}$,
+definiamo il \textbf{margine geometrico} dell'esempio $x_a$ come
+
+\[
+\gamma_a =
+\frac{y_a(\langle w,x_a\rangle + b)}{\|w\|}.
+\]
+
+Questa quantità rappresenta la distanza effettiva del punto
+dall'iperpiano, con segno coerente con la classe.
+
+Il margine dell'iperpiano rispetto all'intero dataset è quindi
+
+\[
+\gamma = \min_i
+\frac{y_i(\langle w,x_i\rangle + b)}{\|w\|}.
+\]
+
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{images/svm_margin_distance.png}
-    \caption{Distanza $r$ tra un punto $x_a$ e la sua proiezione $x_a'$ sull'iperpiano di separazione.}
+    \caption{Distanza $r$ tra un punto $x_a$ e la sua proiezione ortogonale $x'_a$ sull'iperpiano di separazione.}
     \label{fig:svm_margin}
 \end{figure}
 
-ovvero, un esempio positivo ($y_i = +1$) deve essere almeno a distanza $r$ dall'iperpiano, mentre un esempio negativo ($y_i = -1$) deve essere almeno a distanza $r$ dall'iperpiano sul lato opposto. 
+\paragraph{Fissare la scala del margine.}
 
-\paragraph{Margine unitario.} 
-Poiché siamo interessati unicamente alla direzione di $w$, possiamo imporre che il vettore dei pesi abbia norma unitaria, ovvero:
+Poiché l'iperpiano è invariante rispetto alla moltiplicazione di $w$ e $b$
+per una costante positiva, possiamo scegliere una convenzione di scala
+senza perdita di generalità.
+
+In particolare, possiamo imporre che il margine funzionale minimo
+sui dati sia pari a 1, ossia
+
 \[
-\|w\| = 1 .
+\min_i y_i(\langle w,x_i\rangle + b) = 1.
 \]
-Questa scelta non modifica l'orientamento dell'iperpiano, ma rende l'interpretazione del margine più immediata: con $\|w\| = 1$, la distanza $r$ coincide direttamente con lo spostamento lungo la direzione normale all'iperpiano.
-Con questa convenzione, la condizione
+
+Con questa scelta, il margine geometrico diventa
+
 \[
-y_i (\langle w, x_i \rangle + b) \ge r
+\gamma = \frac{1}{\|w\|}.
 \]
-impone che tutti gli esempi si trovino almeno a distanza $r$ dall'iperpiano, nel verso coerente con la loro etichetta. Questo vincolo compatto unifica i requisiti delle due classi: gli esempi positivi sono almeno a distanza $r$ nella direzione di $w$, mentre quelli negativi sono almeno a distanza $r$ nella direzione opposta. 
 
-Negli SVM, si può sempre assumere (senza perdita di generalità) che i vincoli siano
-$$
-y_n(\langle w, x_n\rangle + b) \geq 1
-$$
+Massimizzare il margine geometrico equivale quindi a minimizzare
+\(\|w\|\), o in modo equivalente
 
-\subsubsection{Approfondimento - dimostrazione del teorema del margine a 1}
+\[
+\min_{w,b} \frac{1}{2}\|w\|^2
+\quad
+\text{soggetto a}
+\quad
+y_i(\langle w,x_i\rangle + b) \ge 1.
+\]
 
-Imponiamo $\|w\| = 1$. Questo può essere scritto come $ \displaystyle w = \frac{w'}{\|w'\|}$, dove $w'$ è un vettore di parametri qualsiasi non normalizzato. Sostituendo nella formulazione iniziale, otteniamo
-
-$$
-y \left(\Big\langle \frac{w'}{\|w'\|}, x\Big\rangle + b\right) \geq r
-$$
-
-Noto che $r \geq 0$ in quanto una distanza euclidea, possiamo andare a dividere l'intero vincolo per $r$. Otteniamo:
-
-$$
-y \left(\Big\langle \frac{w'}{\|w'\|r}, x\Big\rangle + \underbrace{\frac{b}{r}}_{b''} \right) \geq 1
-$$
-
-Bene, adesso definiamo $\displaystyle \|w''\|
-= \left\|\frac{w'}{\|w'\| r}\right\|
-= \frac{1}{r}\,\frac{\|w'\|}{\|w'\|}
-= \frac{1}{r}, \Rightarrow r = \frac{1}{\| w''\|}$. \\
-Per facilitare la dimostrazione, imponiamo di dover massimizzare $r^2$, ossia  $\displaystyle\frac{1}{\|w''\|^2}$. Tuttavia, massimizzare questo valore, significa minimizzare  $\|w''\|^2$, o, per semplificare il lavorare con le derivate, equivale a minimizzare $\displaystyle\frac{1}{2} \|w''\|^2$.
-
-
-$$
-\min_{w'',b''} \frac12\|w\|^2 \qquad y (\langle w'', x\rangle + b'') \geq 1
-$$
-Data questa totale equivalenza, abbiamo dimostriamo il teorema.
+\noindent
+\textit{\textbf{Nota}: si può trovare un approfondimento sulla dimostrazione di questa equivalenza nella sezione \ref{sec:teorema_margine_1} del capitolo \ref{chap:approfondimenti_teorici}.}
 
 \section{Soft Margin SVM}
 Nel caso di dati non linearmente separabili, potremmo desiderare di permettere ad alcuni esempi di cadere all'interno dell'area del margine, o addirittura di finire dalla parte sbagliata dell'iperpiano. Il modello che permette alcuni errori di classificazzione, è detto \textbf{soft margin SVM}. Introduciamo una variabile, detta \textbf{variabile di slack}, indicata con $\xi_n$. Sottrarre questo termine, ci permetterà di rilassare i \textit{contrains} relativi alla classificazione, consentendo errori.
@@ -161,190 +225,106 @@ $$f(x) = \langle w, x \rangle + b$$
 
 dove il margine, coincide con il termine di regolarizzazione. Affrontiamo adesso l'argomento relativo alla loss function, che dovrà essere mirata al task principale del modello, ossia classificazione binaria. 
 
-\paragraph{Zero-One Loss}
-La \textbf{zero-one loss} potrebbe sembrare una buona idea: l'obiettivo è minimizzare il numero di mismatch tra la classe predetta e l'etichetta effettiva ($y$ e $\hat{y}$). Questa funzione è denotabile con
+\paragraph{Zero-One Loss.}
 
-$$
-\textbf{1}(f(x_n)) \neq y_n
-$$
+La \textbf{zero-one loss} misura se una predizione è corretta oppure no.
+L'obiettivo sarebbe minimizzare il numero di esempi per cui la classe
+predetta $\hat{y}_n = \mathrm{sign}(f(x_n))$ non coincide con
+l'etichetta reale $y_n$.
 
-per quanto l'idea sembra funzionare, questo rende il training un vero e proprio problema di ottimizzazione combinatorio, i quali sono tendenzialmente molto complessi da risolvere. Scartiamo quindi l'idea.
+Nel caso di classificazione binaria con $y_n \in \{-1,+1\}$,
+possiamo esprimere questa loss tramite la funzione indicatrice come
 
-\paragraph{Hinge Loss} Consideriamo l'errore tra l'output del predittore $f(x_n)$ e l'etichetta $y_n$. La funzione di loss deve descrivere l'errore commesso sui dati di training. Ci aspettiamo errore 0 se la predizione è corretta, ed è fuori dal margine. Una predizione corretta all'interno del margine dovrà comunque essere penalizzata. Una predizione sbagliata verrà penalizzata, come da atteso.
+\[
+\mathbf{1}\big(y_n f(x_n) \le 0\big).
+\]
 
-$$
-L(t) = \max\{0, 1-t\}\quad \text{con} \quad t = yf(x)= y(\langle w, x \rangle + b)
-$$
+Infatti:
+\begin{itemize}
+    \item se $y_n f(x_n) > 0$, la predizione è corretta;
+    \item se $y_n f(x_n) \le 0$, la predizione è errata.
+\end{itemize}
 
-È altrimenti formulabile come una funzione definita a tratti:
+Il rischio empirico associato diventa quindi
 
-$$
-L(t) = \begin{cases}
-0 \quad \text{se } t\geq 1\\
-0 \quad \text{se } t < 1\\
+\[
+\sum_{n=1}^{N}
+\mathbf{1}\big(y_n f(x_n) \le 0\big).
+\]
+
+Tuttavia, questa funzione è non continua e non convessa.
+Minimizzarla porta a un problema di ottimizzazione combinatorio,
+generalmente difficile da risolvere in modo efficiente.
+
+\paragraph{Hinge Loss.}
+
+La \textbf{hinge loss} è una funzione di perdita convessa che penalizza non solo le classificazioni errate, ma anche quelle corrette che si trovano troppo vicine all'iperpiano di separazione. L'idea è sostituire la zero-one loss con una funzione continua e convessa, più semplice da ottimizzare, che favorisca un margine ampio.
+
+Consideriamo l'errore tra l'output del predittore $f(x_n)$ e l'etichetta $y_n$. Ci aspettiamo loss nulla quando la predizione è corretta e si trova al di fuori del margine (cioè quando il vincolo di margine è soddisfatto). Una predizione corretta ma all'interno del margine viene comunque penalizzata, mentre una predizione errata riceve una penalizzazione maggiore.
+
+La hinge loss è definita come
+\[
+L(t) = \max\{0,\, 1-t\},
+\qquad
+t = y_n f(x_n) = y_n(\langle w, x_n \rangle + b).
+\]
+
+Equivalentemente, può essere scritta come funzione a tratti:
+\[
+L(t)=
+\begin{cases}
+0 & \text{se } t \ge 1,\\
+1-t & \text{se } t < 1.
 \end{cases}
-$$
+\]
 
-\newpage
+\section{Dual SVM}\label{sec:dual_svm}
 
-\section{Dual SVM}
-La formulazione di SVM descritta in precedenza, è nota come primal SVM. Ha variabili $w$ e $b$, e $w$ è di dimensione pari a $x \in \mathbb{R}^D$, con $D$ features. Ne consegue che il problema di ottimizzazione cresce linearmente all'aumentare del numero di features. La seguente formulazione, crescerà invece col numero di esempi del dataset, non dipendendo più dal numero di features. Sarà inoltre semplice applicarne dei kernel, per separare meglio dati non linearmente separabili. Chiarememo questa formulazione \textbf{Dual SVM}, e si presenterà così:
+La formulazione duale delle SVM si ottiene applicando i moltiplicatori
+di Lagrange alla formulazione primale. Invece di ottimizzare
+direttamente sui parametri $w$ e $b$, il problema viene riscritto
+in termini dei moltiplicatori $\alpha_n$, uno per ogni esempio
+del dataset.
 
-$$
-\begin{aligned}
-	&\min_{\alpha} && 
-	\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} 
-	y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
-	- \sum_{i=1}^{N} \alpha_i \\
-	&\text{soggetto a} && 
-	\sum_{i=1}^{N} y_i \alpha_i = 0, \\
-	& && 0 \le \alpha_i \le C \quad \text{per } i = 1,\dots, N .
-\end{aligned}
-$$
+Un risultato fondamentale è che il vettore dei pesi ottimale può
+essere espresso come combinazione lineare dei dati di training:
 
-\paragraph{Prerequisito matematico: Lagrangiani}
-Data una funzione $f$ da ottimizzare, e un insieme di condizioni $g_1, \dots, g_n$, un \textbf{Lagrangiano} è una funzione $\mathcal{L}(f,g_1, \dots, g_n, \alpha_1, \dots, \alpha_n)$ che incorpora le condizioni del problema di ottimizzazione:
+\[
+w = \sum_{n=1}^{N} \alpha_n y_n x_n.
+\]
 
-$$
-\mathcal{L}(f,\alpha_1,\ldots,\alpha_n)
-= f(x_1,\ldots,x_k) - \sum_{i=1}^{n} \alpha_i\, g_i(x_1,\ldots,x_k)
-$$
+Nel problema duale, la funzione obiettivo dipende esclusivamente
+dai prodotti scalari tra coppie di esempi:
 
-Ad esempio, se $f(w) = \displaystyle\frac{w^2}{2}$ e $\displaystyle g_1(w,x) : wx-1 \geq 0$, allora
+\[
+\langle x_i, x_j \rangle.
+\]
 
-$$
-\mathcal{L}(w,\alpha) = \frac{w^2}{2} - \alpha(wx-1), \quad \alpha \geq 0
-$$
+L'ottimizzazione avviene quindi rispetto agli $\alpha_n$,
+soggetti ai vincoli
 
-Si calcolano le varie derivate parziali rispetto alle variabili del Lagrangiano, in questo esempio $w$ e $\alpha$, e si impongono nulle. Si risolve poi il sistema di equazioni ottenuto, ottenendo i valori che soddisfano il problema. $\mathcal{L}$ dovrà essere massimizzata rispetto alle \textbf{variabili primarie} ($w$), ma minimizzata rispetto alle variabili duali ($\alpha$).
+\[
+\sum_{n=1}^{N} \alpha_n y_n = 0,
+\qquad
+0 \le \alpha_n \le C.
+\]
 
-$$
-L(f(w),\alpha) = \frac{w^{2}}{2} - \alpha(wx - 1), \quad \alpha \ge 0
-$$
+Questa formulazione ha due conseguenze importanti:
+\begin{itemize}
+    \item la complessità dipende dal numero di esempi $N$,
+    non dal numero di feature $D$;
+    \item poiché compaiono solo prodotti scalari tra dati,
+    è possibile sostituire $\langle x_i, x_j \rangle$
+    con una funzione kernel $K(x_i, x_j)$.
+\end{itemize}
 
-$$
-\frac{\partial L}{\partial w} = w - \alpha x = 0 \;\Rightarrow\; w = \alpha x
-$$
+Questa osservazione è alla base del \textbf{kernel trick}:
+lavorare implicitamente in uno spazio delle feature di dimensione
+maggiore senza doverlo costruire esplicitamente.
 
-$$
-\frac{\partial L}{\partial \alpha} = -wx = 0
-$$
-
-
-\subsection{Convex duality con Moltiplicatori di Lagrange}
-Dalle variabili della precedente formulazione, riprendiamo $w, b, \xi$. Usiamo $\alpha_n \geq 0$ come moltiplicatore corrispondente al constraint $y_n \big( \langle w, x_n \rangle + b \big) \ge 1 - \xi_n$, e $\gamma_n \geq 0$ come moltiplicatore di Lagrange corrispondente al vincolo di non negatività delle variabili di Slack. Il Lagrangiano è dato da
-
-$$
-\begin{aligned}
-\mathcal{L}(w,b,\xi,\alpha,\gamma)
-&= \frac{1}{2}\|w\|^{2} + C \sum_{n=1}^{N} \xi_n\\
-&- \sum_{n=1}^{N} \alpha_n \big( y_n (\langle w, x_n \rangle + b) - 1 + \xi_n \big)
-- \sum_{n=1}^{N} \gamma_n \xi_n .
-\end{aligned}
-$$
-
+\bigskip
 \noindent
-Riduciamo il Lagrangiano derivandolo rispetto alle variabili primali, ossia
-
-$$
-\begin{aligned}
-	\frac{\partial \mathcal{L}}{\partial w}
-	&= w^{\top} - \sum_{n=1}^{N} \alpha_n y_n x_n^{\top}, \\
-	\frac{\partial \mathcal{L}}{\partial b}
-	&= - \sum_{n=1}^{N} \alpha_n y_n , \\
-	\frac{\partial \mathcal{L}}{\partial \xi_n}
-	&= C - \alpha_n - \gamma_n .
-\end{aligned}
-$$
-
-E le imponiamo nulle, in modo da trovare il valore massimo del Lagrangiano. Dalla prime delle tre, otteniamo
-
-$$
-w = \sum_{n=1}^{N} \alpha_n y_n x_n
-$$
-
-osservando che il vettore dei pesi è una combinazione lineare di $x_n$, ossia degli esempi. Questa è una particolare istanza di \textbf{representer theorem}\footnote{Per molti problemi di apprendimento con regolarizzazione, la soluzione ottima può sempre essere scritta come combinazione dei dati di training.}. Sostituiamo $w$ nel Lagrangiano, ottenendo il Duale\footnote{Il problema duale è il problema di ottimizzazione espresso nelle variabili dei moltiplicatori di Lagrange, ottenuto minimizzando la Lagrangiana rispetto alle variabili originali. Per l’SVM, il duale vive sugli $\alpha_i$, usa solo prodotti scalari tra punti, e ci permette sia di usare i kernel sia di capire chi sono i support vector.}.
-
-$$
-\begin{aligned}
-\mathcal{D}(\xi,\alpha,\gamma)
-= &\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} 
-y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
-- \sum_{i=1}^{N} y_i \alpha_i 
-\left\langle \sum_{j=1}^{N} y_j \alpha_j x_j, x_i \right\rangle
-\\
-&+ C \sum_{i=1}^{N} \xi_i
-- b \sum_{i=1}^{N} y_i \alpha_i
-+ \sum_{i=1}^{N} \alpha_i
-- \sum_{i=1}^{N} \alpha_i \xi_i
-- \sum_{i=1}^{N} \gamma_i \xi_i 
-\end{aligned}
-$$
-
-Dalla seconda derivata delle tre posta a zero, otteniamo che $\sum_{n=1}^{N} y_b \alpha_n = 0$.  Inoltre, possiamo semplificare il termine
-
-$$
- \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} 
-y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
-- \sum_{i=1}^{N} y_i \alpha_i 
-\left\langle \sum_{j=1}^{N} y_j \alpha_j x_j, x_i \right\rangle
-\to
--\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
-y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
-$$
-
-\noindent
-Otteniamo quindi
-
-$$
-\mathcal{D}(\xi,\alpha,\gamma)
-= -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
-y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
-+ \sum_{i=1}^{N} \alpha_i
-+ \sum_{i=1}^{N} (C - \alpha_i - \gamma_i)\,\xi_i .
-$$
-
-Dalla terza derivata delle tre posta a zero, $C - \alpha_n - \gamma_n = 0$, possiamo annullare l'ultimo termine.
-
-$$
-\mathcal{D}(\xi,\alpha,\gamma)
-= -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
-y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
-+ \sum_{i=1}^{N} \alpha_i
-$$
-
-Ora, massimizzare il problema del duale è equivale a minimizzare il suo negativo. Arriviamo quindi alla formulazione del \textbf{Dual SVM}.
-
-$$
-\begin{aligned}
-	&\min_{\alpha} && 
-	\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N}
-	y_i y_j \alpha_i \alpha_j \langle x_i, x_j \rangle
-	- \sum_{i=1}^{N} \alpha_i \\
-	&\text{rispetto a} && 
-	\sum_{i=1}^{N} y_i \alpha_i = 0, \\
-	& && 0 \le \alpha_i \leq C \quad \text{per } i = 1,\dots,N .
-\end{aligned}
-$$
-
-$a_i \leq C$ si ottiene da $C = a_n + \gamma_n$, sapendo che $\gamma_n$ sono non negativi.
-
-\paragraph{Box Constraints} Indichiamo con questo nome l'insieme di disuguaglianze $0 \le \alpha_i \le C \quad\text{per } i=1,\dots,N$. Questi, limitano il vettore dei moltiplicatori di Lagrange $\alpha = [\alpha_1, \dots, \alpha_N]^\top\in \mathbb{R}^N$ in una "scatola" definita tra 0 e $C$ per ogni asse.
-
-\paragraph{Dal Duale al Primale} Una volta trovati i parametri $\alpha$, possiamo ottenere i parametri $w$ usando il \textbf{representer theorem}.
-
-$$
-w = \sum_{n=1}^{N} \alpha_n y_n x_n
-$$
-
-e indicheremo il suo valore ottimale con $w^*$. Per trovare invece $b^*$, dobbiamo trovare un punto sul margine, ossia $y_n(\langle w^*, x_n\rangle + b^*) = 1$. Calcoliamo il bias nel seguente modo
-
-$$
-b^* = y_n - \langle w^*, x_n\rangle
-$$
-
-
-\newpage
+\textit{\textbf{Nota}: questa parte è stata scritta solo per riuscire a capire meglio il kernel trick. Un approfondimento completo può essere trovato nella sezione \ref{sec:dual_svm_approfondimento} del capitolo \ref{chap:approfondimenti_teorici}.}
 
 \section{Kernel Trick}
 
