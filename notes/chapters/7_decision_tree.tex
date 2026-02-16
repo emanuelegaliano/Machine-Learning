@@ -54,13 +54,16 @@ H(m) = - \sum_{i} p_m^i \log_2(p_m^i)
 \]
 L'entropia misura l'incertezza associata alla distribuzione delle classi nel nodo. Un nodo puro ha \emph{entropia zero}, mentre un nodo con una distribuzione uniforme delle classi ha \emph{entropia massima}.
 
+\paragraph{Minimizzazione dell'impurità.}
+Sapendo che l'entropia è, quindi, una misura dell'impurità del nodo, per costruire un albero decisionale efficace è necessario scegliere l'attributo di split che minimizza l'entropia dei nodi figli dopo la divisione.
+
 \subsection{Algoritmo di costruzione dell'albero}
 \subsubsection*{Procedura ricorsiva}
 
 \begin{algorithm}[H]
 \caption{\textsc{GenerateTree}($\mathcal{X}$)}
 \begin{algorithmic}[1]
-\If{\textsc{NodeEntropy}($\mathcal{X}$) $< \theta_I$} \Comment{eq. (9.3)}
+\If{\textsc{NodeEntropy}($\mathcal{X}$) $< \theta_I$}
     \State \textbf{return} leaf labelled with majority class in $\mathcal{X}$
 \EndIf
 \State $i \gets$ \textsc{SplitAttribute}($\mathcal{X}$)
@@ -79,7 +82,7 @@ L'entropia misura l'incertezza associata alla distribuzione delle classi nel nod
 \For{$i = 1,\dots,d$}
     \If{$x_i$ is discrete with $n$ values}
         \State split $\mathcal{X}$ into $\mathcal{X}_1,\dots,\mathcal{X}_n$ by $x_i$
-        \State $e \gets$ \textsc{SplitEntropy}($\mathcal{X}_1,\dots,\mathcal{X}_n$) \Comment{eq. (9.8)}
+        \State $e \gets$ \textsc{SplitEntropy}($\mathcal{X}_1,\dots,\mathcal{X}_n$)
         \If{$e < \text{MinEnt}$}
             \State $\text{MinEnt} \gets e$;\;\; $\text{bestf} \gets i$
         \EndIf
@@ -118,6 +121,8 @@ dove $n$ è il numero di figli del nodo $m$ e $k$ è il numero di classi. L'entr
 Un albero di regressione è un modello predittivo utilizzato per stimare valori continui basati su un insieme di caratteristiche. A differenza degli alberi decisionali per la classificazione, che suddividono i dati in classi discrete, gli alberi di regressione suddividono i dati in intervalli continui e forniscono una stima numerica come output. 
 
 \subsection{Costruzione dell'albero di regressione}
+Uno dei problemi di un albero di regressione è che non abbiamo classi su cui basarci per la divisione dei nodi, ma abbiamo solo valori continui. Il problema quindi diventa "Come faccio a dividere i dati in modo che dentro ogni nodo i valori target siano il più simili possibile?" In altre parole, vogliamo che i valori target all'interno di ogni nodo siano il più possibile vicini tra loro, in modo da poter fornire una stima accurata per quel nodo.
+
 Ipotizziamo di avere un nodo $m$, con $\mathcal{X}_m$ che rappresenta l'insieme $\mathcal{X}$ delle tuple che raggiungono il nodo $m$. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in \mathcal{X}$ e $x$ raggiunge il nodo $m$. Possiamo definire:
 \[
 b_m(x) = 
@@ -128,7 +133,7 @@ b_m(x) =
 \]
 ovvero una funzione indicatrice che vale 1 se la tupla $x$ raggiunge il nodo $m$ e 0 altrimenti.
 
-Nella regressione, la \emph{goodness}\footnote{Qualità} di una divisione viene misurata utilizzando la somma dei quadrati degli errori (SSE, Sum of Squared Errors). Per un nodo $m$, la SSE è definita come:
+Nella regressione, la \emph{goodness}\footnote{Qualità} di una divisione viene misurata utilizzando la somma dei quadrati degli errori\footnote{O come alternativa, la varianza in quanto $\text{SSE} = N \cdot \text{Var}$.} (SSE, Sum of Squared Errors). Per un nodo $m$, la SSE è definita come:
 \[
 E_m = \frac{1}{N_m} \sum_{t} (y^t - \hat{y}_m)^2 \, b_m(x^t)
 \]
@@ -141,7 +146,7 @@ dove la somma è calcolata su tutte le tuple $t$ che raggiungono il nodo $m$. In
 \subsection{Divisione di un nodo}
 Per dividere un nodo $m$, si seleziona un attributo $A$ e una soglia di divisione. La divisione crea più figli per il nodo $m$, ciascuno corrispondente a un intervallo di valori dell'attributo $A$. Dopo la divisione, si calcola l'errore $E_m^j$ per ciascun figlio $j$ del nodo $m$. 
 
-Se l'errore $E_m$ viene ritenuto accettabile, ovvero $E_m < \theta_r$ per una certa soglia, si crea una foglia con la stima $\hat{y}_m$. Altrimenti, se l'errore non è accettabile, si procede viene diviso tante volte finché non si raggiunge una stima accettabile o si esauriscono gli attributi disponibili per la divisione. Si definisce $\mathcal{X}_{mj}$ come l'insieme delle tuple che raggiungono il figlio $j$ del nodo $m$ sottoinsieme di $\mathcal{X}_m$. Definiamo ulteriormente:
+Se l'errore $E_m$ viene ritenuto accettabile, ovvero $E_m < \theta_r$ per una certa soglia, si crea una foglia con la stima $\hat{y}_m$. Altrimenti, se l'errore non è accettabile, il nodo $m$ viene diviso tante volte finché non si raggiunge una stima accettabile o si esauriscono gli attributi disponibili per la divisione. Si definisce $\mathcal{X}_{mj}$ come l'insieme delle tuple che raggiungono il figlio $j$ del nodo $m$ sottoinsieme di $\mathcal{X}_m$. Definiamo ulteriormente:
 \[
 b_{mj}(x) =
 \begin{cases}
@@ -157,10 +162,10 @@ dove $N_{mj}$ è il numero di tuple che raggiungono il figlio $j$ del nodo $m$. 
 \[
 E^j_m = \frac{1}{N_m} \sum_{t} \sum_{j} (y^t - \hat{y}_{mj})^2 \, b_{mj}(x^t)
 \]
-dove la somma esterna è calcolata su tutte le tuple $t$ che raggiungono il nodo $m$ e la somma interna è calcolata su tutti i figli $j$ del nodo $m$. Ipotizziamo di avere un nodo m, con Xm che rappresenta l'insieme X delle tuple che raggiungono il nodo m. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in X$ e $x$ raggiunge il nodo $m$.
+dove la somma esterna è calcolata su tutte le tuple $t$ che raggiungono il nodo $m$ e la somma interna è calcolata su tutti i figli $j$ del nodo $m$. Ipotizziamo di avere un nodo m, con $X_m$ che rappresenta l'insieme X delle tuple che raggiungono il nodo m. Quindi è l'insieme di tutti quei nodi $x$ tali che $x \in X$ e $x$ raggiunge il nodo $m$.
 
 \section{Pruning: riduzione dell'albero}
-Il pruning è una tecnica utilizzata per ridurre la complessità di un albero decisionale (di classificazione) o di regressione, al fine di migliorare la sua capacità di generalizzazione sui dati non visti. Durante la costruzione dell'albero, è possibile che si creino nodi che si adattano troppo strettamente ai dati di addestramento, portando ad \emph{overfitting}. Il pruning mira a rimuovere questi nodi superflui, semplificando l'albero e migliorando le prestazioni sui dati di test.
+Il pruning è una tecnica utilizzata per ridurre la complessità di un albero decisionale (di classificazione o di regressione), al fine di migliorare la sua capacità di generalizzazione sui dati non visti. Durante la costruzione dell'albero, è possibile che si creino nodi che si adattano troppo strettamente ai dati di addestramento, portando ad \emph{overfitting}. Il pruning mira a rimuovere questi nodi superflui, semplificando l'albero e migliorando le prestazioni sui dati di test.
 
 \begin{figure}[htbp]
     \centering
