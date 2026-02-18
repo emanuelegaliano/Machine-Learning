@@ -1,4 +1,4 @@
-\chapter{Random Forests, Ferns, Meta-Algoritmi}
+\chapter{Random Forests, Ferns, Meta-Algoritmi}\label{chap:random_forest}
 
 \section{Meta algoritmi nel machine learning}
 Un meta-algoritmo, nel contesto del machine learning, rappresenta un modo di combinare più modelli, detti \textit{weak learner} (weak perché sono modelli più semplici e meno potenti). Tra questi, studiamo:
@@ -27,108 +27,16 @@ Trattiamo questi meta-algoritmi, in quanto permettono di ottenere dei modelli st
 \section{Decision Trees}
 Applichiamo la \textbf{tree hierarchy} sui nostri decision stump, ottenendo una gerarchia di decisioni. Tramite una serie di domande di tipo "yes/no", o varie sogliature, diventa possibile classificare categorie sempre più specifiche. Ogni coppia di risultati di un nodo di un decision tree, è detta \textit{split}. La profondità (direttamente proporzionale al numero di split), definisce la complessità del modello. Alberi decisionali troppo profondi rischiado di cadere in overfitting.
 
-\section{Random Ferns}
+\section{Random Ferns}\label{sec:random_ferns}
+Le \textbf{Random Ferns} sono una variante semplificata dei decision trees, progettata per essere particolarmente efficiente in termini di tempo di addestramento e predizione. Invece di costruire un albero completo con molteplici livelli di split, i random ferns consistono in un insieme di "ferns" (felce), ognuno dei quali è costituito da un numero fisso di stumps (domande binarie). Ogni fern è quindi una struttura piatta, senza gerarchia, che valuta un insieme di feature in parallelo.
 
-Le \textbf{Random Ferns} sono un metodo di classificazione progettato per il riconoscimento di patch locali attorno a keypoint, con l’obiettivo di ottenere un sistema estremamente veloce, scalabile e adatto al real-time.
+Ogni fern produce una distribuzione di probabilità sulle classi target, basata sulle risposte alle domande binarie. La combinazione di più ferns permette di ottenere una stima complessiva della probabilità di appartenenza a ciascuna classe, rendendo questo approccio particolarmente adatto per compiti di classificazione rapida, come il riconoscimento di immagini.
 
-L’idea di fondo è riformulare il problema del matching tra keypoint come un problema di classificazione probabilistica. 
-Ogni keypoint stabile osservato in fase di training viene considerato come una classe $c_i$. 
-Data una nuova patch $x$, vogliamo assegnarla alla classe più probabile:
-
-\[
-\hat{c} = \arg\max_{c_i} P(C = c_i \mid f_1, \dots, f_N)
-\]
-
-dove $f_1, \dots, f_N$ sono feature binarie calcolate sulla patch.
-
-\subsection{Feature binarie}
-
-Le feature utilizzate sono estremamente semplici: ciascuna consiste in un confronto tra l’intensità di due pixel della patch:
-
-\[
-f_j =
-\begin{cases}
-1 & \text{se } I(d_{j,1}) < I(d_{j,2}) \\
-0 & \text{altrimenti}
-\end{cases}
-\]
-
-Queste feature sono scelte casualmente e in numero elevato ($N$ può essere dell’ordine di alcune centinaia). 
-La discriminatività non deriva dalla singola feature, ma dall’aggregazione di molte di esse.
-
-\subsection{Formulazione probabilistica}
-
-Applicando il teorema di Bayes:
-
-\[
-P(C = c_i \mid f_1, \dots, f_N)
-=
-\frac{
-P(f_1, \dots, f_N \mid C = c_i)\, P(C = c_i)
-}{
-P(f_1, \dots, f_N)
-}
-\]
-
-Assumendo prior uniformi sulle classi e ignorando il denominatore (comune a tutte), la decisione si riduce a:
-
-\[
-\hat{c} = \arg\max_{c_i} P(f_1, \dots, f_N \mid C = c_i)
-\]
-
-Il problema è che modellare la distribuzione congiunta completa richiederebbe stimare $2^N$ configurazioni per classe, il che è costoso per $N$ grande.
-
-\subsection{Approccio Semi-Naive Bayes}
-
-Per rendere il problema trattabile si introduce un compromesso tra indipendenza totale e modellazione completa.
-
-Le $N$ feature vengono suddivise in $M$ gruppi (detti \emph{ferns}), ciascuno di dimensione $S$:
-
-\[
-F_k = \{ f_{\sigma(k,1)}, \dots, f_{\sigma(k,S)} \}
-\]
-
-Si assume indipendenza tra gruppi diversi, ma si modella la distribuzione congiunta completa all’interno di ciascun gruppo:
-
-\[
-P(f_1, \dots, f_N \mid C=c_i)
-=
-\prod_{k=1}^{M}
-P(F_k \mid C=c_i)
-\]
-
-Ogni fern può assumere $2^S$ configurazioni binarie. 
-Il numero di parametri per classe diventa quindi:
-
-\[
-M \cdot 2^S
-\]
-
-che è gestibile per valori tipici come $S \approx 10$–$11$ e $M$ dell’ordine di alcune decine.
-
-\subsection{Stima delle probabilità}
-
-Durante il training si stimano le probabilità
-
-\[
-P(F_k = r \mid C=c_i)
-\]
-
-tramite conteggi sulle patch di training (spesso generate applicando trasformazioni affini casuali per aumentare la robustezza).
-
-Per evitare probabilità nulle si utilizza una regolarizzazione di tipo additivo:
-
-\[
-P(F_k = r \mid C=c_i)
-=
-\frac{N_{r,c_i} + \alpha}
-     {N_{c_i} + 2^S \alpha}
-\]
-
-dove $\alpha > 0$ è un parametro di smoothing.
+\bigskip
+\noindent
+\textit{\textbf{Nota:} può essere trovato un approfondimento sulle Random Ferns nel capitolo \ref{chap:approfondimenti_teorici}, sezione \ref{sec:random_ferns_idea}.}
 
 \section{Random Tree}
-
 Un \textbf{Random Tree} è una variante del classico decision tree in cui la costruzione dell’albero non avviene in modo completamente deterministico, ma introduce una componente di casualità nella scelta degli split. 
 
 Negli alberi decisionali standard, per ogni nodo si valutano sistematicamente tutte le possibili feature (e spesso tutte le possibili soglie) selezionando quella che massimizza la riduzione dell’impurità. In un random tree, invece, non si esplora l’intero spazio delle possibilità: si genera un insieme limitato di proposte casuali e si sceglie la migliore tra queste.

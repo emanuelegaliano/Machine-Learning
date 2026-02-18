@@ -340,3 +340,104 @@ Da cui possiamo ricavare
 \[
 b^* = y_n - \langle w^*, x_n\rangle.
 \]
+
+\section{L'idea dietro le Random Ferns}\label{sec:random_ferns_idea}
+\textit{Questa parte è tratta dal capitolo \ref{chap:random_forest} nella sezione \ref{sec:random_ferns}.}
+
+\bigskip
+\noindent
+L’idea di fondo è riformulare il problema del matching tra keypoint come un problema di classificazione probabilistica. 
+Ogni keypoint stabile osservato in fase di training viene considerato come una classe $c_i$. 
+Data una nuova patch $x$, vogliamo assegnarla alla classe più probabile:
+
+\[
+\hat{c} = \arg\max_{c_i} P(C = c_i \mid f_1, \dots, f_N)
+\]
+
+dove $f_1, \dots, f_N$ sono feature binarie calcolate sulla patch.
+
+\subsection{Feature binarie}
+
+Le feature utilizzate sono estremamente semplici: ciascuna consiste in un confronto tra l’intensità di due pixel della patch:
+
+\[
+f_j =
+\begin{cases}
+1 & \text{se } I(d_{j,1}) < I(d_{j,2}) \\
+0 & \text{altrimenti}
+\end{cases}
+\]
+
+Queste feature sono scelte casualmente e in numero elevato ($N$ può essere dell’ordine di alcune centinaia). 
+La discriminatività non deriva dalla singola feature, ma dall’aggregazione di molte di esse.
+
+\subsection{Formulazione probabilistica}
+
+Applicando il teorema di Bayes:
+
+\[
+P(C = c_i \mid f_1, \dots, f_N)
+=
+\frac{
+P(f_1, \dots, f_N \mid C = c_i)\, P(C = c_i)
+}{
+P(f_1, \dots, f_N)
+}
+\]
+
+Assumendo prior uniformi sulle classi e ignorando il denominatore (comune a tutte), la decisione si riduce a:
+
+\[
+\hat{c} = \arg\max_{c_i} P(f_1, \dots, f_N \mid C = c_i)
+\]
+
+Il problema è che modellare la distribuzione congiunta completa richiederebbe stimare $2^N$ configurazioni per classe, il che è costoso per $N$ grande.
+
+\subsection{Approccio Semi-Naive Bayes}
+
+Per rendere il problema trattabile si introduce un compromesso tra indipendenza totale e modellazione completa.
+
+Le $N$ feature vengono suddivise in $M$ gruppi (detti \emph{ferns}), ciascuno di dimensione $S$:
+
+\[
+F_k = \{ f_{\sigma(k,1)}, \dots, f_{\sigma(k,S)} \}
+\]
+
+Si assume indipendenza tra gruppi diversi, ma si modella la distribuzione congiunta completa all’interno di ciascun gruppo:
+
+\[
+P(f_1, \dots, f_N \mid C=c_i)
+=
+\prod_{k=1}^{M}
+P(F_k \mid C=c_i)
+\]
+
+Ogni fern può assumere $2^S$ configurazioni binarie. 
+Il numero di parametri per classe diventa quindi:
+
+\[
+M \cdot 2^S
+\]
+
+che è gestibile per valori tipici come $S \approx 10$-$11$ e $M$ dell’ordine di alcune decine.
+
+\subsection{Stima delle probabilità}
+
+Durante il training si stimano le probabilità
+
+\[
+P(F_k = r \mid C=c_i)
+\]
+
+tramite conteggi sulle patch di training (spesso generate applicando trasformazioni affini casuali per aumentare la robustezza).
+
+Per evitare probabilità nulle si utilizza una regolarizzazione di tipo additivo:
+
+\[
+P(F_k = r \mid C=c_i)
+=
+\frac{N_{r,c_i} + \alpha}
+     {N_{c_i} + 2^S \alpha}
+\]
+
+dove $\alpha > 0$ è un parametro di smoothing.
