@@ -86,28 +86,6 @@ Sia il training set $(X,y)=\{(x_i,y_i)\}_{i=1}^n$ e sia $T$ il numero di iterazi
 I pesi al passo $t$ sono $w_t=(w_{t,1},\dots,w_{t,n})$ e $h_t$ è il modello allenato al passo $t$.
 
 \subsection{Algoritmo}
-
-\begin{algorithm}[htbp]
-\caption{AdaBoost}
-\begin{algorithmic}[1]
-\Require Training set $\{(x_i,y_i)\}_{i=1}^n$ with $y_i\in\{-1,+1\}$, number of rounds $T$
-\Ensure Final hypothesis $H$
-
-\State Initialize $w_{1,i} \gets \frac{1}{n}$ for $i=1,\ldots,n$
-\For{$t=1,\ldots,T$}
-    \State Train weak learner $h_t$ on $\{(x_i,y_i)\}_{i=1}^n$ using weights $w_t$
-    \State $\varepsilon_t \gets \sum_{i: y_i \neq h_t(x_i)} w_{t,i}$
-    \State $\alpha_t \gets \frac{1}{2}\ln\left(\frac{1-\varepsilon_t}{\varepsilon_t}\right)$
-    \For{$i=1,\ldots,n$}
-        \State $w_{t+1,i} \gets w_{t,i}\exp\!\big(-\alpha_t\,y_i\,h_t(x_i)\big)$
-    \EndFor
-    \State Normalize: $w_{t+1,i} \gets \frac{w_{t+1,i}}{\sum_{j=1}^n w_{t+1,j}}$ for $i=1,\ldots,n$
-\EndFor
-\State \Return $H(x) = \operatorname{sign}\left(\sum_{t=1}^T \alpha_t h_t(x)\right)$
-\end{algorithmic}
-\end{algorithm}
-
-\noindent
 Si può descrivere cosa fanno i vari passi dell'algoritmo in questo modo:
 
 \begin{enumerate}
@@ -165,17 +143,39 @@ H(x)=\operatorname{sign}\left(\sum_{t=1}^{T}\alpha_t h_t(x)\right).
 Interpretazione: è un voto pesato (somma pesata delle predizioni); la $\operatorname{sign}(\cdot)$ restituisce la classe finale.
 \end{enumerate}
 
-\subsection{Decision Boundary}
-Il decision boundary di un discrimnatore è la \textbf{frontiera} che separa le diverse classi nello spazio delle caratteristiche. Ovvero quel valore per il classificatore è "indeciso" tra le due classi.
+\begin{algorithm}[htbp]
+\caption{AdaBoost}
+\begin{algorithmic}[1]
+\Require Training set $\{(x_i,y_i)\}_{i=1}^n$ with $y_i\in\{-1,+1\}$, number of rounds $T$
+\Ensure Final hypothesis $H$
 
-In Adaboost il decision boundary evolve man mano che si aggiungono nuovi weak learners all'ensemble. All'inizio, con pochi weak learners, il decision boundary può essere semplice e lineare. Man mano che si aggiungono più weak learners, il decision boundary diventa più complesso e capace di catturare le caratteristiche non lineari dei dati.
+\State Initialize $w_{1,i} \gets \frac{1}{n}$ for $i=1,\ldots,n$
+\For{$t=1,\ldots,T$}
+    \State Train weak learner $h_t$ on $\{(x_i,y_i)\}_{i=1}^n$ using weights $w_t$
+    \State $\varepsilon_t \gets \sum_{i: y_i \neq h_t(x_i)} w_{t,i}$
+    \State $\alpha_t \gets \frac{1}{2}\ln\left(\frac{1-\varepsilon_t}{\varepsilon_t}\right)$
+    \For{$i=1,\ldots,n$}
+        \State $w_{t+1,i} \gets w_{t,i}\exp\!\big(-\alpha_t\,y_i\,h_t(x_i)\big)$
+    \EndFor
+    \State Normalize: $w_{t+1,i} \gets \frac{w_{t+1,i}}{\sum_{j=1}^n w_{t+1,j}}$ for $i=1,\ldots,n$
+\EndFor
+\State \Return $H(x) = \operatorname{sign}\left(\sum_{t=1}^T \alpha_t h_t(x)\right)$
+\end{algorithmic}
+\end{algorithm}
 
-\paragraph{Esempio su dataset two moons.}
-Si può fare un esempio con AdaBoost su un dataset sintetico \emph{two moons} per visualizzare l'evoluzione del decision boundary al crescere del numero di iterazioni. Come weak learner si può usare un \emph{decision stump} (albero di decisione di profondità 1), che fanno una sola divisione lineare.
+\subsection{Caso studio: Two moons dataset}
+Il dataset \emph{two moons} è un dataset sintetico molto utilizzato per testare algoritmi di classificazione, in particolare quelli che devono catturare relazioni non lineari tra le caratteristiche. Il dataset è composto da due classi a forma di mezzaluna che si intrecciano, rendendo difficile la separazione lineare.
+
+Per il funzionamento che ha AdaBoost, questo dataset è particolarmente interessante perché mostra come l'algoritmo possa costruire un ensemble di weak learners (ad esempio, decision stumps) che, combinati, riescono a catturare la complessità del dataset e a separare efficacemente le due classi (nonostante ogni weak learner sia lineare e non sia in grado di separare le classi da solo).
+
+\paragraph{Decision boundary.}
+Questo avviene perché AdaBoost, iterativamente, si concentra sugli esempi più difficili (quelli vicini alla frontiera di decisione) e costruisce weak learners che cercano di correggere gli errori dei modelli precedenti. 
+
+Ricordando che il Decision Boundary di un classificatore è la frontiera che separa le diverse classi nello spazio delle caratteristiche, in AdaBoost questa frontiera evolve man mano che si aggiungono nuovi weak learners all'ensemble. All'inizio, con pochi weak learners, il decision boundary può essere semplice e lineare. Man mano che si aggiungono più weak learners, il decision boundary diventa più complesso e capace di catturare le caratteristiche non lineari dei dati, come nel caso del dataset two moons.
 
 Nella Figura \ref{fig:adaboost-boundaries} si mostra come il decision boundary di AdaBoost cambia dopo diverse iterazioni (1, 12, 25 e 50). Si può notare che inizialmente il boundary è semplice e lineare, ma con l'aggiunta di più weak learners diventa sempre più complesso, riuscendo a catturare la forma non lineare del dataset.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{images/adaboost_boundaries.png}
     \caption{Evoluzione del decision boundary di AdaBoost al crescere del numero di iterazioni. 
