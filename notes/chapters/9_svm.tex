@@ -71,91 +71,67 @@ y \, (\langle w, x \rangle + b) \ge 0.
 Questa formulazione delle SVM ha l'obiettivo di trovare quell'iperpiano che massimizza il margine tra le due classi. Ipotizziamo un dataset $\{(x_1, y_1), \ldots, (x_n, y_n)\}$ linearmente separabile, dove $x_i \in \mathbb{R}^d$ sono gli esempi e $y_i \in \{-1, +1\}$ sono le etichette di classe. Esistono infiniti iperpiani che possono separare le due classi, ma possiamo dire che un iperpiano è migliore di un altro se performa meglio sui dati di test. Formuliamo quindi un vero e proprio \textbf{problema di ottimizzazione}, cui risoluzione ci offrirà i valori ottimali di $w$ e $b$.
 
 \subsection{Concetto di margine}\label{sec:svm_margin}
-
-Per ottenere questo iperpiano, dobbiamo trovare quello che massimizza
-il \textbf{margine}, ossia la distanza tra l'iperpiano di separazione
-e i punti del dataset più vicini ad esso.
+L’idea chiave delle SVM (nel caso linearmente separabile) è scegliere, tra i molti iperpiani separatori possibili, quello che \emph{massimizza il margine}, cioè la distanza tra l’iperpiano di decisione e gli esempi più vicini (i futuri \emph{support vectors}). Per formalizzare questa intuizione dobbiamo però chiarire un punto tecnico: \emph{a quale scala} misuriamo questa distanza?
 
 \paragraph{Invarianza di scala.}
-
-Un aspetto fondamentale è che l'iperpiano di separazione è invariante
-rispetto alla moltiplicazione dei parametri $w$ e $b$ per una costante
-positiva. Infatti, per ogni $\alpha > 0$,
-
+L’iperpiano
 \[
-\langle \alpha w, x \rangle + \alpha b = 0
+\langle w, x\rangle + b = 0
 \]
-
-definisce lo stesso iperpiano dell'equazione
-
+non cambia se moltiplichiamo \emph{entrambi} i parametri per una costante positiva $\alpha>0$:
 \[
-\langle w, x \rangle + b = 0.
+\langle \alpha w, x\rangle + \alpha b = 0
+\quad\Longleftrightarrow\quad
+\langle w, x\rangle + b = 0.
 \]
+Quindi, se non fissiamo una convenzione di scala, quantità come $\langle w,x\rangle+b$ (e derivate) possono essere rese arbitrariamente grandi o piccole senza modificare la frontiera di decisione. Per evitare ambiguità, nella derivazione geometrica fissiamo la scala \emph{normalizzando} il vettore normale all’iperpiano, cioè imponendo $\|w\|=1$ (norma euclidea).
 
-Di conseguenza, anche la quantità
+\paragraph{Distanza punto-iperpiano (proiezione ortogonale).}
+Consideriamo un esempio $x_a$ e la sua proiezione ortogonale $x'_a$ sull’iperpiano (Figura~\ref{fig:svm_margin}). Poiché $w$ è normale all’iperpiano, il segmento che unisce $x'_a$ a $x_a$ è parallelo a $w$. Introduciamo allora una distanza $r>0$ tale che
 \[
-y_i(\langle w, x_i \rangle + b)
+x_a = x'_a + r\,\frac{w}{\|w\|}.
 \]
-può essere scalata arbitrariamente senza modificare la frontiera
-di decisione. Per questo motivo, il margine funzionale non rappresenta
-una distanza geometrica intrinseca finché non si fissa una convenzione di scala.
+Se imponiamo $\|w\|=1$, il termine $\frac{w}{\|w\|}$ è un versore e $r$ coincide con la distanza euclidea tra $x_a$ e l’iperpiano.
 
-\paragraph{Margine geometrico.}
+Poiché $x'_a$ giace sull’iperpiano, vale $\langle w,x'_a\rangle+b=0$. Sostituendo $x'_a = x_a - r\frac{w}{\|w\|}$ otteniamo
+\begin{align*}
+\Big\langle w, x_a - r\frac{w}{\|w\|}\Big\rangle + b 
+&= 0 
+\\
+\Longleftrightarrow \quad
+\langle w, x_a\rangle 
+- r \left\langle w, \frac{w}{\|w\|} \right\rangle 
++ b 
+&= 0 
+\\
+\Longleftrightarrow \quad
+\langle w, x_a\rangle 
+- r \frac{\langle w,w\rangle}{\|w\|} 
++ b 
+&= 0 
+\\
+\Longleftrightarrow \quad
+\langle w, x_a\rangle 
+- r \frac{\|w\|^2}{\|w\|} 
++ b 
+&= 0 
+\\
+\Longleftrightarrow \quad
+\langle w, x_a\rangle 
+- r \|w\| 
++ b 
+&= 0 
+\\
+\Longleftrightarrow \quad
+\langle w, x_a\rangle + b 
+&= r\,\|w\| 
+\end{align*}
 
-Consideriamo ora un punto $x_a$ e la sua proiezione ortogonale
-$x'_a$ sull'iperpiano (Figura~\ref{fig:svm_margin}).
-
-Il vettore $w$ è normale all'iperpiano e determina la direzione
-perpendicolare ad esso. Il segmento che unisce $x'_a$ a $x_a$
-è parallelo a $w$ e può essere scritto come
-
+Con la normalizzazione $\|w\|=1$ segue semplicemente
 \[
-x_a = x'_a + r \frac{w}{\|w\|},
+r = \langle w,x_a\rangle + b.
 \]
-
-dove $\frac{w}{\|w\|}$ è il versore nella direzione normale
-e $r$ è la distanza euclidea tra il punto e l'iperpiano.
-
-Poiché $x'_a$ appartiene all'iperpiano, vale
-
-\[
-\langle w, x'_a \rangle + b = 0.
-\]
-
-Sostituendo l'espressione di $x_a$ nell'equazione
-$\langle w,x_a\rangle + b$, otteniamo
-
-\[
-\langle w, x_a \rangle + b
-=
-\left\langle w, x'_a + r \frac{w}{\|w\|} \right\rangle + b
-=
-r \|w\|.
-\]
-
-Ne segue che la distanza $r$ può essere espressa come
-
-\[
-r = \frac{\langle w, x_a \rangle + b}{\|w\|}.
-\]
-
-Tenendo conto dell'etichetta $y_a \in \{-1,+1\}$,
-definiamo il \textbf{margine geometrico} dell'esempio $x_a$ come
-
-\[
-\gamma_a =
-\frac{y_a(\langle w,x_a\rangle + b)}{\|w\|}.
-\]
-
-Questa quantità rappresenta la distanza effettiva del punto
-dall'iperpiano, con segno coerente con la classe.
-
-Il margine dell'iperpiano rispetto all'intero dataset è quindi
-
-\[
-\gamma = \min_i
-\frac{y_i(\langle w,x_i\rangle + b)}{\|w\|}.
-\]
+In altre parole, quando $\|w\|=1$, il valore della funzione affine $f(x)=\langle w,x\rangle+b$ (sul lato positivo) misura direttamente la distanza geometrica dall’iperpiano.
 
 \begin{figure}[htbp]
     \centering
@@ -164,36 +140,42 @@ Il margine dell'iperpiano rispetto all'intero dataset è quindi
     \label{fig:svm_margin}
 \end{figure}
 
-\paragraph{Fissare la scala del margine.}
-
-Poiché l'iperpiano è invariante rispetto alla moltiplicazione di $w$ e $b$
-per una costante positiva, possiamo scegliere una convenzione di scala
-senza perdita di generalità.
-
-In particolare, possiamo imporre che il margine funzionale minimo
-sui dati sia pari a 1, ossia
-
+\paragraph{Il margine come vincolo sui dati.}
+Vogliamo che \emph{tutti} gli esempi siano correttamente classificati e si trovino almeno a distanza $r$ dall’iperpiano, sul lato coerente con l’etichetta. Questo si esprime in un’unica disuguaglianza:
 \[
-\min_i y_i(\langle w,x_i\rangle + b) = 1.
+y_n\big(\langle w,x_n\rangle + b\big) \ge r,
+\qquad n=1,\dots,N,
 \]
-
-Con questa scelta, il margine geometrico diventa
-
+dove $r>0$ è il margine (distanza del punto più vicino). A questo punto l’obiettivo è massimizzare $r$, mantenendo la normalizzazione $\|w\|=1$. Otteniamo quindi il problema di ottimizzazione (hard margin, vista geometrica):
 \[
-\gamma = \frac{1}{\|w\|}.
-\]
-
-Massimizzare il margine geometrico equivale quindi a minimizzare
-\(\|w\|\), o in modo equivalente
-
-\[
-\min_{w,b} \frac{1}{2}\|w\|^2
+\max_{w,b,r}\; r
 \quad
-\text{soggetto a}
-\quad
-y_i(\langle w,x_i\rangle + b) \ge 1.
+\text{soggetto a}\quad
+y_n(\langle w,x_n\rangle + b)\ge r,\;\; \|w\|=1,\;\; r>0.
 \]
+Questo formalizza esattamente l’idea: scegliere l’iperpiano che “separa di più” le due classi, cioè quello che lascia il cuscinetto (margin) più ampio attorno alla frontiera di decisione.
 
+\subsection{Derivazione tradizionale}\label{sec:svm_traditional_derivation}
+Un modo equivalente per arrivare alla formulazione \emph{primal} consiste nel fissare la scala in maniera diversa: invece di imporre $\|w\|=1$, si scala $(w,b)$ in modo che il (o uno dei) punti più vicini all’iperpiano soddisfi
+\[
+\langle w, x_a\rangle + b = 1,
+\]
+cioè si pone il margine “a unità” sulle ipersuperfici parallele $\langle w,x\rangle+b=\pm 1$. Con questa convenzione si ricava che la distanza geometrica del punto più vicino (il margine) risulta proporzionale a $\tfrac{1}{\|w\|}$, quindi massimizzare il margine equivale a minimizzare la norma di $w$.
+
+In questa scala, la corretta classificazione con margine unitario si scrive come
+\[
+y_n(\langle w,x_n\rangle + b)\ge 1,\qquad n=1,\dots,N.
+\]
+Il problema di ottimizzazione finale (hard margin SVM) diventa quindi
+\[
+\min_{w,b}\; \frac{1}{2}\|w\|^2
+\quad
+\text{soggetto a}\quad
+y_n(\langle w,x_n\rangle + b)\ge 1,\;\; n=1,\dots,N,
+\]
+dove il termine $\tfrac12\|w\|^2$ è scelto per comodità analitica (derivate più “pulite”) senza cambiare il minimizzatore.
+
+\medskip
 \noindent
 \textit{\textbf{Nota}: si può trovare un approfondimento sulla dimostrazione di questa equivalenza nella sezione \ref{sec:teorema_margine_1} del capitolo \ref{chap:approfondimenti_teorici}.}
 
