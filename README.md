@@ -90,32 +90,20 @@ Bibliographic references used throughout the manuscript.
 This section contains projects developed and discussed in the notes.
 
 Each project is written in LaTeX and included in the final compiled PDF.
+---
 
-## Template for Future Projects
-
-### Project Title
+## [**MRI Diagnostics**](https://github.com/Diego54523/unict-ml-year-2025-group-5-ReLU-tanti)
 
 **Description:**
-Brief description of the problem addressed.
+This project focuses on developing and evaluating machine learning models for **medical MRI diagnostics**, specifically aiming to classify and interpret MRI scans for diagnostic purposes. The work explores deep learning architectures and training strategies to improve automated analysis of MRI images.
 
 **Objective:**
-Explain the learning task (classification, regression, etc.).
-
-**Methods Used:**
-List of algorithms, models, or techniques applied.
-
-**Results:**
-Summary of experimental findings.
+The main learning task is **medical image classification**, where the goal is to train a model capable of accurately identifying pathological features in MRI scans. This involves supervised learning using labeled medical imaging datasets.
 
 **Files:**
 
-* `projects/project-name.tex`
-* Associated datasets (if any)
-* Supporting scripts (if any)
-
----
-
-(Currently included projects are located in the `projects/` directory.)
+* `projects/mri-classification.tex`
+* Associated dataset directories and preprocessing scripts within the linked repository
 
 ---
 
