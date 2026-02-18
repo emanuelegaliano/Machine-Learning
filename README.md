@@ -83,11 +83,6 @@ All figures used in the notes (plots, diagrams, illustrations, schemas).
 ## `refs.bib`
 
 Bibliographic references used throughout the manuscript.
-
-## `out/`
-
-Compilation output directory (ignored via `.gitignore`).
-
 ---
 
 # 🧪 Projects
