@@ -227,6 +227,10 @@ RIPPER (Repeated Incremental Pruning to Produce Error Reduction) è un algoritmo
 \end{algorithmic}
 \end{algorithm}
 
+$Pos$ e $Neg$ rappresentano rispettivamente le istanze positive e negative del dataset, e $k$ è il numero di iterazioni di ottimizzazione da eseguire. L'algoritmo inizia con l'apprendimento di un insieme iniziale di regole utilizzando la funzione \textsc{LearnRuleSet}, che genera regole basate sui dati di addestramento. Successivamente, l'insieme di regole viene ottimizzato iterativamente attraverso la funzione \textsc{OptimizeRuleSet}, che mira a migliorare la qualità delle regole riducendo l'errore e semplificando le regole stesse.
+
+\medskip
+
 \textit{Nota: \textsc{LearnRuleSet} e \textsc{OptimizeRuleSet} sono funzioni che implementano rispettivamente la fase di apprendimento delle regole e la fase di ottimizzazione del set di regole. Non sono dettagliate qui, ma si basano su tecniche di pruning e valutazione delle regole per migliorare la generalizzazione del modello.}
 
 \section{Alberi decisionali multivariati}

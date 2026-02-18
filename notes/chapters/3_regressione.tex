@@ -78,6 +78,22 @@ z\text{-scoring:}\quad x_j\leftarrow\frac{x_j-\mu_j}{\sigma_j},
 Le statistiche \((\mu_j,\sigma_j,x_j^{\min},x_j^{\max})\) si calcolano solo sul training e
 si riusano (senza ricalcolarle) su validation/test, per evitare data leakage.
 
+\paragraph{Osservazione sulla rappresentazione delle features.}
+Nel seguito indicheremo con $X$ la design matrix costruita a partire
+dalle osservazioni $x^{(i)}$. Qualora venga applicata una trasformazione $\Phi:\mathbb{R}^n \to \mathbb{R}^d$, si intende che
+
+\[
+X_{i\cdot} = \Phi(x^{(i)})^\top.
+\]
+
+Pertanto tutte le formule successive (predizioni, loss,
+gradiente e metriche di valutazione) mantengono la forma
+\[
+\hat y = X\vartheta,
+\]
+intendendo che $X$ possa già includere eventuali trasformazioni
+non lineari delle feature originali.
+
 \section{Algoritmo di discesa del gradiente}
 L'obiettivo è scegliere \(\vartheta\) che minimizza \(J(\vartheta)\) funzione di loss. La \emph{discesa del gradiente}
 è un metodo iterativo che aggiorna i parametri nella direzione di massima diminuzione di \(J\).

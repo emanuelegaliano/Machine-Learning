@@ -9,6 +9,7 @@ Le reti neurali, grazie alla loro capacità di gestire dati non lineari e molto 
 	\centering
 	\includegraphics[width=0.8\linewidth]{images/NeuralNet1pdf}
 	\caption{Un multilayer perceptron, ossia una particolare rete neurale.}
+	\label{fig:mlp_nn}
 \end{figure}
 
 Una rete neurale è una funzione matematica \textit{annidata} del tipo:
@@ -240,9 +241,94 @@ Usiamo come Loss function l'errore quadratico medio (MSE). Ogni output sarà un 
 
 \paragraph{Overfitting.} Le reti neurali più complesse, con tanti parametri, imparano meglio i dati in fase di training, minimizzando o addirittura azzerando la loss function. Il rischio è opposto: il modello diventa troppo specifico, e non riesce a generalizzare sui dati di testing, cadendo in overfitting. Diventa quindi necessario introdurre termini di regolarizzazione ($\lambda$) o cambiare modello. Modelli più vasti richiedono inoltre risorse computazionali più importanti.
 
+\section{Caso studio: MLP}
+Un MLP (Multi-Layer Perceptron) è una rete neurale feed-forward composta da più strati di neuroni, in cui ogni neurone di un layer è connesso a tutti i neuroni del layer successivo. Un esempio può essere visto in figura \ref{fig:mlp_nn}, in cui abbiamo un input layer, un hidden layer e un output layer. L’input layer riceve i dati in ingresso, l'hidden layer elabora le informazioni e l’output layer produce la predizione finale.
+
+\subsection{Definizione del modello}
+Consideriamo una rete neurale feed-forward completamente connessa, composta da un input layer, un hidden layer e un output layer. Indichiamo con $a^{(l)}$ il vettore delle attivazioni del layer $l$ e con $\Theta^{(l)}$ la matrice dei pesi che connette il layer $l-1$ al layer $l$. L’input della rete è $a^{(1)} = x$. Ogni neurone del layer successivo riceve in ingresso una combinazione lineare delle attivazioni del layer precedente; formalmente, per il generico layer $l$ definiamo
+
+\[
+z^{(l)} = a^{(l-1)} \Theta^{(l)},
+\]
+
+dove $z^{(l)}$ rappresenta il vettore delle combinazioni lineari. Il singolo neurone $j$ del layer $l$ è quindi dato da
+
+\[
+z_j^{(l)} = \sum_{i=1}^{n_{l-1}} a_i^{(l-1)} \theta_{i,j}^{(l)}.
+\]
+
+Applicando la funzione di attivazione $f$ elemento per elemento otteniamo
+
+\[
+a^{(l)} = f(z^{(l)}).
+\]
+
+Nel caso rappresentato in Figura~\ref{fig:mlp_nn}, ciascun neurone del layer nascosto riceve contributi da tutti i neuroni dell’input layer, mentre il neurone di output riceve contributi da tutte le unità del layer nascosto; la rete è quindi completamente connessa. L’output finale della rete è
+
+\[
+\hat{y} = a^{(L)}.
+\]
+
+\subsection{Funzione di costo}
+Nel caso di classificazione multiclasse utilizziamo la Cross-Entropy Loss
+
+\[
+J(\vartheta) = -\frac{1}{m} \sum_{i=1}^{m} \sum_{c=1}^{k} \mathbf{1}\{y^{(i)} = c\} \log\big(h_\vartheta^{(c)}(x^{(i)})\big),
+\]
+
+dove $h_\vartheta(x^{(i)}) = a^{(L)}$ rappresenta l’output della rete per l’esempio $i$-esimo. Nel caso di regressione utilizziamo invece l’errore quadratico medio
+
+\[
+J(\vartheta) = \frac{1}{2m} \sum_{i=1}^{m} \|\hat{y}^{(i)} - y^{(i)}\|^2.
+\]
+
+L’obiettivo del training è determinare
+
+\[
+\hat{\vartheta} = \arg\min_{\vartheta} J(\vartheta).
+\]
+
+\subsection{Backpropagation}
+Poiché la rete neurale è una composizione di funzioni, il calcolo dei gradienti avviene tramite la chain rule. Definiamo il termine di errore del layer $l$ come
+
+\[
+\delta^{(l)} = \frac{\partial J}{\partial z^{(l)}}.
+\]
+
+Per l’output layer si ottiene
+
+\[
+\delta^{(L)} = a^{(L)} - y.
+\]
+
+Per un generico layer interno vale invece
+
+\[
+\delta^{(l)} = \left( \delta^{(l+1)} (\Theta^{(l+1)})^\top \right) \odot f'(z^{(l)}),
+\]
+
+dove $\odot$ indica il prodotto elemento per elemento. Il gradiente rispetto ai pesi del layer $l$ risulta
+
+\[
+\frac{\partial J}{\partial \Theta^{(l)}} = (a^{(l-1)})^\top \delta^{(l)}.
+\]
+
+\subsection{Aggiornamento dei parametri}
+Una volta calcolati i gradienti, i parametri vengono aggiornati tramite discesa del gradiente secondo la regola
+
+\[
+\Theta^{(l)} \leftarrow \Theta^{(l)} - \alpha \frac{\partial J}{\partial \Theta^{(l)}},
+\]
+
+dove $\alpha > 0$ rappresenta il learning rate. Il processo viene ripetuto iterativamente fino alla convergenza, ossia fino a quando la funzione di costo non varia in modo significativo oppure viene raggiunto un numero massimo di iterazioni.
+
+\subsection*{Interpretazione}
+Un MLP realizza una sequenza di trasformazioni lineari seguite da funzioni di attivazione non lineari. Le trasformazioni lineari combinano le informazioni provenienti dal layer precedente, mentre le non linearità permettono alla rete di rappresentare funzioni complesse e di modellare relazioni non lineari tra input e output. Il training consiste nella regolazione iterativa dei pesi $\Theta^{(l)}$ in modo da minimizzare la funzione di costo; grazie alla composizione di più layer, la rete è in grado di apprendere rappresentazioni interne progressivamente più astratte dei dati in ingresso.
+
 \section*{Riferimenti}
 I riferimenti per questo capitolo includono:
 \begin{itemize}
 	\item Materiale visto a lezione.
-	\item Teorema di approssimazione universale per le reti neurali \ref{sec:teorema_approssimazione_universale} dal libro \citetitle{Goodfellow-et-al-2016} \cite{Goodfellow-et-al-2016}, sezione 6.4.1
+	\item Teorema di approssimazione universale per le reti neurali \ref{sec:teorema_approssimazione_universale} dal libro \citetitle{Goodfellow-et-al-2016} \cite{Goodfellow-et-al-2016}, sezione 6.4.1.
+	\item Caso studio MLP scritto da Paolo Volpini, \url{https://github.com/paolovolpini}.
 \end{itemize}

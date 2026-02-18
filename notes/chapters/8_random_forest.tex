@@ -6,7 +6,7 @@ Un meta-algoritmo, nel contesto del machine learning, rappresenta un modo di com
 	\item[Tree hierarchy.] - Definita come una gerarchia di domande (\textit{weak learner}). Ogni nodo è un modello. La struttura ad albero permette di spezzare lo spazio delle features in varie regioni. I decision tree classici rappresentano un caso particolare di questo meta-algoritmo. È una struttura facile da interpretare (\textit{if-then-else}). Un albero decisionale è una particolare istanza di questo.
 	\item[Bagging (Bootstrap Aggregating).] -  Migliora i modelli di classificazione, in termini di stabilità e precisione. Riduce la varianza e permette di evitare l'overfitting.
 	Dato un traning set $I$ di dimensione $n$, il bagging genera $m$ nuovi training set $I_i$, ognuno di essi di dimensione $n' < n$, campionando esempi da $I$\footnote{Potrebbe ricordare la $k$-fold validation. Tuttavia, se il bagging  è un metodo per ridurre l'overfitting, la cross validation viene utilizzata per stimare l'accuratezza del modello fuori dal campione di training.}. Ciascuno dei sotto-training set allena un modello differente. L'output complessivo è una media o una votazione.
-	\item[Boosting.] - Gli algoritmi di boosting consistono nell'allenare iterativamente dei classificatori deboli secondo una distribuzione. Questi vengono poi aggiungi al classificatore complessivo in maniera pesata (\textit{"quanto conta questo classificatore nella valutazione complessiva?"}). Il peso è solitamente proporzionale all'accuracy del singolo modello.
+	\item[Boosting.] - Gli algoritmi di boosting combinano più modelli deboli per creare un modello forte. A differenza del bagging, il boosting costruisce i modelli in modo sequenziale, dove ogni modello successivo cerca di correggere gli errori del modello precedente.
 \end{description}
 
 \bigskip
@@ -28,24 +28,183 @@ Trattiamo questi meta-algoritmi, in quanto permettono di ottenere dei modelli st
 Applichiamo la \textbf{tree hierarchy} sui nostri decision stump, ottenendo una gerarchia di decisioni. Tramite una serie di domande di tipo "yes/no", o varie sogliature, diventa possibile classificare categorie sempre più specifiche. Ogni coppia di risultati di un nodo di un decision tree, è detta \textit{split}. La profondità (direttamente proporzionale al numero di split), definisce la complessità del modello. Alberi decisionali troppo profondi rischiado di cadere in overfitting.
 
 \section{Random Ferns}
-Applicando il bagging sullo stump, otteniamo i random ferns. Queste hanno riscontrato molte applicazioni in task di object detection, tramite previa suddivisione delle immagini in \textit{patches}. La semplicità dei singoli fern offre possibilità di parallelizzazione banale. In particolar modo, i modelli di obbject detection riprendono le intuizioni dietro i classificatori bayesiani\footnote{Un classificatore bayesiano è un classificatore basato sull'applicazione del teorema di Bayes. Il classificatore bayesiano richiede la conoscenza delle probabilità a priori e condizionali relative al problema, quantità che in generale non sono note ma sono tipicamente stimabili.}.
+
+Le \textbf{Random Ferns} sono un metodo di classificazione progettato per il riconoscimento di patch locali attorno a keypoint, con l’obiettivo di ottenere un sistema estremamente veloce, scalabile e adatto al real-time.
+
+L’idea di fondo è riformulare il problema del matching tra keypoint come un problema di classificazione probabilistica. 
+Ogni keypoint stabile osservato in fase di training viene considerato come una classe $c_i$. 
+Data una nuova patch $x$, vogliamo assegnarla alla classe più probabile:
+
+\[
+\hat{c} = \arg\max_{c_i} P(C = c_i \mid f_1, \dots, f_N)
+\]
+
+dove $f_1, \dots, f_N$ sono feature binarie calcolate sulla patch.
+
+\subsection{Feature binarie}
+
+Le feature utilizzate sono estremamente semplici: ciascuna consiste in un confronto tra l’intensità di due pixel della patch:
+
+\[
+f_j =
+\begin{cases}
+1 & \text{se } I(d_{j,1}) < I(d_{j,2}) \\
+0 & \text{altrimenti}
+\end{cases}
+\]
+
+Queste feature sono scelte casualmente e in numero elevato ($N$ può essere dell’ordine di alcune centinaia). 
+La discriminatività non deriva dalla singola feature, ma dall’aggregazione di molte di esse.
+
+\subsection{Formulazione probabilistica}
+
+Applicando il teorema di Bayes:
+
+\[
+P(C = c_i \mid f_1, \dots, f_N)
+=
+\frac{
+P(f_1, \dots, f_N \mid C = c_i)\, P(C = c_i)
+}{
+P(f_1, \dots, f_N)
+}
+\]
+
+Assumendo prior uniformi sulle classi e ignorando il denominatore (comune a tutte), la decisione si riduce a:
+
+\[
+\hat{c} = \arg\max_{c_i} P(f_1, \dots, f_N \mid C = c_i)
+\]
+
+Il problema è che modellare la distribuzione congiunta completa richiederebbe stimare $2^N$ configurazioni per classe, il che è costoso per $N$ grande.
+
+\subsection{Approccio Semi-Naive Bayes}
+
+Per rendere il problema trattabile si introduce un compromesso tra indipendenza totale e modellazione completa.
+
+Le $N$ feature vengono suddivise in $M$ gruppi (detti \emph{ferns}), ciascuno di dimensione $S$:
+
+\[
+F_k = \{ f_{\sigma(k,1)}, \dots, f_{\sigma(k,S)} \}
+\]
+
+Si assume indipendenza tra gruppi diversi, ma si modella la distribuzione congiunta completa all’interno di ciascun gruppo:
+
+\[
+P(f_1, \dots, f_N \mid C=c_i)
+=
+\prod_{k=1}^{M}
+P(F_k \mid C=c_i)
+\]
+
+Ogni fern può assumere $2^S$ configurazioni binarie. 
+Il numero di parametri per classe diventa quindi:
+
+\[
+M \cdot 2^S
+\]
+
+che è gestibile per valori tipici come $S \approx 10$–$11$ e $M$ dell’ordine di alcune decine.
+
+\subsection{Stima delle probabilità}
+
+Durante il training si stimano le probabilità
+
+\[
+P(F_k = r \mid C=c_i)
+\]
+
+tramite conteggi sulle patch di training (spesso generate applicando trasformazioni affini casuali per aumentare la robustezza).
+
+Per evitare probabilità nulle si utilizza una regolarizzazione di tipo additivo:
+
+\[
+P(F_k = r \mid C=c_i)
+=
+\frac{N_{r,c_i} + \alpha}
+     {N_{c_i} + 2^S \alpha}
+\]
+
+dove $\alpha > 0$ è un parametro di smoothing.
 
 \section{Random Tree}
-Un random tree è un decision tree costruito con dei parametri scelti da un insieme di proposte casuali. Per ogni nodo, un set di linee viene valutato, e il rispettivo parametro viene fissato nel modello. L'obiettivo a ogni passo è massimizzare l'informazione ottenuta.
 
-\subsection{Randomized learning}
-Si utilizza un algoritmo ricorsivo. 
+Un \textbf{Random Tree} è una variante del classico decision tree in cui la costruzione dell’albero non avviene in modo completamente deterministico, ma introduce una componente di casualità nella scelta degli split. 
 
+Negli alberi decisionali standard, per ogni nodo si valutano sistematicamente tutte le possibili feature (e spesso tutte le possibili soglie) selezionando quella che massimizza la riduzione dell’impurità. In un random tree, invece, non si esplora l’intero spazio delle possibilità: si genera un insieme limitato di proposte casuali e si sceglie la migliore tra queste.
 
-$$
-\text{Left split: } I_1 = \{i \in I_n | f(v_i) < t\} \qquad \text{Right split: } I_r =  I_n \setminus I_1
-$$
+In particolare, ad ogni nodo:
+\begin{itemize}
+    \item si seleziona casualmente un sottoinsieme di feature candidate;
+    \item per ciascuna feature si generano una o più soglie casuali;
+    \item si valuta un criterio di qualità solo su queste proposte;
+    \item si sceglie lo split che produce il miglior miglioramento secondo il criterio adottato.
+\end{itemize}
 
-con $t$ soglia, treshold scelta dal range del minimo e del massimo di $f(v_i)$. L'obiettivo è ottenere il massimo guadagno di informazione, ossia
+La struttura dell’albero rimane quella di un decision tree classico, ma la procedura di costruzione è randomizzata. Questo rende il modello meno sensibile a piccole variazioni dei dati e particolarmente adatto a essere utilizzato all’interno di metodi ensemble come le Random Forest.
 
-$$
-\Delta E = -\frac{|I_l|}{|I_n|}E(I_1) -\frac{|I_r|}{|I_n|}E(I_r)
-$$
+\subsection{Randomized Learning}
+
+La costruzione del random tree avviene in modo ricorsivo. 
+
+Dato un nodo associato a un insieme di indici $I_n$ (cioè i campioni che raggiungono quel nodo), si considera uno split basato su una funzione $f$ applicata ai vettori di feature $v_i$. Lo split è definito da una soglia $t$:
+
+\[
+I_l = \{ i \in I_n \mid f(v_i) < t \}
+\qquad
+I_r = I_n \setminus I_l
+\]
+
+dove:
+\begin{itemize}
+    \item $v_i$ è il vettore delle feature del campione $i$,
+    \item $f$ è una feature candidata,
+    \item $t$ è una soglia scelta casualmente nell’intervallo compreso tra il valore minimo e massimo assunto da $f(v_i)$ nel nodo corrente.
+\end{itemize}
+
+Lo scopo è suddividere i dati in due sottoinsiemi il più possibile omogenei rispetto alla variabile target.
+
+\subsection{Guadagno di informazione}
+
+Per valutare la qualità di uno split si utilizza una misura di impurità, indicata con $E(I)$ (come per esempio l'entropia). Il criterio di scelta si basa sulla riduzione di impurità, ossia sul \textbf{guadagno di informazione}:
+
+\[
+\Delta E
+=
+E(I_n)
+-
+\frac{|I_l|}{|I_n|} E(I_l)
+-
+\frac{|I_r|}{|I_n|} E(I_r)
+\]
+
+Questa quantità misura quanto l’incertezza nel nodo padre viene ridotta dallo split. Lo split selezionato è quello che massimizza $\Delta E$ tra le proposte generate casualmente.
+
+Il processo viene poi applicato ricorsivamente ai nodi figli fino a quando si soddisfa un criterio di arresto (profondità massima, numero minimo di campioni, purezza del nodo, ecc.).
+
+\subsection{Ruolo della casualità}
+Un singolo decision tree è un modello ad alta varianza: piccole variazioni nei dati possono produrre alberi molto diversi. La randomizzazione:
+
+\begin{itemize}
+    \item riduce la correlazione tra alberi diversi;
+    \item aumenta la diversità nei modelli;
+    \item migliora la robustezza quando più alberi vengono combinati;
+    \item riduce il rischio di overfitting.
+\end{itemize}
+
+Per questo motivo i random trees vengono spesso utilizzati come componenti di metodi ensemble, dove più alberi vengono addestrati su dati o feature diverse e le loro predizioni vengono aggregate (media o voto).
+
+\subsection{Randomized Learning}
+
+Il concetto di \textbf{randomized learning} consiste proprio nell’introdurre casualità controllata durante l’apprendimento per ottenere modelli meno correlati e più stabili quando combinati. Nel contesto del riconoscimento di immagini, la randomizzazione può riguardare:
+\begin{itemize}
+    \item la scelta delle feature;
+    \item la scelta delle soglie;
+    \item la struttura dell’albero;
+    \item oppure la suddivisione dei dati (come nel bagging).
+\end{itemize}
+
+L’idea generale è che un singolo modello casuale possa essere debole o instabile, ma la combinazione di molti modelli randomizzati produce un sistema complessivamente più robusto ed efficace.
 
 \section{Random forest}
 Le random forest nascono dall'unione delle intuizioni relative al bagging e alla tree hierarchy. Si basano sulla combinazione di output di più decision trees (spesso random trees) per ottenere un unico risultato. La loro facilità d'uso e la  flessibilità ne hanno favorito l'adozione, e possono essere usate sia su task di classificazione che di regressione.  Offrono un ottimo grado di \textbf{precisione}, \textbf{cadono meno facilmente in overfitting} e sono assolutamente \textbf{multi-core friendly}.
@@ -61,7 +220,9 @@ $$
 \frac{1}{T} \sum_{t=1}^{T}P_t(c|v)
 $$
 
-
-
-
-
+\section*{Riferimenti}
+I riferimenti per questo capitolo includono:
+\begin{itemize}
+	\item Materiale visto a lezione.
+	\item Random Ferns dal paper \citetitle{Ozuysal2008RandomFerns} \cite{Ozuysal2008RandomFerns}.
+\end{itemize}
