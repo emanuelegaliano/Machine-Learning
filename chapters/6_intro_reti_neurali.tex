@@ -18,10 +18,10 @@ $$
 f_n(f_{n-1}(\dots (f_1(x))))
 $$
 
-dove $n$ coincide col numero di strati, o \textit{layer}. Questa rete neurale ritorna uno scalare $y$.  Una rete neurale è quindi ottenuta da una \textbf{composizione di funzioni derivabili}. Le funzioni sono dette \textbf{funzioni di attivazione}, e andremo a vederne presto alcuni esempi. Ogni funzione $f_i$ è detta \textbf{layer} che è composto da un certo numero di \textbf{neuroni}, o unità, che sono a loro volta composti da:
+dove $n$ coincide col numero di strati, o \textit{layer}. Nel caso più semplice questa rete neurale ritorna uno scalare $y \in \mathbb{R}$; in generale l'output è un vettore $y \in \mathbb{R}^k$. Una rete neurale è quindi ottenuta da una \textbf{composizione di funzioni derivabili}. Ogni funzione $f_i$ è detta \textbf{layer}, e andremo a vederne presto alcuni esempi. Ogni layer è composto da un certo numero di \textbf{neuroni}, o unità, che sono a loro volta composti da:
 \begin{itemize}
-	\item Una trasformazione lineare $z = W x + b$, in cui $W$ è la matrice dei pesi, $b$ è il bias, e $x$ è l'input del layer. Il numero di neuroni di un layer determina il numero di righe della matrice dei pesi $W$.
-	\item Una funzione di attivazione $a = \sigma(z)$, che introduce non linearità nella rete. La funzione di attivazione viene applicata elemento per elemento al vettore $z$.
+	\item Una trasformazione affine $z = W x + b$, in cui $W$ è la matrice dei pesi, $b$ è il vettore di bias, e $x$ è l'input del layer. Il numero di neuroni di un layer determina il numero di righe della matrice dei pesi $W$.
+	\item Una \textbf{funzione di attivazione} $a = \sigma(z)$, che introduce non linearità nella rete. La funzione di attivazione viene applicata elemento per elemento (\textit{element-wise}) al vettore $z$.
 \end{itemize}
 
 I neuroni di un layer sono connessi a quelli del layer successivo tramite i pesi $W$ e i bias $b$. La rete neurale è quindi una struttura a strati, in cui ogni strato trasforma l'input ricevuto dal precedente e lo passa al successivo, fino a raggiungere l'output finale.
